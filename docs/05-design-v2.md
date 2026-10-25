@@ -61,3 +61,30 @@ S3 パスワード検証(bcrypt/phpass)の CPU 時間をローカル計測し Wo
 - 前提(要一次確認): Workers無料はCPU時間が1リクエスト約10ms、D1無料は容量・日次読書き行数に上限、R2無料枠あり。上限値はPhase1で公式資料と実測で確定する。
 - 影響: (a) bcrypt等の重いハッシュ検証をWorkers無料のCPU枠で行うのは困難な可能性大 → 認証は「ログイン時のみ・低コスト方式(WebCrypto PBKDF2等)へ事前移行」「WP旧ハッシュは移行時にパスワードリセット誘導」を第一案とし、実測で決定。(b) SSRは重いため**公開ページは原則ビルド時静的生成+Cloudflare Pages配信**、動的処理は認証/管理/APIに限定。(c) **Tier C(php-wasm)は無料枠では事実上不成立の公算が大きく、既定で「採用しない」**。スパイクで反証できた場合のみ再検討。(d) 画像リサイズは有料のCloudflare Imagesを使わず、取込/ビルド時に生成。(e) S3はadapter+互換テストのみ。実環境への公開はR2(無料枠)を既定とする。
 - B1との整合: 静的生成中心にすると、private化時の失効はPagesの再デプロイ(または該当ページ除去)が必要。小規模サイトでは「公開→private」時に該当パスを即時404にするWorker(軽量ルート判定)をPagesの前段に置く案を検討(Pages Functionsの無料枠要確認)。
+
+## 11. v2.1 修正 (STEP2 再レビュー No-Go #1 への対応。§1,2,6,9 より優先)
+### 11.1 B1: 配信前ゲート (fail-closed)
+- **全ての本文応答はゲートWorkerを通る。キャッシュ/静的資産の読出しはゲートが許可した後にのみ行う**(Pages静的ファイルへ直接到達できる経路を作らない。Pagesはゲート経由のService Bindingまたは非公開オリジンのみ)。
+- ゲート: `path→post_id` と `visibility_epoch`・`status` を D1 の単一インデックス読みで取得し `canView` 判定。D1エラー/タイムアウト時は **404/503 (fail-closed)**。キャッシュ(CDN/Next)のキーには必ず `epoch` を含める(URLクエリではなく内部キー)ため、purge失敗でも旧epochのキャッシュは参照されない。
+- **書込み順序**(単一トランザクション): ①`status`変更+`epoch`+1 をD1にコミット → ②revalidate/purge をジョブ投入(失敗は再試行、結果はベストエフォート)。①完了後のゲートは旧epochキャッシュにヒットしない。再生成が旧epochで走っても、保存キーが旧epochなので新epochの要求には使われない(競合安全)。
+- 予算(無料枠): ゲートの D1 読み1回/リクエスト。Workers無料のリクエスト数/日とD1読取行数/日を Phase1 で公式値確認し、超過時は **「公開ページはepochを短TTL(<=60s)のメモリ/KVキャッシュで確認」へ縮退** (この場合、保証は「最大TTL秒の遅延」と明記し、遅延を許容できないprivate化は管理画面で『即時遮断』操作=KV強制ブロックリスト書込み(Worker無料のKV書込み枠内)を提供)。
+- 保証範囲(要件に明記): 「private化後60秒以内にサーバー側配信が遮断される」。**ブラウザHTTPキャッシュ・SW・オフライン保存済みの本文、既にコピーされた内容は保証対象外**。
+
+### 11.2 SW (Cookie判定の撤回)
+- SWはCookieを読めない前提とする。サーバーが全応答に `X-WPN-Class: public-anon | private` を付与。**SWは `public-anon` と明示された応答のみ保存**(それ以外・ヘッダ欠落・Vary: Cookie/`Cache-Control: private|no-store` はバイパス)。保存エントリに `epoch` と取得時刻を持たせ、ナビゲーション時にオンラインなら `/wp-json/wpn/v1/epochs?ids=` で検証し不一致は破棄。**検証不能(オフライン)時は、保存済み public-anon を『古い可能性あり』表示付きで表示可**(オフライン閲覧要件との折衷。privateだったものは保存されていないため漏洩しない)。ログアウト/権限変更で全消去。
+
+### 11.3 B2: メディア認可 = 全親のAND
+- 関連表 `media_parents(attachment_id, parent_post_id)` を新設(取込時に post_parent と本文内参照・featured image から構築、親変更/削除時に再計算)。
+- 配信条件: 全親について `canView(actor, parent)` が真(AND)。password親が複数異なる場合は全パスワードの解除が必要→UI上は事実上不可なので、**異なるpassword親を持つ共有メディアは管理者のみ閲覧可+警告**。親なしは attachment 自身の `visibility` 列(既定 private)。管理者の明示上書きは監査ログに記録。
+
+### 11.4 M1/M6: スパイク合格条件の再定義
+- ローカルNode+SQLiteの結果は「論理検証」とし、Workers適合性の合格には使わない。**実Cloudflare無料アカウントのstaging**(ADR-007/008範囲内)で OpenNext SSR + D1 + R2 を実測し、CPU(無料の上限は公式値を確認)、メモリ、D1読取行数/日、リクエスト/日の予算表を作る。無料枠で成立しなければ「採否保留」にして**ユーザーに相談**(有料は要相談 ADR-008)。
+- 認証ハッシュの比較基準は無料枠のCPU上限(約10ms級、要公式確認)。「30ms」の記述は撤回(Paid既定はCPU 30秒)。argon2id/scrypt は実測し、無理ならWebCrypto PBKDF2 を第一候補とし、WP旧ハッシュは初回ログイン時にリセット誘導。
+
+### 11.5 M4: 差分同期・切替の安全性
+- 差分検出: `modified_gmt` に加え **テーブル別チェックサム**(行ID範囲ごとのハッシュ: posts/postmeta/terms/termmeta/term_*/users/usermeta/comments/commentmeta/options)を比較。meta/options/usermetaの変更も検出。
+- 削除: ソースに存在しない行は `pending_deletions` に記録。**未処理の削除が残る間は切替(cutover)をブロック**。管理者が承認(削除 or 保持)して初めて解除。
+- 切替手順: (1)旧WPを読み取り専用化(メンテモード) → (2)最終同期 → (3)件数/ハッシュ/URL一覧の検証 → (4)DNS/ルート切替。**切戻し可能期間は新側の書込みを禁止(read-only)** し、書込みを許可した時点を「戻れない点(point of no return)」として管理画面で明示。以後の巻き戻しは逆移送(新→WPのWXR/SQLエクスポート)に限る。
+
+### 11.6 参照渡し
+- WPの参照引数(`do_action_ref_array` 等)によるin-place変更は**非対応**と明記。SDKのfilterは「値を受け取り新しい値を返す」形のみ。参照引数を必要とするプラグインは Tier X 扱い(analyzerで検出)。
