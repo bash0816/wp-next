@@ -29,7 +29,7 @@
 
 ## 5. 認証・認可 (M3)
 - 認証: セッション Cookie(HttpOnly, Secure, SameSite=Lax, 署名付きランダム ID を D1 に保持、失効可能)。CSRF は state-changing に double-submit token+Origin 検証。
-- パスワード検証: `$wp$2y$`(WP6.8+ bcrypt+HMAC-SHA384 前処理)・`$P$`(phpass)・`$2y$`・旧 MD5 を判別して検証。成功時に新方式(scrypt/argon2id、Workers 上で CPU 予算内の実装を Phase1 で実測)へ再ハッシュ。Workers CPU 上限で bcrypt が不可の場合のフォールバック(検証専用の別 Worker/ログイン時のみ有料枠)を ADR 化。
+- パスワード検証: `$wp$2y$`(WP6.8+ bcrypt+HMAC-SHA384 前処理)・`$P$`(phpass)・`$2y$`・旧 MD5 を判別して検証。成功時に新方式(scrypt/argon2id、Workers 上で CPU 予算内の実装を Phase1 で実測)へ再ハッシュ。Workers CPU 上限で bcrypt が不可の場合のフォールバック(検証専用の別 Worker/ログイン時のみ有料枠 ← ADR-008により撤回。無料枠で不可なら相談)を ADR 化。
 - 認可: capabilities(read_private_posts, edit_posts, edit_others_posts, manage_options 等)を WP の role→cap 表から移植。`canView` は閲覧、`can(actor, cap, obj)` は操作。password 保護は署名付き一時 Cookie(投稿単位、期限・epoch 連動)。
 - REST: 公開フィールドをスキーマで列挙(allowlist)。ユーザー情報(email 等)は既定非公開。
 
@@ -88,3 +88,9 @@ S3 パスワード検証(bcrypt/phpass)の CPU 時間をローカル計測し Wo
 
 ### 11.6 参照渡し
 - WPの参照引数(`do_action_ref_array` 等)によるin-place変更は**非対応**と明記。SDKのfilterは「値を受け取り新しい値を返す」形のみ。参照引数を必要とするプラグインは Tier X 扱い(analyzerで検出)。
+
+## 12. v2.2 修正 (再々レビュー No-Go #2 への対応。§11 より優先)
+- **KV は認可に使わない**(伝播遅延・負キャッシュのため即時遮断を保証できない)。§11.1 の「KV強制ブロックリスト」「epoch短TTLキャッシュ」案は撤回。認可は **D1 プライマリ読取のみ**。D1 無料枠不足・エラー時は **404/503 で閉じる(fail-closed)**。無料枠で毎リクエストD1読取が成立しない規模のサイトは、対象外とするか有料相談(ADR-008)。D1 読取は1リクエスト1回の単一インデックス読みに限定し、Phase1 で行数/日の予算を実測。
+- **複数投稿を含む応答(一覧/アーカイブ/RSS/sitemap/検索/タクソノミー/REST一覧)のキーはサイト共通 `site_generation` を含める**。可視性に影響する変更(status/password/権限/メディア親/term公開設定/削除)は、対象投稿の `epoch`+1 と `site_generation`+1 を**同一D1トランザクション**で更新。ゲートは `site_generation` と投稿 `epoch` を同一クエリで取得し、キーに両方を含める。単一投稿ページのキーは `epoch` のみ+`site_generation` は含めない(一覧の更新で全記事が再生成されるのを避ける。ただし下位互換のため、公開投稿の本文キャッシュは `epoch` で十分)。一覧系は `site_generation` 変更で一斉無効化(許容)。
+- **配信方式の確定**: Cloudflare **Workers Static Assets**(`run_worker_first = true`)で、静的アセットを含む全リクエストを先にWorkerへ。Pages(pages.dev)は本番配信に使わない(迂回経路排除)。受入試験: workers.dev/プレビューURL/旧デプロイ版/直接アセットパスからprivate化済み本文が取得できないこと。workers.dev とプレビューURLは公開ドメイン以外では無効化(設定で無効化し、有効なら全て同一ゲートを通す)。
+- §1 の「SSG+Cloudflare Pages配信」は上記Workers Static Assets+ゲートに読み替える。
