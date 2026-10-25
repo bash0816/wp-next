@@ -3,3 +3,5 @@
 - ADR-002 (2026-10-25) ハイブリッド方式(SDK主、php-wasm補助)。ユーザー回答の「WASM」と「SDK先行」を統合
 - ADR-003 (2026-10-25) repoはpublic wp-next + private wp-next-private
 - ADR-004 (2026-10-25) 移植対象プラグインは「移しやすいもの」から着手(ユーザー指示)。難物(WooCommerce等・独自テーブル多用・PHP拡張依存)は後回し/対象外
+- ADR-005 (2026-10-25) STEP2レビューNo-Go(Blocker3)。設計v2として docs/04-step2-review.md の対応方針を採用。Phase1を成立性スパイクに変更
+- ADR-006 (2026-10-25) プラグイン信頼モデル: 監査済みコードのみ実行。Tier Cは別境界+権限制限RPC
