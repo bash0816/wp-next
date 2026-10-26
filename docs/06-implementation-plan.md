@@ -16,7 +16,9 @@ pnpm monorepo / TypeScript strict / Vitest / Drizzle ORM(SQLite方言、D1・bet
 | S1 | schema(WP同形+media_parents+auth_version+usage_counter)、`canView`、可視行のみ返すクエリ | 単体: status×actor×password 全組合せ表テスト。SQLで private 行が結果に出ない |
 | S2 | ゲート付きルート(HTML/RSC/_next/data/RSS/sitemap/検索/REST)と許可リスト静的配信 | 統合: private化直後の全経路404、許可リスト外パス404、workers.dev相当の直アクセス不可 |
 | S3 | 非公開メディア配信(全親AND、`inherit`、派生) | 統合: 親が1つprivateなら404、親変更で再判定 |
-| S4 | 認証: WPハッシュ(`$wp$2y$`,`$P$`,`$2y$`,MD5)検証と再ハッシュ、セッション、CSRF | 既知ベクタ(WP公式のハッシュ例)で検証Green。CPU時間をローカル計測(ms) |
+| S4 | 認証(ローカルCPU計測のみでは合格にしない。実Workers実測は S5'): WPハッシュ(`$wp$2y$`,`$P$`,`$2y$`,MD5)検証と再ハッシュ、セッション、CSRF | 既知ベクタ(WP公式のハッシュ例)で検証Green。CPU時間をローカル計測(ms) |
+| S4b | **ビルド成果物検査**(§14): 静的出力(JS/RSC/.txt/_next/data/検索インデックス)に本文・非公開タイトル/抜粋が混入していないかを走査 | 本文を意図的に混入した成果物でRed、除去でGreen。許可リスト外ファイルがあればビルド失敗 |
+| S5' | **最小縦断の実測を先行**(S5より前): S1-S3+ログイン経路(検証・再ハッシュ)を実Workers無料でCPU実測 | 不成立ならリセット誘導等の代替を検証、無理なら相談 |
 | S5 | php-wasm最小実験(wpdb同期→事前ロード) | 実験レポート。撤退条件(§3 Tier C)判定。無料枠ではTier C既定不採用のため**1日以内で打切り** |
 | S6 | 実Cloudflare無料アカウントstaging(ADR-007範囲)で SSR+D1+R2 の CPU/メモリ/D1行数を実測 | 予算表。**無料枠で不成立なら作業停止しユーザー相談** |
 | S7 | ADR化・Phase1完了レビュー(STEP8/9相当) | Go判定 |
@@ -36,3 +38,11 @@ core(hooks/filters/capabilities/options/shortcode)、serialize往復、importer(
 
 ## 6. 完了定義(Phase1)
 S1-S4,S7 の全テストGreen、S6の実測結果が無料枠内、漏洩回帰スイートGreen、ADR更新、STEP8/9レビューGo。
+
+## 7. STEP3レビュー(GPT-6.1-sol)で追加した条件 (Go with conditions, 2026-10-26)
+無料staging(S5'/S6)の実行**前**に下記が成立していること。Phase1完了判定までに全件解消。
+1. **予算ガードの原子性**: 操作「前」に永続・原子的な予算予約(D1の条件付きUPDATE `used+n<=limit`)を行い、失敗/未計上なら操作を拒否(fail-closed)。「100操作ごとフラッシュ」は廃止。テスト: 並行実行、再起動、閾値境界(80%警告/95%停止)、計上失敗時の停止。
+2. **ガード対象の拡張**: R2(操作区分別 A/B 予算+容量80%上限+バックアップ保持N世代)、D1(読取行数/書込行数/日)、Workers(リクエスト数/日)。各に計測単位・警告・停止条件・出典URLを定数ファイルへ(値はPhase1で公式一次確認)。
+3. **認証の実測合格条件**: ログイン(検証+再ハッシュ)を実Workers無料でCPU計測。不成立時の代替(リセット誘導/PBKDF2)を検証。
+4. **ビルド成果物検査**: S4b(上表)。
+5. **auth_version**: 本文/パスワード/status変更と `auth_version`+1 は同一トランザクション。テスト: status往復後の旧Cookie拒否、期限切れ、改ざん、パスワード変更後。
