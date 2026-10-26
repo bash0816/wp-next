@@ -14,3 +14,4 @@
 - ADR-012 (2026-10-26) lintの`no-direct-post-status`許可に `packages/db/src/visiblePosts.ts` を追加(SQLのWHERE句に必須。canView.tsと対で変更する規則をファイル先頭コメントに明記)。教訓: 委任仕様の「null/''」のうち''をHaiku実装が落とした。仕様の境界値は委任テストに明示的に含めさせる
 - ADR-013 (2026-10-26) 予算ガード実装(packages/storage)。R2ストレージ予算は期間キーでなく `total` 累積(保存量は月をまたぐため。Haiku実装の月次リセットは過少計上になるのを自己レビューで修正)。D1用BudgetStore(非同期・条件付きUPDATE)とD1/Workers日次予算の適用は未実装 → 無料staging(S5')前に必須。Haikuはこの委任で autocompact thrashing(5.5)により途中停止したが成果物は完成状態だった(再現: 大きめの委任)
 - ADR-014 (2026-10-26) D1BudgetStore実装(D1Likeサブセットで実D1に未接続=並行性・2文の実挙動は実D1で未検証)。**既知リスク**: 予約1回ごとにUPDATEが1行書込 → D1無料枠の書込10万行/日を予算ガード自身が消費する。対策案(実装前にSTEP2/3相当で確認): ブロック予約(例100単位でD1から予約し、プロセス内で払い出す。未使用分は失効=安全側過大計上)。実D1接続前に仕様化する
+- ADR-015 (2026-10-27) S2 ゲート実装(packages/gate、Web標準Request/Response、既定拒否、本文はエスケープ出力、動的応答はno-store/X-WPN-Class:private固定)。Haiku(5.5)は大きい委任でthrashing→「テスト作成」と「実装のみ(テスト丸読み禁止・出力tail)」に分割して成功。教訓: テスト+実装を1委任にせず、テストを読ませずに仕様を文章で渡す。既知の弱点: StaticAsset.bodyのBodyInit型キャスト(respond.ts)
