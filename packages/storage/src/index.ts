@@ -7,6 +7,7 @@ export {
   type BudgetStore,
 } from './budget.js';
 export { SqliteBudgetStore } from './sqliteBudgetStore.js';
+export { D1BudgetStore, type D1Like } from './d1BudgetStore.js';
 export {
   GuardedObjectStore,
   R2_BUDGET_SPECS,
