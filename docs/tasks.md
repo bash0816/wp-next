@@ -4,5 +4,5 @@
 - [ ] S2 ゲート付きルート/許可リスト静的配信
 - [ ] S3 非公開メディア(全親AND)
 - [ ] S4 認証(ハッシュ検証/セッション/CSRF) / S4b ビルド成果物検査
-- [ ] 予算ガード(原子的予約) ※無料staging前に必須
+- [x] 予算ガード(原子的予約): BudgetGuard+SqliteBudgetStore+GuardedObjectStore。135件Green。mutation(常にtrue)で9件Red。D1用BudgetStore実装は未(S5'前に要)。ストレージは月次リセットしない累積キー(2026-10-26)
 - [ ] S5' 実Workers最小縦断実測 → S5 php-wasm → S6 → S7

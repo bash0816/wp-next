@@ -12,3 +12,4 @@
 - ADR-010 (2026-10-26) STEP3 Go(条件付き、GPT-6.1-sol)。条件は docs/06-implementation-plan.md §7。次: Phase1 S0着手。無料stagingの実行前に予算ガード成立が必須
 - ADR-011 (2026-10-26) TypeScript は 6.0.3 に固定。TS 7 はネイティブバイナリ配布でTermux(android-arm64)向けが無く `tsc` が動かない(F7で実測)。他環境のCIで7へ上げる場合はTermux開発と両立させる方針を別途決める
 - ADR-012 (2026-10-26) lintの`no-direct-post-status`許可に `packages/db/src/visiblePosts.ts` を追加(SQLのWHERE句に必須。canView.tsと対で変更する規則をファイル先頭コメントに明記)。教訓: 委任仕様の「null/''」のうち''をHaiku実装が落とした。仕様の境界値は委任テストに明示的に含めさせる
+- ADR-013 (2026-10-26) 予算ガード実装(packages/storage)。R2ストレージ予算は期間キーでなく `total` 累積(保存量は月をまたぐため。Haiku実装の月次リセットは過少計上になるのを自己レビューで修正)。D1用BudgetStore(非同期・条件付きUPDATE)とD1/Workers日次予算の適用は未実装 → 無料staging(S5')前に必須。Haikuはこの委任で autocompact thrashing(5.5)により途中停止したが成果物は完成状態だった(再現: 大きめの委任)
