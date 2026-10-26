@@ -20,6 +20,12 @@ importers:
 
   packages/core: {}
 
+  packages/db:
+    dependencies:
+      '@wpn/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@jridgewell/resolve-uri@3.1.2':

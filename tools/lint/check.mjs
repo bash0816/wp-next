@@ -17,6 +17,7 @@ const RULES = [
     allowed(rel) {
       return (
         rel === 'packages/core/src/canView.ts' ||
+        rel === 'packages/db/src/visiblePosts.ts' ||
         rel.startsWith('packages/db/src/schema') ||
         rel.endsWith('.test.ts')
       );

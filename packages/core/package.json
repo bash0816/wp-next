@@ -4,5 +4,9 @@
   "private": true,
   "license": "GPL-3.0-only",
   "type": "module",
-  "main": "./src/index.ts"
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./canView": "./src/canView.ts"
+  }
 }

@@ -11,3 +11,4 @@
 - ADR-009 (2026-10-26) STEP2 Go(GPT-6.1-sol, v3動的認可優先)。経緯: No-Go 4回→Opus助言で縮小(静的生成+ゲート混成を廃止)→Go。残Major2件は実装計画で解消(STEP3): パスワード解除Cookieの認可バージョン、R2の読取含む操作数ガード
 - ADR-010 (2026-10-26) STEP3 Go(条件付き、GPT-6.1-sol)。条件は docs/06-implementation-plan.md §7。次: Phase1 S0着手。無料stagingの実行前に予算ガード成立が必須
 - ADR-011 (2026-10-26) TypeScript は 6.0.3 に固定。TS 7 はネイティブバイナリ配布でTermux(android-arm64)向けが無く `tsc` が動かない(F7で実測)。他環境のCIで7へ上げる場合はTermux開発と両立させる方針を別途決める
+- ADR-012 (2026-10-26) lintの`no-direct-post-status`許可に `packages/db/src/visiblePosts.ts` を追加(SQLのWHERE句に必須。canView.tsと対で変更する規則をファイル先頭コメントに明記)。教訓: 委任仕様の「null/''」のうち''をHaiku実装が落とした。仕様の境界値は委任テストに明示的に含めさせる
