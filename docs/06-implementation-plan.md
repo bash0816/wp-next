@@ -46,3 +46,12 @@ S1-S4,S7 の全テストGreen、S6の実測結果が無料枠内、漏洩回帰�
 3. **認証の実測合格条件**: ログイン(検証+再ハッシュ)を実Workers無料でCPU計測。不成立時の代替(リセット誘導/PBKDF2)を検証。
 4. **ビルド成果物検査**: S4b(上表)。
 5. **auth_version**: 本文/パスワード/status変更と `auth_version`+1 は同一トランザクション。テスト: status往復後の旧Cookie拒否、期限切れ、改ざん、パスワード変更後。
+
+## 8. 予算ガードのブロック予約 (ADR-014, 2026-10-27 仕様案 — 実D1接続前にSTEP2/3相当のレビュー必須)
+問題: 予約1回=D1書込1行。R2/D1/Workers操作ごとに書くと、D1書込10万行/日の枠を自分で消費する。
+- 方式: `BlockedBudget(store, guard, blockSize)`。プロセス(isolate)内に `remaining[key]` を持ち、枯渇したら `guard.reserve(key, blockSize)` で **D1に1回だけ**ブロック分を予約、以後はメモリで払い出す。D1書込は操作数/blockSize に削減(例: 100操作→1行)。
+- 安全側の性質: 予約は常に「実使用以上」。isolate破棄・再起動で未使用分は失効=過大計上(無料枠を超えない方向のみにずれる)。
+- 残余: 実効上限(95%)の手前 blockSize 未満では小ブロック(残量)で予約し、満杯を超えない。blockSize は key ごとに設定(Class B=大きく、storageバイト=ブロック化せず都度)。
+- 失効による過大計上の最大損失: isolate数 × blockSize。isolate数は無料Workersで不定 → blockSize は上限の0.1%以下とする(例: Class A 1e6 → 最大1000)。
+- テスト: 払い出しがblock内でD1書込0回(spyで検証)、枯渇時のみ1回、並行(Promise.all)でも払い出し総数が予約総数を超えない、reserve失敗でfail-closed、端数ブロック、blockSize不正値。
+- D1日次書込の自己消費予算: ガード由来書込を日次D1書込上限の10%以下に抑える(監視: guard自身の書込回数をカウントし超過で警告)。
