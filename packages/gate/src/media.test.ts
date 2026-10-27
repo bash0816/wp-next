@@ -44,6 +44,7 @@ const PRIVATE: ParentPost = { id: 11, status: 'private', author: 1 };
 function fixture(f: Fixture): { db: DatabaseSync; store: Map<string, Uint8Array> } {
   const db = new DatabaseSync(':memory:');
   db.exec(schema);
+  const store = new Map<string, Uint8Array>();
   const insPost = db.prepare(
     `INSERT INTO posts (ID, post_author, post_status, post_password, post_type, post_name,
        post_title, post_content, post_excerpt, post_date_gmt, post_modified_gmt, post_mime_type)
