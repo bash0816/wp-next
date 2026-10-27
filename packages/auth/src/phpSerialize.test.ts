@@ -164,3 +164,26 @@ describe('巨大な宣言長はメモリを確保せず即座に拒否する', (
     expect(performance.now() - start).toBeLessThan(1000);
   });
 });
+
+describe('プロトタイプ汚染の防止', () => {
+  const payload = 'a:1:{s:9:"__proto__";a:1:{s:1:"x";i:1;}}';
+
+  it('結果オブジェクトのプロトタイプは null で、__proto__ は own property として保持される', () => {
+    const result = phpUnserialize(payload) as unknown as Record<string, unknown>;
+    expect(Object.getPrototypeOf(result)).toBeNull();
+    expect(Object.keys(result)).toContain('__proto__');
+  });
+
+  it('グローバル Object.prototype と新規 {} は汚染されない', () => {
+    phpUnserialize(payload);
+    const fresh = {} as Record<string, unknown>;
+    expect(fresh.x).toBeUndefined();
+    expect(({} as Record<string, unknown>).x).toBeUndefined();
+  });
+
+  it('結果を JSON.stringify / Object.keys しても例外が出ない', () => {
+    const result = phpUnserialize(payload);
+    expect(() => JSON.stringify(result)).not.toThrow();
+    expect(() => Object.keys(result as object)).not.toThrow();
+  });
+});
