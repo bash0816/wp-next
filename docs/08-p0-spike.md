@@ -3,7 +3,7 @@ v2: GPT-6.1-sol STEP2/3 No-Go(Blocker2/Major6/Minor1)を反映。方式=B(ADR-02
 目的: B案の成立性を、測定可能な条件で判定する。基準=OCI基準WP 7.1.3 + twentytwentyfive 1.5。
 
 ## 1. 入力・基準・比較の契約
-- **入力(再現可能)**: fixtures/ref に 基準HTML、post_content、投稿一覧に加え、**DBダンプ(基準WPのSQLite: posts/postmeta/options/users/usermeta/terms)と取得手順**を追加(段階A')。本実装はこのダンプのみを入力とする。期待値(基準HTML)は実WPから取得し、TS描画は生データのみ入力(期待値をコードに埋めない)。
+- **入力(再現可能)**: fixtures/ref に 基準HTML、post_content、投稿一覧に加え、**DBダンプ(基準WPのSQLite: **WPの全コア表** = posts/postmeta/options/users/usermeta/terms/term_taxonomy/term_relationships/termmeta/comments/commentmeta/links。Dのcomments・post-terms・query系ブロックが参照する表を欠かさない)と取得手順**を追加(段階A')。本実装はこのダンプのみを入力とする。期待値(基準HTML)は実WPから取得し、TS描画は生データのみ入力(期待値をコードに埋めない)。
 - **fixture 2セット**: ①現行(ID5)②別fixture(ID・タイトル・slug・投稿順・入れ子本文・特殊文字を変えたもの、基準WPに作成して再取得)。過適合防止。
 - **正規化DOM**: HTMLパーサ=parse5。比較範囲=`<body>`全体(headは別扱い=段階E)。無視するのは ①HTMLコメント ②要素間の空白のみ(テキストノード内は維持) ③属性順 ④siteurl(`http://127.0.0.1:8080`→プレースホルダ) ⑤nonce/`?ver=`のみ。class・href・子要素順・本文テキストは**消さない**。
 - **比較器の負例テスト**: 文字・href・class・要素順を1つ変えると必ず不一致になること、子ブロックの欠落/二重出力も不一致になること。
@@ -14,8 +14,8 @@ v2: GPT-6.1-sol STEP2/3 No-Go(Blocker2/Major6/Minor1)を反映。方式=B(ADR-02
 | 段階 | 内容 | 合格 |
 |---|---|---|
 | A/A' | fixture・ダンプ・ライセンス表示・再取得手順 | 保存済み、他マシンで再現できる |
-| B | **静的ブロックのみ**(heading/paragraph/list/quote/separator)。`post_content`→HTML。静的専用golden(latest-posts行を除いた期待値)。list/quoteの子欠落・二重出力を検査 | 2fixtureで body 部分(entry-content内)が正規化DOM完全一致 |
-| C | 動的 `core/latest-posts`: DB可視クエリ(`visibleWhere`必須)。件数・並び・既定属性・空結果、公開/private/下書き混在、公開状態変更後の再描画 | 本文全体(動的含む)が一致+可視性テスト |
+| B | **静的ブロックのみ**(heading/paragraph/list/quote/separator)。`post_content`→HTML。静的専用golden(期待値からlatest-postsの出力要素をDOM要素単位で除去したもの)。list/quoteの子欠落・二重出力を検査 | 2fixtureで body 部分(entry-content内)が正規化DOM完全一致 |
+| C | 動的 `core/latest-posts`: DB可視クエリ(`visibleWhere`必須)。件数・並び・既定属性・空結果、公開/private/下書き混在、公開状態変更後の再描画。比較主体は匿名(認証Cookieなし)に固定 | 本文全体(動的含む)が一致+可視性テスト |
 | D | テンプレ合成: single.html、header/footer parts、patternのPHP式(`esc_html_e`等はTS代替)、core/post-title等。**comments・more-posts内query等の依存範囲を事前に列挙して固定** | body全体が一致 |
 | E | theme.json→global-styles/CSS変数。対象は `:root`のCSS変数とTT25本文ブロック用ルールに限定(一覧を固定) | 対象範囲が完全一致(許容差分は一覧化したもののみ) |
 ## 3. 安全性(全段階の合格条件)
