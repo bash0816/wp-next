@@ -12,7 +12,7 @@
 	<atom:link href="http://127.0.0.1:8080/feed/" rel="self" type="application/rss+xml" />
 	<link>http://127.0.0.1:8080</link>
 	<description></description>
-	<lastBuildDate>Tue, 27 Oct 2026 23:26:26 +0000</lastBuildDate>
+	<lastBuildDate>Tue, 27 Oct 2026 23:38:31 +0000</lastBuildDate>
 	<language>en-US</language>
 	<sy:updatePeriod>
 	hourly	</sy:updatePeriod>
@@ -20,6 +20,31 @@
 	1	</sy:updateFrequency>
 	<generator>https://wordpress.org/?v=7.1.3</generator>
 	<item>
+		<title>入れ子 &#038;  &#8220;文字&#8221;</title>
+		<link>http://127.0.0.1:8080/fixture-two-nested/</link>
+					<comments>http://127.0.0.1:8080/fixture-two-nested/#respond</comments>
+		
+		<dc:creator><![CDATA[]]></dc:creator>
+		<pubDate>Tue, 27 Oct 2026 23:38:31 +0000</pubDate>
+				<category><![CDATA[Uncategorized]]></category>
+		<guid isPermaLink="false">http://127.0.0.1:8080/fixture-two-nested/</guid>
+
+					<description><![CDATA[入れ子 &#38; 特殊文字 &#60;テスト&#62; 文中の強調とcode &#38; 記号、引用符 &#34;二重&#34; と &#8216;single&#8217;、外部リンク。 引用1 引用2 出典 &#38; 著者 小見出し 末尾の段落]]></description>
+										<content:encoded><![CDATA[<h3 class="wp-block-heading">入れ子 &amp; 特殊文字 &lt;テスト&gt;</h3>
+<p class="wp-block-paragraph">文中の<em>強調</em>と<code>code &amp; 記号</code>、引用符 &quot;二重&quot; と &#8216;single&#8217;、<a href="https://example.invalid/?a=1&amp;b=2" target="_blank" rel="noreferrer noopener">外部リンク</a>。</p>
+<ol class="wp-block-list"><li>第一<ul class="wp-block-list"><li>子A</li><li>子B</li></ul></li><li>第二</li></ol>
+<blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p class="wp-block-paragraph">引用1</p><p class="wp-block-paragraph">引用2</p><cite>出典 &amp; 著者</cite></blockquote>
+<h4 class="wp-block-heading">小見出し</h4>
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<p class="wp-block-paragraph">末尾の段落</p>
+]]></content:encoded>
+					
+					<wfw:commentRss>http://127.0.0.1:8080/fixture-two-nested/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
 		<title>スパイク用ページ</title>
 		<link>http://127.0.0.1:8080/spike-blocks/</link>
 					<comments>http://127.0.0.1:8080/spike-blocks/#respond</comments>
@@ -35,7 +60,8 @@
 <ul class="wp-block-list"><li>項目1</li><li>項目2</li></ul>
 <blockquote class="wp-block-quote is-layout-flow wp-block-quote-is-layout-flow"><p class="wp-block-paragraph">引用文</p></blockquote>
 <hr class="wp-block-separator has-alpha-channel-opacity"/>
-<ul class="wp-block-latest-posts__list wp-block-latest-posts is-layout-flow wp-block-latest-posts-is-layout-flow"><li><a class="wp-block-latest-posts__post-title" href="http://127.0.0.1:8080/spike-blocks/">スパイク用ページ</a></li>
+<ul class="wp-block-latest-posts__list wp-block-latest-posts is-layout-flow wp-block-latest-posts-is-layout-flow"><li><a class="wp-block-latest-posts__post-title" href="http://127.0.0.1:8080/fixture-two-nested/">入れ子 &#038; <特殊> &#8220;文字&#8221;</a></li>
+<li><a class="wp-block-latest-posts__post-title" href="http://127.0.0.1:8080/spike-blocks/">スパイク用ページ</a></li>
 <li><a class="wp-block-latest-posts__post-title" href="http://127.0.0.1:8080/hello-world/">Hello world!</a></li>
 </ul>
 ]]></content:encoded>
