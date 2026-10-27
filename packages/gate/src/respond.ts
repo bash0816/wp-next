@@ -9,15 +9,17 @@ const DYNAMIC_HEADERS: Readonly<Record<string, string>> = {
 };
 
 // 動的レスポンス。HEAD は同じヘッダでボディを空にする。
+// 文字列またはバイト列を本文にする。バイト列は staticResponse と同様に BodyInit として扱う。
 export function dynamic(
   method: string,
-  body: string,
+  body: string | Uint8Array,
   contentType: string,
   status = 200,
   extra: Readonly<Record<string, string>> = {},
 ): Response {
   const headers = { ...DYNAMIC_HEADERS, 'Content-Type': contentType, ...extra };
-  return new Response(method === 'HEAD' ? null : body, { status, headers });
+  const payload = typeof body === 'string' ? body : (body as BodyInit);
+  return new Response(method === 'HEAD' ? null : payload, { status, headers });
 }
 
 export function staticResponse(method: string, asset: StaticAsset): Response {

@@ -16,7 +16,8 @@ CREATE TABLE posts (
   post_parent INTEGER NOT NULL DEFAULT 0,
   post_modified_gmt TEXT NOT NULL DEFAULT '',
   auth_version INTEGER NOT NULL DEFAULT 1,
-  visibility_epoch INTEGER NOT NULL DEFAULT 1
+  visibility_epoch INTEGER NOT NULL DEFAULT 1,
+  post_mime_type TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX posts_status_author ON posts (post_status, post_author);
 CREATE INDEX posts_type_name ON posts (post_type, post_name);

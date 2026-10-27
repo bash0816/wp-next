@@ -4,6 +4,7 @@ import type { Actor } from '@wpn/core/canView';
 import { feedRoute, sitemapRoute } from './routes/feeds.js';
 import { postRoute, searchRoute } from './routes/pages.js';
 import { restPostsRoute } from './routes/rest.js';
+import { mediaRoute } from './routes/media.js';
 import { methodNotAllowed, notFound, serverError, staticResponse } from './respond.js';
 
 export interface StaticAsset {
@@ -16,6 +17,7 @@ export interface GateDeps {
   readonly resolveActor: (req: Request) => Promise<Actor>;
   readonly staticAllowlist: ReadonlyMap<string, StaticAsset>;
   readonly siteUrl: string;
+  readonly media?: { readonly store: { get(key: string): Promise<Uint8Array | null> } };
 }
 
 export interface RouteCtx {
@@ -71,12 +73,20 @@ export function createHandler(deps: GateDeps): (req: Request) => Promise<Respons
         path === '/sitemap.xml' ||
         path === '/search' ||
         path === '/wp-json/wp/v2/posts' ||
+        path.startsWith('/media/') ||
         (path.startsWith('/p/') && path.length > '/p/'.length);
 
       if (asset === undefined && !isDynamic) return notFound(method);
       if (method !== 'GET' && method !== 'HEAD') return methodNotAllowed(method);
 
       if (asset !== undefined) return staticResponse(method, asset);
+
+      if (path.startsWith('/media/')) {
+        if (deps.media === undefined) return notFound(method);
+        const mediaActor = await deps.resolveActor(req);
+        const mediaCtx: RouteCtx = { method, url, deps, actor: mediaActor };
+        return mediaRoute(mediaCtx, path.slice('/media/'.length), deps.media.store);
+      }
 
       const actor = await deps.resolveActor(req);
       const ctx: RouteCtx = { method, url, deps, actor };
