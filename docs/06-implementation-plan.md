@@ -55,3 +55,6 @@ S1-S4,S7 の全テストGreen、S6の実測結果が無料枠内、漏洩回帰�
 - 失効による過大計上の最大損失: isolate数 × blockSize。isolate数は無料Workersで不定 → blockSize は上限の0.1%以下とする(例: Class A 1e6 → 最大1000)。
 - テスト: 払い出しがblock内でD1書込0回(spyで検証)、枯渇時のみ1回、並行(Promise.all)でも払い出し総数が予約総数を超えない、reserve失敗でfail-closed、端数ブロック、blockSize不正値。
 - D1日次書込の自己消費予算: ガード由来書込を日次D1書込上限の10%以下に抑える(監視: guard自身の書込回数をカウントし超過で警告)。
+
+## 基盤選択は設定(ADR-016)
+- 本体(core/db/gate/auth)は基盤非依存。provider(cloudflare|s3|local)は設定で選び、composition root のみが adapter を生成して注入する。CF固有の無料枠・予算は cloudflare provider 側に閉じる。
