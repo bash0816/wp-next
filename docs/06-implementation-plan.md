@@ -57,4 +57,5 @@ S1-S4,S7 の全テストGreen、S6の実測結果が無料枠内、漏洩回帰�
 - D1日次書込の自己消費予算: ガード由来書込を日次D1書込上限の10%以下に抑える(監視: guard自身の書込回数をカウントし超過で警告)。
 
 ## 基盤選択は設定(ADR-016)
-- 本体(core/db/gate/auth)は基盤非依存。provider(cloudflare|s3|local)は設定で選び、composition root のみが adapter を生成して注入する。CF固有の無料枠・予算は cloudflare provider 側に閉じる。
+- 本体(core/db/gate/auth)は基盤非依存。基盤は部品ごと(db: sqlite|d1、storage: fs|s3|r2 等、ADR-024)に設定で選び、composition root のみが adapter を生成して注入する。CF固有の無料枠・予算は cloudflare provider 側に閉じる。
+- 基盤の選択は設定ファイル(第一候補 wpn.config.yaml。形式の最終確定は実装時にユーザー確認、ADR-024)。シークレットは書かず環境変数/Docker secretsで上書き(${ENV}参照)。起動時に検証し、不明provider・必須欠落は起動拒否(fail-closed)。例: `db: {provider: sqlite, path: ./data/wp.db}` / `storage: {provider: fs, path: ./data/uploads}` / `budget: {provider: none}`
