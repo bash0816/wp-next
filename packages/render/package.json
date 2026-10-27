@@ -1,0 +1,11 @@
+{
+  "name": "@wpn/render",
+  "version": "0.0.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "parse5": "^8.0.1"
+  }
+}
