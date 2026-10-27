@@ -8,4 +8,4 @@
 - [ ] S-E2E WP同一性E2E基盤(ADR-018: 基準WPの用意方法はユーザー確認後)
 - [ ] S5' 実Workers最小縦断実測 → S5 php-wasm → S6 → S7 (オプション: ADR-023、主系統ではない)
 - [ ] 設計v4(docs/07)草案作成済み → STEP2レビュー(GPT-6.1-sol)待ち。未決4点はユーザー判断
-- [ ] P0 成立性スパイク(docs/08): A完了(fixtures/ref) → STEP2/3レビュー中 → B(静的ブロック描画 packages/render)→C→D→E
+- [ ] P0 成立性スパイク(docs/08 v2.1): STEP2/3 Go(ADR-026) → A'(DBダンプ+2つ目のfixture) → STEP4 B(静的ブロック) → C → D → E
