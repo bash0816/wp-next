@@ -91,14 +91,14 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 未検証: `packages/render` 側で wrapper ブロック (group, query 等) が未対応のまま渡った場合の挙動。テストは未作成。
 - 次の作業 (Stage D): 領域単位の失敗テスト (Red) を先に書き、skip-link → header → main-02 の順で対応する。
 
-## 6. D-1 header 領域のテスト計画 v2 (STEP3 No-Go[Major5/Minor1] 対応版)
+## 7. D-1 設計契約 (STEP2 No-Go[Major4/Minor1] 対応) と テスト計画 v3
 目的: `fixtures/ref/regions/header.html` と、テーマ(parts/header.html → patterns/header.php)+DB から TS で生成した HTML が正規化DOM一致する。範囲外: 一般PHP解釈、CSS全体、ナビの実ブラウザ動作(JS)。
 共通契約(docs/08 継承): 比較器は parse5 の正規化DOM(コメント/要素間空白/属性順/siteurl/nonce/ver のみ無視。class/href/子要素順/本文は消さない)。生成側の入力は**テーマとDBダンプのみ**(期待値をコードに埋めない)。比較器負例: header の属性欠落・子要素の欠落・二重化を検出すること。**過適合防止のため2組の入力**: (i)基準そのもの (ii)site名・ページ名・slug・並び・階層を変えたDB(期待値は実WPで再取得して fixtures/ref/set-header2/ に保存。再取得は私がレビュー後に実施)。
 匿名Actor固定。DBアクセスは packages/db の関数経由でSQLにて可視性を適用(JSフィルタでの除外は不合格)。
 
 単位(各 Red→Green):
 - D-1a テーマ解決: parts/*.html、`wp:pattern {"slug"}`→patterns/*.php。PHPヘッダ(`<?php ... ?>` コメントのみ)除去は許可、**実行式(esc_html_e 等)は独立した小fixtureで TS 代替を検証**(header.php には出力式が無い)。未対応PHP式は診断付き拒否(黙って消さない)。循環: 自己循環・相互循環を拒否、同じpatternの兄弟参照(非循環)は成功。未知ブロックは group/pattern の内側でも拒否。不正属性(JSONパース不能、型違い)は拒否。
-- D-1b-1 layout入力生成: attrs・theme.json(settings/styles)・block support から wp_json_encode 入力の6要素(layout, has_global_padding?, gap, hasBlockGap?, fallbackGap, styleOverrides)を組み立てる関数。検査: global styles と settings の区別、キー順、null、style が空ならクラスを付けない、group 2個(ec1e7a1e, fbffc046)と navigation(6e943505)の3値を**独立した期待値**(基準HTML)から検査。固定値の埋め込みはレビューで検出。
+- D-1b-1 layout入力生成: attrs・theme.json(settings/styles)・block support から wp_json_encode 入力の6要素(used_layout, has_block_gap_support, gap_value, should_skip_gap_serialization, fallback_gap_value, block_spacing。名前・型・導出規則は docs/spike-notes/container-class-hash.md §ハッシュ入力に統一)を組み立てる関数。検査: global styles と settings の区別、キー順、null、「生成される layout CSS が空ならクラスを付けない」(attrs.style の有無とは区別)、group 2個(ec1e7a1e, fbffc046)と navigation(6e943505)の3値を**独立した期待値**(基準HTML)から検査。固定値の埋め込みはレビューで検出。
 - D-1b-2 group の HTML: layout type default/constrained/flex の class、spacing preset→style、align*、container class(layoutClass.ts を使用)。
 - D-1c site-title: level 0、DB blogname、href=siteurl、エスケープ(`<>&"'` を含む名前、属性脱出、javascript: URL は含まれない)。
 - D-1d-1 DB: ナビ解決 = navigation ブロックに ref が無い場合、WP同様に**最新の publish な wp_navigation 投稿**(基準では ID4、content=`<!-- wp:page-list /-->`)を解決。無ければ範囲外=診断付き拒否。page-list: publish の固定ページのみ、匿名でprivate/draft/future/保護ページが出ない(混在fixtureで検査、保護ページは実WPで期待値を取得して判断=ADR-027を暗黙拡張しない)、タイトル・URL漏洩なし、公開→非公開に変えた後の再描画で消える、空・複数件・並び(menu_order,title)・親子階層。
@@ -107,3 +107,11 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 負例/安全まとめ: 未対応PHP式、循環、未知ブロック、不正属性、特殊文字・属性脱出・javascript:URL・data-wp-context の注入、非公開ページ露出。
 
 注: layoutClass.ts(ハッシュ関数)は先行して作成済みだが、STEP2/3 の Go まで未コミットで保留(手順違反の是正)。
+
+### 7.1 設計契約 (v3)
+1. **出力の信頼境界(サニタイズ)**: 出力を2系統に分ける。(a)投稿由来HTML(post_content 内の静的ブロック等)は既存 `sanitizeHtml`(許可リスト)を必ず通す。(b)検証済みレンダラが生成する構造(header/nav/button/svg/style/ARIA/data-wp-*)は**サニタイザを通さず、レンダラ内で文脈別に構築**する: 文字列はテキストescape、URLは scheme 検証(http/https/相対のみ)→属性escape、`data-wp-context` は JSON 化→属性escape、CSS値は許可した形式(プリセット変数/長さ)のみ生成。許可リストの一括拡張はしない(投稿由来HTMLに対話属性を許さない)。合格条件は**実際の公開出力経路**での DOM 比較と注入負例。
+2. **layout 入力(調査メモと一致)**: 上記の6要素に名前・型を統一。layoutClass.ts はハッシュ化の部品に過ぎず、入力導出(D-1b-1)は別途検証。
+3. **登録表+共通再帰 dispatch**: `BlockRegistry: blockName → { validateAttrs(attrs), render(block, ctx) }`。再帰 dispatch は最上位でも group 内でも DB 本文内(wp_navigation の page-list 等)でも同じ規則(未知ブロックは全階層で拒否)。`ctx` = { theme, services(取得サービス), renderState(採番) }。`modal-N` の採番は**ページ全体で共有**(header と footer 間でも重複なし)。現行 `renderContent.ts` の最上位限定の動的判定は、この dispatch に置き換える(既存14件の latest-posts テスト・renderBlocks テストは回帰として維持)。
+4. **DB 境界**: `packages/db` が公開ナビ・固定ページを SQL で選別し必要な DTO だけ返す(例 `selectPublishedPagesForNav`, `selectLatestNavigationPost`)。render に status 判定・SQL は置かない。`post_status` を参照する新規 db ファイルは lint 許可リストに限定追加。**前提**: 現行 schema.sql に `menu_order` と `post_parent` 階層列が無い → db-mapping(docs/db-mapping.md の missing 列)に従い、必要列のみ追加(post_parent は既存、menu_order を追加)し、ダンプ取り込みの対応を D-1d-1 の前提テストに含める。保護ページの扱いは実WP期待値で確定(ADR-027 を暗黙に拡張しない)。
+5. **対象範囲の明記**: D-1(header 領域一致)は v0.1 ゲート 88ID のうち group / site-title / navigation / page-list 等の**一部**のみの達成であり、header 一致だけで該当ブロック全体や 88ID の達成と扱わない。ゲート ID との対応は各単位完了時に台帳 status と test_id を更新する。
+6. **節整理**: 旧 §6 は本節(§7)に置換済み。§1〜5 のブロック名は class 接頭辞からの推定であり、正規名は台帳(blocks.csv)の name で確定する。
