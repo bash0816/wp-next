@@ -1,0 +1,15 @@
+id,name,category,compat_level,status,notes
+theme-001,settings.appearanceTools,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-002,settings.color,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-003,settings.layout,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-004,settings.spacing,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-005,settings.typography,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-006,settings.useRootPaddingAwareAlignments,theme-json-settings,L3,todo,"top-level key under settings; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-007,styles.color,theme-json-styles,L3,todo,"top-level key under styles; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-008,styles.spacing,theme-json-styles,L3,todo,"top-level key under styles; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-009,styles.typography,theme-json-styles,L3,todo,"top-level key under styles; source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-010,styles.blocks,theme-json-styles,L3,todo,"top-level key under styles (29 block entries); source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-011,styles.elements,theme-json-styles,L3,todo,"top-level key under styles (h1-h6, heading, button, caption, link); source=twentytwentyfive theme.json (reference, read-only cat)"
+theme-012,templates,theme-count,L3,todo,"count=8 (templates/*.html: 404,archive,home,index,page-no-title,page,search,single); source=ls|wc -l on reference"
+theme-013,template-parts,theme-count,L3,todo,count=7 (parts/*.html); source=ls|wc -l on reference
+theme-014,patterns,theme-count,L3,todo,count=98 (patterns/*.php); source=ls|wc -l on reference

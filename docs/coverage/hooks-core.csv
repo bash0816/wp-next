@@ -1,0 +1,631 @@
+id,name,category,compat_level,status,notes
+hook-001-01,pre_term_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-02,pre_comment_author_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-03,pre_link_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-04,pre_link_target,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-05,pre_link_rel,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-06,pre_user_display_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-07,pre_user_first_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-08,pre_user_last_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-001-09,pre_user_nickname,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=33; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-01,pre_term_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-02,pre_comment_author_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-03,pre_link_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-04,pre_link_target,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-05,pre_link_rel,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-06,pre_user_display_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-07,pre_user_first_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-08,pre_user_last_name,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-002-09,pre_user_nickname,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=34; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-01,pre_term_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-02,pre_comment_author_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-03,pre_link_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-04,pre_link_target,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-05,pre_link_rel,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-06,pre_user_display_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-07,pre_user_first_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-08,pre_user_last_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-003-09,pre_user_nickname,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=35; expanded_from=$filter (foreach array default-filters.php:32)
+hook-004-01,term_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-02,comment_author_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-03,link_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-04,link_target,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-05,link_rel,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-06,user_display_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-07,user_first_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-08,user_last_name,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-004-09,user_nickname,add_filter,L4,todo,callback='sanitize_text_field'; priority=10 (default); accepted_args=1 (default); line=42; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-01,term_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-02,comment_author_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-03,link_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-04,link_target,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-05,link_rel,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-06,user_display_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-07,user_first_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-08,user_last_name,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-005-09,user_nickname,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=43; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-01,term_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-02,comment_author_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-03,link_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-04,link_target,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-05,link_rel,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-06,user_display_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-07,user_first_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-08,user_last_name,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-006-09,user_nickname,add_filter,L4,todo,callback='_wp_specialchars'; priority=30; accepted_args=1 (default); line=45; expanded_from=$filter (foreach array default-filters.php:39)
+hook-007-01,pre_term_description,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=50; expanded_from=$filter (foreach array default-filters.php:49)
+hook-007-02,pre_link_description,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=50; expanded_from=$filter (foreach array default-filters.php:49)
+hook-007-03,pre_link_notes,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=50; expanded_from=$filter (foreach array default-filters.php:49)
+hook-007-04,pre_user_description,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=50; expanded_from=$filter (foreach array default-filters.php:49)
+hook-008-01,term_description,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=56; expanded_from=$filter (foreach array default-filters.php:55)
+hook-008-02,link_description,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=56; expanded_from=$filter (foreach array default-filters.php:55)
+hook-008-03,link_notes,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=56; expanded_from=$filter (foreach array default-filters.php:55)
+hook-008-04,user_description,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=56; expanded_from=$filter (foreach array default-filters.php:55)
+hook-009,comment_text,add_filter,L4,todo,callback='wp_kses_post'; priority=10 (default); accepted_args=1 (default); line=58
+hook-010-01,pre_comment_author_email,add_filter,L4,todo,callback='trim'; priority=10 (default); accepted_args=1 (default); line=63; expanded_from=$filter (foreach array default-filters.php:62)
+hook-010-02,pre_user_email,add_filter,L4,todo,callback='trim'; priority=10 (default); accepted_args=1 (default); line=63; expanded_from=$filter (foreach array default-filters.php:62)
+hook-011-01,pre_comment_author_email,add_filter,L4,todo,callback='sanitize_email'; priority=10 (default); accepted_args=1 (default); line=64; expanded_from=$filter (foreach array default-filters.php:62)
+hook-011-02,pre_user_email,add_filter,L4,todo,callback='sanitize_email'; priority=10 (default); accepted_args=1 (default); line=64; expanded_from=$filter (foreach array default-filters.php:62)
+hook-012-01,pre_comment_author_email,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=65; expanded_from=$filter (foreach array default-filters.php:62)
+hook-012-02,pre_user_email,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=65; expanded_from=$filter (foreach array default-filters.php:62)
+hook-013-01,comment_author_email,add_filter,L4,todo,callback='sanitize_email'; priority=10 (default); accepted_args=1 (default); line=70; expanded_from=$filter (foreach array default-filters.php:69)
+hook-013-02,user_email,add_filter,L4,todo,callback='sanitize_email'; priority=10 (default); accepted_args=1 (default); line=70; expanded_from=$filter (foreach array default-filters.php:69)
+hook-014-01,comment_author_email,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=72; expanded_from=$filter (foreach array default-filters.php:69)
+hook-014-02,user_email,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=72; expanded_from=$filter (foreach array default-filters.php:69)
+hook-015-01,pre_comment_author_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-015-02,pre_user_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-015-03,pre_link_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-015-04,pre_link_image,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-015-05,pre_link_rss,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-015-06,pre_post_guid,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=85; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-01,pre_comment_author_url,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-02,pre_user_url,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-03,pre_link_url,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-04,pre_link_image,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-05,pre_link_rss,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-016-06,pre_post_guid,add_filter,L4,todo,callback='sanitize_url'; priority=10 (default); accepted_args=1 (default); line=86; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-01,pre_comment_author_url,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-02,pre_user_url,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-03,pre_link_url,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-04,pre_link_image,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-05,pre_link_rss,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-017-06,pre_post_guid,add_filter,L4,todo,callback='wp_filter_kses'; priority=10 (default); accepted_args=1 (default); line=87; expanded_from=$filter (foreach array default-filters.php:77)
+hook-018-01,user_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-018-02,link_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-018-03,link_image,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-018-04,link_rss,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-018-05,comment_url,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-018-06,post_guid,add_filter,L4,todo,callback='wp_strip_all_tags'; priority=10 (default); accepted_args=1 (default); line=93; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-01,user_url,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-02,link_url,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-03,link_image,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-04,link_rss,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-05,comment_url,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-019-06,post_guid,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=95; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-01,user_url,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-02,link_url,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-03,link_image,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-04,link_rss,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-05,comment_url,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-020-06,post_guid,add_filter,L4,todo,callback='wp_kses_data'; priority=10 (default); accepted_args=1 (default); line=97; expanded_from=$filter (foreach array default-filters.php:91)
+hook-021,pre_term_slug,add_filter,L4,todo,callback='sanitize_title'; priority=10 (default); accepted_args=1 (default); line=102
+hook-022,wp_insert_post_data,add_filter,L4,todo,callback='_wp_customize_changeset_filter_insert_post_data'; priority=10; accepted_args=2; line=103
+hook-023-01,pre_post_type,add_filter,L4,todo,callback='sanitize_key'; priority=10 (default); accepted_args=1 (default); line=107; expanded_from=$filter (foreach array default-filters.php:106)
+hook-023-02,pre_post_status,add_filter,L4,todo,callback='sanitize_key'; priority=10 (default); accepted_args=1 (default); line=107; expanded_from=$filter (foreach array default-filters.php:106)
+hook-023-03,pre_post_comment_status,add_filter,L4,todo,callback='sanitize_key'; priority=10 (default); accepted_args=1 (default); line=107; expanded_from=$filter (foreach array default-filters.php:106)
+hook-023-04,pre_post_ping_status,add_filter,L4,todo,callback='sanitize_key'; priority=10 (default); accepted_args=1 (default); line=107; expanded_from=$filter (foreach array default-filters.php:106)
+hook-024,pre_post_mime_type,add_filter,L4,todo,callback='sanitize_mime_type'; priority=10 (default); accepted_args=1 (default); line=111
+hook-025,post_mime_type,add_filter,L4,todo,callback='sanitize_mime_type'; priority=10 (default); accepted_args=1 (default); line=112
+hook-026,register_meta_args,add_filter,L4,todo,callback='_wp_register_meta_args_allowed_list'; priority=10; accepted_args=2; line=115
+hook-027,admin_init,add_action,L4,todo,callback='wp_schedule_update_user_counts'; priority=10 (default); accepted_args=1 (default); line=118
+hook-028,wp_update_user_counts,add_action,L4,todo,callback='wp_schedule_update_user_counts'; priority=10; accepted_args=0; line=119
+hook-029-01,user_register,add_action,L4,todo,callback='wp_maybe_update_user_counts'; priority=10; accepted_args=0; line=121; expanded_from=$action (foreach array default-filters.php:120)
+hook-029-02,deleted_user,add_action,L4,todo,callback='wp_maybe_update_user_counts'; priority=10; accepted_args=0; line=121; expanded_from=$action (foreach array default-filters.php:120)
+hook-030,added_post_meta,add_action,L4,todo,callback='wp_cache_set_posts_last_changed'; priority=10 (default); accepted_args=1 (default); line=125
+hook-031,updated_post_meta,add_action,L4,todo,callback='wp_cache_set_posts_last_changed'; priority=10 (default); accepted_args=1 (default); line=126
+hook-032,deleted_post_meta,add_action,L4,todo,callback='wp_cache_set_posts_last_changed'; priority=10 (default); accepted_args=1 (default); line=127
+hook-033,added_user_meta,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=130
+hook-034,updated_user_meta,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=131
+hook-035,deleted_user_meta,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=132
+hook-036,add_user_role,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=133
+hook-037,set_user_role,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=134
+hook-038,remove_user_role,add_action,L4,todo,callback='wp_cache_set_users_last_changed'; priority=10 (default); accepted_args=1 (default); line=135
+hook-039,added_term_meta,add_action,L4,todo,callback='wp_cache_set_terms_last_changed'; priority=10 (default); accepted_args=1 (default); line=138
+hook-040,updated_term_meta,add_action,L4,todo,callback='wp_cache_set_terms_last_changed'; priority=10 (default); accepted_args=1 (default); line=139
+hook-041,deleted_term_meta,add_action,L4,todo,callback='wp_cache_set_terms_last_changed'; priority=10 (default); accepted_args=1 (default); line=140
+hook-042,get_term_metadata,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=141
+hook-043,add_term_metadata,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=142
+hook-044,update_term_metadata,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=143
+hook-045,delete_term_metadata,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=144
+hook-046,get_term_metadata_by_mid,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=145
+hook-047,update_term_metadata_by_mid,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=146
+hook-048,delete_term_metadata_by_mid,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=147
+hook-049,update_term_metadata_cache,add_filter,L4,todo,callback='wp_check_term_meta_support_prefilter'; priority=10 (default); accepted_args=1 (default); line=148
+hook-050,added_comment_meta,add_action,L4,todo,callback='wp_cache_set_comments_last_changed'; priority=10 (default); accepted_args=1 (default); line=151
+hook-051,updated_comment_meta,add_action,L4,todo,callback='wp_cache_set_comments_last_changed'; priority=10 (default); accepted_args=1 (default); line=152
+hook-052,deleted_comment_meta,add_action,L4,todo,callback='wp_cache_set_comments_last_changed'; priority=10 (default); accepted_args=1 (default); line=153
+hook-053,init,add_action,L4,todo,callback='wp_create_initial_comment_meta'; priority=10 (default); accepted_args=1 (default); line=154
+hook-054-01,content_save_pre,add_filter,L4,todo,callback='convert_invalid_entities'; priority=10 (default); accepted_args=1 (default); line=158; expanded_from=$filter (foreach array default-filters.php:157)
+hook-054-02,excerpt_save_pre,add_filter,L4,todo,callback='convert_invalid_entities'; priority=10 (default); accepted_args=1 (default); line=158; expanded_from=$filter (foreach array default-filters.php:157)
+hook-054-03,comment_save_pre,add_filter,L4,todo,callback='convert_invalid_entities'; priority=10 (default); accepted_args=1 (default); line=158; expanded_from=$filter (foreach array default-filters.php:157)
+hook-054-04,pre_comment_content,add_filter,L4,todo,callback='convert_invalid_entities'; priority=10 (default); accepted_args=1 (default); line=158; expanded_from=$filter (foreach array default-filters.php:157)
+hook-055-01,content_save_pre,add_filter,L4,todo,callback='balanceTags'; priority=50; accepted_args=1 (default); line=159; expanded_from=$filter (foreach array default-filters.php:157)
+hook-055-02,excerpt_save_pre,add_filter,L4,todo,callback='balanceTags'; priority=50; accepted_args=1 (default); line=159; expanded_from=$filter (foreach array default-filters.php:157)
+hook-055-03,comment_save_pre,add_filter,L4,todo,callback='balanceTags'; priority=50; accepted_args=1 (default); line=159; expanded_from=$filter (foreach array default-filters.php:157)
+hook-055-04,pre_comment_content,add_filter,L4,todo,callback='balanceTags'; priority=50; accepted_args=1 (default); line=159; expanded_from=$filter (foreach array default-filters.php:157)
+hook-056-01,comment_author,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-02,term_name,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-03,link_name,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-04,link_description,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-05,link_notes,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-06,bloginfo,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-07,wp_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-08,document_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-056-09,widget_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=164; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-01,comment_author,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-02,term_name,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-03,link_name,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-04,link_description,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-05,link_notes,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-06,bloginfo,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-07,wp_title,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-08,document_title,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-057-09,widget_title,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=165; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-01,comment_author,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-02,term_name,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-03,link_name,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-04,link_description,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-05,link_notes,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-06,bloginfo,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-07,wp_title,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-08,document_title,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-058-09,widget_title,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=166; expanded_from=$filter (foreach array default-filters.php:163)
+hook-059-01,the_content,add_filter,L4,todo,callback='capital_P_dangit'; priority=11; accepted_args=1 (default); line=171; expanded_from=$filter (foreach array default-filters.php:170)
+hook-059-02,the_title,add_filter,L4,todo,callback='capital_P_dangit'; priority=11; accepted_args=1 (default); line=171; expanded_from=$filter (foreach array default-filters.php:170)
+hook-059-03,wp_title,add_filter,L4,todo,callback='capital_P_dangit'; priority=11; accepted_args=1 (default); line=171; expanded_from=$filter (foreach array default-filters.php:170)
+hook-059-04,document_title,add_filter,L4,todo,callback='capital_P_dangit'; priority=11; accepted_args=1 (default); line=171; expanded_from=$filter (foreach array default-filters.php:170)
+hook-060,comment_text,add_filter,L4,todo,callback='capital_P_dangit'; priority=31; accepted_args=1 (default); line=173
+hook-061-01,single_post_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-061-02,single_cat_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-061-03,single_tag_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-061-04,single_month_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-061-05,nav_menu_attr_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-061-06,nav_menu_description,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=177; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-01,single_post_title,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-02,single_cat_title,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-03,single_tag_title,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-04,single_month_title,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-05,nav_menu_attr_title,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-062-06,nav_menu_description,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=178; expanded_from=$filter (foreach array default-filters.php:176)
+hook-063-01,term_description,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=183; expanded_from=$filter (foreach array default-filters.php:182)
+hook-063-02,get_the_post_type_description,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=183; expanded_from=$filter (foreach array default-filters.php:182)
+hook-064-01,term_description,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=184; expanded_from=$filter (foreach array default-filters.php:182)
+hook-064-02,get_the_post_type_description,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=184; expanded_from=$filter (foreach array default-filters.php:182)
+hook-065-01,term_description,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=185; expanded_from=$filter (foreach array default-filters.php:182)
+hook-065-02,get_the_post_type_description,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=185; expanded_from=$filter (foreach array default-filters.php:182)
+hook-066-01,term_description,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=186; expanded_from=$filter (foreach array default-filters.php:182)
+hook-066-02,get_the_post_type_description,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=186; expanded_from=$filter (foreach array default-filters.php:182)
+hook-067,term_name_rss,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=190
+hook-068,wp_insert_post_parent,add_filter,L4,todo,callback='wp_check_post_hierarchy_for_loops'; priority=10; accepted_args=2; line=193
+hook-069,wp_update_term_parent,add_filter,L4,todo,callback='wp_check_term_hierarchy_for_loops'; priority=10; accepted_args=3; line=194
+hook-070,the_title,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=197
+hook-071,the_title,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=198
+hook-072,the_title,add_filter,L4,todo,callback='trim'; priority=10 (default); accepted_args=1 (default); line=199
+hook-073,the_content,add_filter,L4,todo,callback='apply_block_hooks_to_content_from_post_object'; priority=8; accepted_args=1 (default); line=201
+hook-074,the_content,add_filter,L4,todo,callback='do_blocks'; priority=9; accepted_args=1 (default); line=202
+hook-075,the_content,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=203
+hook-076,the_content,add_filter,L4,todo,callback='convert_smilies'; priority=20; accepted_args=1 (default); line=204
+hook-077,the_content,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=205
+hook-078,the_content,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=206
+hook-079,the_content,add_filter,L4,todo,callback='prepend_attachment'; priority=10 (default); accepted_args=1 (default); line=207
+hook-080,the_content,add_filter,L4,todo,callback='wp_replace_insecure_home_url'; priority=10 (default); accepted_args=1 (default); line=208
+hook-081,the_content,add_filter,L4,todo,callback='do_shortcode'; priority=11; accepted_args=1 (default); line=209
+hook-082,the_content,add_filter,L4,todo,callback='wp_filter_content_tags'; priority=12; accepted_args=1 (default); line=210
+hook-083,the_excerpt,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=212
+hook-084,the_excerpt,add_filter,L4,todo,callback='convert_smilies'; priority=10 (default); accepted_args=1 (default); line=213
+hook-085,the_excerpt,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=214
+hook-086,the_excerpt,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=215
+hook-087,the_excerpt,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=216
+hook-088,the_excerpt,add_filter,L4,todo,callback='wp_replace_insecure_home_url'; priority=10 (default); accepted_args=1 (default); line=217
+hook-089,the_excerpt,add_filter,L4,todo,callback='wp_filter_content_tags'; priority=12; accepted_args=1 (default); line=218
+hook-090,get_the_excerpt,add_filter,L4,todo,callback='wp_trim_excerpt'; priority=10; accepted_args=2; line=219
+hook-091,the_post_thumbnail_caption,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=221
+hook-092,the_post_thumbnail_caption,add_filter,L4,todo,callback='convert_smilies'; priority=10 (default); accepted_args=1 (default); line=222
+hook-093,the_post_thumbnail_caption,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=223
+hook-094,comment_text,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=225
+hook-095,comment_text,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=226
+hook-096,comment_text,add_filter,L4,todo,callback='make_clickable'; priority=9; accepted_args=1 (default); line=227
+hook-097,comment_text,add_filter,L4,todo,callback='force_balance_tags'; priority=25; accepted_args=1 (default); line=228
+hook-098,comment_text,add_filter,L4,todo,callback='convert_smilies'; priority=20; accepted_args=1 (default); line=229
+hook-099,comment_text,add_filter,L4,todo,callback='wpautop'; priority=30; accepted_args=1 (default); line=230
+hook-100,comment_excerpt,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=232
+hook-101,list_cats,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=234
+hook-102,wp_sprintf,add_filter,L4,todo,callback='wp_sprintf_l'; priority=10; accepted_args=2; line=236
+hook-103,widget_text,add_filter,L4,todo,callback='balanceTags'; priority=10 (default); accepted_args=1 (default); line=238
+hook-104,widget_text_content,add_filter,L4,todo,callback='capital_P_dangit'; priority=11; accepted_args=1 (default); line=239
+hook-105,widget_text_content,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=240
+hook-106,widget_text_content,add_filter,L4,todo,callback='convert_smilies'; priority=20; accepted_args=1 (default); line=241
+hook-107,widget_text_content,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=242
+hook-108,widget_text_content,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=243
+hook-109,widget_text_content,add_filter,L4,todo,callback='wp_replace_insecure_home_url'; priority=10 (default); accepted_args=1 (default); line=244
+hook-110,widget_text_content,add_filter,L4,todo,callback='do_shortcode'; priority=11; accepted_args=1 (default); line=245
+hook-111,widget_text_content,add_filter,L4,todo,callback='wp_filter_content_tags'; priority=12; accepted_args=1 (default); line=246
+hook-112,widget_block_content,add_filter,L4,todo,callback='do_blocks'; priority=9; accepted_args=1 (default); line=248
+hook-113,widget_block_content,add_filter,L4,todo,callback='do_shortcode'; priority=11; accepted_args=1 (default); line=249
+hook-114,widget_block_content,add_filter,L4,todo,callback='wp_filter_content_tags'; priority=12; accepted_args=1 (default); line=250
+hook-115,block_type_metadata,add_filter,L4,todo,callback='wp_migrate_old_typography_shape'; priority=10 (default); accepted_args=1 (default); line=252
+hook-116,wp_get_custom_css,add_filter,L4,todo,callback='wp_replace_insecure_home_url'; priority=10 (default); accepted_args=1 (default); line=254
+hook-117,the_title_rss,add_filter,L4,todo,callback='strip_tags'; priority=10 (default); accepted_args=1 (default); line=257
+hook-118,the_title_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=258
+hook-119,the_title_rss,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=259
+hook-120,the_content_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=260
+hook-121,the_content_feed,add_filter,L4,todo,callback='wp_staticize_emoji'; priority=10 (default); accepted_args=1 (default); line=261
+hook-122,the_content_feed,add_filter,L4,todo,callback='_oembed_filter_feed_content'; priority=10 (default); accepted_args=1 (default); line=262
+hook-123,the_excerpt_rss,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=263
+hook-124,the_excerpt_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=264
+hook-125,comment_author_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=265
+hook-126,comment_text_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=266
+hook-127,comment_text_rss,add_filter,L4,todo,callback='esc_html'; priority=10 (default); accepted_args=1 (default); line=267
+hook-128,comment_text_rss,add_filter,L4,todo,callback='wp_staticize_emoji'; priority=10 (default); accepted_args=1 (default); line=268
+hook-129,bloginfo_rss,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=269
+hook-130,the_author,add_filter,L4,todo,callback='ent2ncr'; priority=8; accepted_args=1 (default); line=270
+hook-131,the_guid,add_filter,L4,todo,callback='esc_url'; priority=10 (default); accepted_args=1 (default); line=271
+hook-132,wp_mail,add_filter,L4,todo,callback='wp_staticize_emoji_for_email'; priority=10 (default); accepted_args=1 (default); line=274
+hook-133,wp_robots,add_filter,L4,todo,callback='wp_robots_noindex'; priority=10 (default); accepted_args=1 (default); line=277
+hook-134,wp_robots,add_filter,L4,todo,callback='wp_robots_noindex_embeds'; priority=10 (default); accepted_args=1 (default); line=278
+hook-135,wp_robots,add_filter,L4,todo,callback='wp_robots_noindex_search'; priority=10 (default); accepted_args=1 (default); line=279
+hook-136,wp_robots,add_filter,L4,todo,callback='wp_robots_max_image_preview_large'; priority=10 (default); accepted_args=1 (default); line=280
+hook-137-01,publish_post,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-02,publish_page,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-03,wp_ajax_save-widget,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-04,wp_ajax_widgets-order,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-05,customize_save_after,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-06,rest_after_save_widget,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-07,rest_delete_widget,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-137-08,rest_save_sidebar,add_action,L4,todo,callback='_delete_option_fresh_site'; priority=0; accepted_args=1 (default); line=295; expanded_from=$action (foreach array default-filters.php:283)
+hook-138,wp_default_autoload_value,add_filter,L4,todo,callback='wp_filter_default_autoload_value_via_option_size'; priority=5; accepted_args=4; line=299
+hook-139,option_ping_sites,add_filter,L4,todo,callback='privacy_ping_filter'; priority=10 (default); accepted_args=1 (default); line=300
+hook-140,option_blog_charset,add_filter,L4,todo,callback='_wp_specialchars'; priority=10 (default); accepted_args=1 (default); line=301
+hook-141,option_blog_charset,add_filter,L4,todo,callback='_canonical_charset'; priority=10 (default); accepted_args=1 (default); line=302
+hook-142,option_home,add_filter,L4,todo,callback='_config_wp_home'; priority=10 (default); accepted_args=1 (default); line=303
+hook-143,option_siteurl,add_filter,L4,todo,callback='_config_wp_siteurl'; priority=10 (default); accepted_args=1 (default); line=304
+hook-144,tiny_mce_before_init,add_filter,L4,todo,callback='_mce_set_direction'; priority=10 (default); accepted_args=1 (default); line=305
+hook-145,teeny_mce_before_init,add_filter,L4,todo,callback='_mce_set_direction'; priority=10 (default); accepted_args=1 (default); line=306
+hook-146,pre_kses,add_filter,L4,todo,callback='wp_pre_kses_less_than'; priority=10 (default); accepted_args=1 (default); line=307
+hook-147,pre_kses,add_filter,L4,todo,callback='wp_pre_kses_block_attributes'; priority=10; accepted_args=3; line=308
+hook-148,sanitize_title,add_filter,L4,todo,callback='sanitize_title_with_dashes'; priority=10; accepted_args=3; line=309
+hook-149,check_comment_flood,add_action,L4,todo,callback='check_comment_flood_db'; priority=10; accepted_args=4; line=310
+hook-150,comment_flood_filter,add_filter,L4,todo,callback='wp_throttle_comment_flood'; priority=10; accepted_args=3; line=311
+hook-151,pre_comment_content,add_filter,L4,todo,callback='wp_rel_ugc'; priority=15; accepted_args=1 (default); line=312
+hook-152,wp_kses_allowed_html,add_filter,L4,todo,callback='_wp_kses_allow_note_mention_span'; priority=10; accepted_args=2; line=316
+hook-153,pre_comment_content,add_filter,L4,todo,callback='_wp_kses_sanitize_note_mention_classes'; priority=11; accepted_args=1 (default); line=317
+hook-154,comment_email,add_filter,L4,todo,callback='antispambot'; priority=10 (default); accepted_args=1 (default); line=318
+hook-155,option_tag_base,add_filter,L4,todo,callback='_wp_filter_taxonomy_base'; priority=10 (default); accepted_args=1 (default); line=319
+hook-156,option_category_base,add_filter,L4,todo,callback='_wp_filter_taxonomy_base'; priority=10 (default); accepted_args=1 (default); line=320
+hook-157,the_posts,add_filter,L4,todo,callback='_close_comments_for_old_posts'; priority=10; accepted_args=2; line=321
+hook-158,comments_open,add_filter,L4,todo,callback='_close_comments_for_old_post'; priority=10; accepted_args=2; line=322
+hook-159,pings_open,add_filter,L4,todo,callback='_close_comments_for_old_post'; priority=10; accepted_args=2; line=323
+hook-160,editable_slug,add_filter,L4,todo,callback='urldecode'; priority=10 (default); accepted_args=1 (default); line=324
+hook-161,editable_slug,add_filter,L4,todo,callback='esc_textarea'; priority=10 (default); accepted_args=1 (default); line=325
+hook-162,pingback_ping_source_uri,add_filter,L4,todo,callback='pingback_ping_source_uri'; priority=10 (default); accepted_args=1 (default); line=326
+hook-163,xmlrpc_pingback_error,add_filter,L4,todo,callback='xmlrpc_pingback_error'; priority=10 (default); accepted_args=1 (default); line=327
+hook-164,title_save_pre,add_filter,L4,todo,callback='trim'; priority=10 (default); accepted_args=1 (default); line=328
+hook-165,transition_comment_status,add_action,L4,todo,callback='_clear_modified_cache_on_transition_comment_status'; priority=10; accepted_args=2; line=330
+hook-166,http_request_host_is_external,add_filter,L4,todo,callback='allowed_http_request_hosts'; priority=10; accepted_args=2; line=332
+hook-167,xmlrpc_rsd_apis,add_action,L4,todo,callback='rest_output_rsd'; priority=10 (default); accepted_args=1 (default); line=335
+hook-168,wp_head,add_action,L4,todo,callback='rest_output_link_wp_head'; priority=10; accepted_args=0; line=336
+hook-169,template_redirect,add_action,L4,todo,callback='rest_output_link_header'; priority=11; accepted_args=0; line=337
+hook-170,auth_cookie_malformed,add_action,L4,todo,callback='rest_cookie_collect_status'; priority=10 (default); accepted_args=1 (default); line=338
+hook-171,auth_cookie_expired,add_action,L4,todo,callback='rest_cookie_collect_status'; priority=10 (default); accepted_args=1 (default); line=339
+hook-172,auth_cookie_bad_username,add_action,L4,todo,callback='rest_cookie_collect_status'; priority=10 (default); accepted_args=1 (default); line=340
+hook-173,auth_cookie_bad_hash,add_action,L4,todo,callback='rest_cookie_collect_status'; priority=10 (default); accepted_args=1 (default); line=341
+hook-174,auth_cookie_valid,add_action,L4,todo,callback='rest_cookie_collect_status'; priority=10 (default); accepted_args=1 (default); line=342
+hook-175,application_password_failed_authentication,add_action,L4,todo,callback='rest_application_password_collect_status'; priority=10 (default); accepted_args=1 (default); line=343
+hook-176,application_password_did_authenticate,add_action,L4,todo,callback='rest_application_password_collect_status'; priority=10; accepted_args=2; line=344
+hook-177,rest_authentication_errors,add_filter,L4,todo,callback='rest_application_password_check_errors'; priority=90; accepted_args=1 (default); line=345
+hook-178,rest_authentication_errors,add_filter,L4,todo,callback='rest_cookie_check_errors'; priority=100; accepted_args=1 (default); line=346
+hook-179,wp_head,add_action,L4,todo,callback='_wp_render_title_tag'; priority=1; accepted_args=1 (default); line=349
+hook-180,wp_head,add_action,L4,todo,callback='wp_enqueue_scripts'; priority=1; accepted_args=1 (default); line=350
+hook-181,wp_head,add_action,L4,todo,callback='wp_resource_hints'; priority=2; accepted_args=1 (default); line=351
+hook-182,wp_head,add_action,L4,todo,callback='wp_preload_resources'; priority=1; accepted_args=1 (default); line=352
+hook-183,wp_head,add_action,L4,todo,callback='feed_links'; priority=2; accepted_args=1 (default); line=353
+hook-184,wp_head,add_action,L4,todo,callback='feed_links_extra'; priority=3; accepted_args=1 (default); line=354
+hook-185,wp_head,add_action,L4,todo,callback='rsd_link'; priority=10 (default); accepted_args=1 (default); line=355
+hook-186,wp_head,add_action,L4,todo,callback='locale_stylesheet'; priority=10 (default); accepted_args=1 (default); line=356
+hook-187,publish_future_post,add_action,L4,todo,callback='check_and_publish_future_post'; priority=10; accepted_args=1; line=357
+hook-188,wp_head,add_action,L4,todo,callback='wp_robots'; priority=1; accepted_args=1 (default); line=358
+hook-189,wp_head,add_action,L4,todo,callback='print_emoji_detection_script'; priority=7; accepted_args=1 (default); line=359
+hook-190,wp_head,add_action,L4,todo,callback='wp_print_styles'; priority=8; accepted_args=1 (default); line=360
+hook-191,wp_head,add_action,L4,todo,callback='wp_print_head_scripts'; priority=9; accepted_args=1 (default); line=361
+hook-192,wp_head,add_action,L4,todo,callback='wp_generator'; priority=10 (default); accepted_args=1 (default); line=362
+hook-193,wp_head,add_action,L4,todo,callback='rel_canonical'; priority=10 (default); accepted_args=1 (default); line=363
+hook-194,wp_head,add_action,L4,todo,callback='wp_shortlink_wp_head'; priority=10; accepted_args=0; line=364
+hook-195,wp_head,add_action,L4,todo,callback='wp_custom_css_cb'; priority=101; accepted_args=1 (default); line=365
+hook-196,wp_head,add_action,L4,todo,callback='wp_site_icon'; priority=99; accepted_args=1 (default); line=366
+hook-197,wp_footer,add_action,L4,todo,callback='wp_print_speculation_rules'; priority=10 (default); accepted_args=1 (default); line=367
+hook-198,wp_footer,add_action,L4,todo,callback='wp_print_footer_scripts'; priority=20; accepted_args=1 (default); line=368
+hook-199,template_redirect,add_action,L4,todo,callback='wp_shortlink_header'; priority=11; accepted_args=0; line=369
+hook-200,wp_print_footer_scripts,add_action,L4,todo,callback='_wp_footer_scripts'; priority=10 (default); accepted_args=1 (default); line=370
+hook-201,init,add_action,L4,todo,callback='_register_core_block_patterns_and_categories'; priority=10 (default); accepted_args=1 (default); line=371
+hook-202,init,add_action,L4,todo,callback='check_theme_switched'; priority=99; accepted_args=1 (default); line=372
+hook-203,init,add_action,L4,todo,"callback=array('WP_Block_Supports','init'); priority=22; accepted_args=1 (default); line=373"
+hook-204,switch_theme,add_action,L4,todo,callback='wp_clean_theme_json_cache'; priority=10 (default); accepted_args=1 (default); line=374
+hook-205,start_previewing_theme,add_action,L4,todo,callback='wp_clean_theme_json_cache'; priority=10 (default); accepted_args=1 (default); line=375
+hook-206,after_switch_theme,add_action,L4,todo,callback='_wp_menus_changed'; priority=10 (default); accepted_args=1 (default); line=376
+hook-207,after_switch_theme,add_action,L4,todo,callback='_wp_sidebars_changed'; priority=10 (default); accepted_args=1 (default); line=377
+hook-208,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_emoji_styles'; priority=10 (default); accepted_args=1 (default); line=378
+hook-209,wp_print_styles,add_action,L4,todo,callback='print_emoji_styles'; priority=10 (default); accepted_args=1 (default); line=379
+hook-210,wp_robots,add_filter,L4,todo,callback='wp_robots_no_robots'; priority=10 (default); accepted_args=1 (default); line=388
+hook-211,login_head,add_action,L4,todo,callback='wp_robots'; priority=1; accepted_args=1 (default); line=392
+hook-212,login_head,add_action,L4,todo,callback='wp_resource_hints'; priority=8; accepted_args=1 (default); line=393
+hook-213,login_head,add_action,L4,todo,callback='wp_print_head_scripts'; priority=9; accepted_args=1 (default); line=394
+hook-214,login_head,add_action,L4,todo,callback='print_admin_styles'; priority=9; accepted_args=1 (default); line=395
+hook-215,login_head,add_action,L4,todo,callback='wp_site_icon'; priority=99; accepted_args=1 (default); line=396
+hook-216,login_footer,add_action,L4,todo,callback='wp_print_footer_scripts'; priority=20; accepted_args=1 (default); line=397
+hook-217,login_init,add_action,L4,todo,callback='send_frame_options_header'; priority=10; accepted_args=0; line=398
+hook-218,login_init,add_action,L4,todo,callback='wp_admin_headers'; priority=10 (default); accepted_args=1 (default); line=399
+hook-219-01,rss2_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-02,commentsrss2_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-03,rss_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-04,rdf_header,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-05,atom_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-06,comments_atom_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-07,opml_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-219-08,app_head,add_action,L4,todo,callback='the_generator'; priority=10 (default); accepted_args=1 (default); line=403; expanded_from=$action (foreach array default-filters.php:402)
+hook-220,atom_head,add_action,L4,todo,callback='atom_site_icon'; priority=10 (default); accepted_args=1 (default); line=407
+hook-221,rss2_head,add_action,L4,todo,callback='rss2_site_icon'; priority=10 (default); accepted_args=1 (default); line=408
+hook-222,init,add_action,L4,todo,callback='wp_cron'; priority=10 (default); accepted_args=1 (default); line=413
+hook-223,update_option_home,add_action,L4,todo,callback='wp_update_https_migration_required'; priority=10; accepted_args=2; line=417
+hook-224,do_feed_rdf,add_action,L4,todo,callback='do_feed_rdf'; priority=10; accepted_args=0; line=420
+hook-225,do_feed_rss,add_action,L4,todo,callback='do_feed_rss'; priority=10; accepted_args=0; line=421
+hook-226,do_feed_rss2,add_action,L4,todo,callback='do_feed_rss2'; priority=10; accepted_args=1; line=422
+hook-227,do_feed_atom,add_action,L4,todo,callback='do_feed_atom'; priority=10; accepted_args=1; line=423
+hook-228,do_pings,add_action,L4,todo,callback='do_all_pings'; priority=10; accepted_args=0; line=424
+hook-229,do_all_pings,add_action,L4,todo,callback='do_all_pingbacks'; priority=10; accepted_args=0; line=425
+hook-230,do_all_pings,add_action,L4,todo,callback='do_all_enclosures'; priority=10; accepted_args=0; line=426
+hook-231,do_all_pings,add_action,L4,todo,callback='do_all_trackbacks'; priority=10; accepted_args=0; line=427
+hook-232,do_all_pings,add_action,L4,todo,callback='generic_ping'; priority=10; accepted_args=0; line=428
+hook-233,do_all_pings,add_action,L4,todo,callback='wp_maybe_disable_outgoing_pings_for_environment'; priority=1; accepted_args=0; line=431
+hook-234,pre_trackback_post,add_action,L4,todo,callback='wp_maybe_disable_trackback_for_environment'; priority=10; accepted_args=0; line=432
+hook-235,xmlrpc_methods,add_filter,L4,todo,callback='wp_maybe_disable_xmlrpc_pingback_for_environment'; priority=10 (default); accepted_args=1 (default); line=433
+hook-236,do_robots,add_action,L4,todo,callback='do_robots'; priority=10 (default); accepted_args=1 (default); line=435
+hook-237,do_favicon,add_action,L4,todo,callback='do_favicon'; priority=10 (default); accepted_args=1 (default); line=436
+hook-238,wp_before_include_template,add_action,L4,todo,callback='wp_start_template_enhancement_output_buffer'; priority=1000; accepted_args=1 (default); line=437
+hook-239,set_comment_cookies,add_action,L4,todo,callback='wp_set_comment_cookies'; priority=10; accepted_args=3; line=438
+hook-240,sanitize_comment_cookies,add_action,L4,todo,callback='sanitize_comment_cookies'; priority=10 (default); accepted_args=1 (default); line=439
+hook-241,init,add_action,L4,todo,callback='smilies_init'; priority=5; accepted_args=1 (default); line=440
+hook-242,plugins_loaded,add_action,L4,todo,callback='wp_maybe_load_widgets'; priority=0; accepted_args=1 (default); line=441
+hook-243,plugins_loaded,add_action,L4,todo,callback='wp_maybe_load_embeds'; priority=0; accepted_args=1 (default); line=442
+hook-244,shutdown,add_action,L4,todo,callback='wp_ob_end_flush_all'; priority=1; accepted_args=1 (default); line=443
+hook-245,wp_after_insert_post,add_action,L4,todo,callback='wp_save_post_revision_on_insert'; priority=9; accepted_args=3; line=445
+hook-246,post_updated,add_action,L4,todo,callback='wp_save_post_revision'; priority=10; accepted_args=1; line=446
+hook-247,publish_post,add_action,L4,todo,callback='_publish_post_hook'; priority=5; accepted_args=1; line=447
+hook-248,transition_post_status,add_action,L4,todo,callback='_transition_post_status'; priority=5; accepted_args=3; line=448
+hook-249,transition_post_status,add_action,L4,todo,callback='_update_term_count_on_transition_post_status'; priority=10; accepted_args=3; line=449
+hook-250,comment_form,add_action,L4,todo,callback='wp_comment_form_unfiltered_html_nonce'; priority=10 (default); accepted_args=1 (default); line=450
+hook-251,user_request_action_confirmed,add_action,L4,todo,callback='_wp_privacy_account_request_confirmed'; priority=10 (default); accepted_args=1 (default); line=453
+hook-252,user_request_action_confirmed,add_action,L4,todo,callback='_wp_privacy_send_request_confirmation_notification'; priority=12; accepted_args=1 (default); line=454
+hook-253,wp_privacy_personal_data_exporters,add_filter,L4,todo,callback='wp_register_comment_personal_data_exporter'; priority=10 (default); accepted_args=1 (default); line=455
+hook-254,wp_privacy_personal_data_exporters,add_filter,L4,todo,callback='wp_register_media_personal_data_exporter'; priority=10 (default); accepted_args=1 (default); line=456
+hook-255,wp_privacy_personal_data_exporters,add_filter,L4,todo,callback='wp_register_user_personal_data_exporter'; priority=1; accepted_args=1 (default); line=457
+hook-256,wp_privacy_personal_data_erasers,add_filter,L4,todo,callback='wp_register_comment_personal_data_eraser'; priority=10 (default); accepted_args=1 (default); line=458
+hook-257,init,add_action,L4,todo,callback='wp_schedule_delete_old_privacy_export_files'; priority=10 (default); accepted_args=1 (default); line=459
+hook-258,wp_privacy_delete_old_export_files,add_action,L4,todo,callback='wp_privacy_delete_old_export_files'; priority=10 (default); accepted_args=1 (default); line=460
+hook-259,init,add_action,L4,todo,callback='wp_schedule_personal_data_cleanup_requests'; priority=10 (default); accepted_args=1 (default); line=461
+hook-260,wp_privacy_personal_data_cleanup_requests,add_action,L4,todo,callback='wp_privacy_personal_data_cleanup_requests'; priority=10 (default); accepted_args=1 (default); line=462
+hook-261,wp_scheduled_delete,add_action,L4,todo,callback='wp_scheduled_delete'; priority=10 (default); accepted_args=1 (default); line=465
+hook-262,wp_scheduled_auto_draft_delete,add_action,L4,todo,callback='wp_delete_auto_drafts'; priority=10 (default); accepted_args=1 (default); line=466
+hook-263,importer_scheduled_cleanup,add_action,L4,todo,callback='wp_delete_attachment'; priority=10 (default); accepted_args=1 (default); line=467
+hook-264,upgrader_scheduled_cleanup,add_action,L4,todo,callback='wp_delete_attachment'; priority=10 (default); accepted_args=1 (default); line=468
+hook-265,delete_expired_transients,add_action,L4,todo,callback='delete_expired_transients'; priority=10 (default); accepted_args=1 (default); line=469
+hook-266,delete_post,add_action,L4,todo,callback='_wp_delete_post_menu_item'; priority=10 (default); accepted_args=1 (default); line=472
+hook-267,delete_term,add_action,L4,todo,callback='_wp_delete_tax_menu_item'; priority=10; accepted_args=3; line=473
+hook-268,transition_post_status,add_action,L4,todo,callback='_wp_auto_add_pages_to_menu'; priority=10; accepted_args=3; line=474
+hook-269,delete_post,add_action,L4,todo,callback='_wp_delete_customize_changeset_dependent_auto_drafts'; priority=10 (default); accepted_args=1 (default); line=475
+hook-270,begin_fetch_post_thumbnail_html,add_action,L4,todo,callback='_wp_post_thumbnail_class_filter_add'; priority=10 (default); accepted_args=1 (default); line=478
+hook-271,end_fetch_post_thumbnail_html,add_action,L4,todo,callback='_wp_post_thumbnail_class_filter_remove'; priority=10 (default); accepted_args=1 (default); line=479
+hook-272,begin_fetch_post_thumbnail_html,add_action,L4,todo,callback='_wp_post_thumbnail_context_filter_add'; priority=10 (default); accepted_args=1 (default); line=480
+hook-273,end_fetch_post_thumbnail_html,add_action,L4,todo,callback='_wp_post_thumbnail_context_filter_remove'; priority=10 (default); accepted_args=1 (default); line=481
+hook-274,template_redirect,add_action,L4,todo,callback='wp_old_slug_redirect'; priority=10 (default); accepted_args=1 (default); line=484
+hook-275,post_updated,add_action,L4,todo,callback='wp_check_for_changed_slugs'; priority=12; accepted_args=3; line=485
+hook-276,attachment_updated,add_action,L4,todo,callback='wp_check_for_changed_slugs'; priority=12; accepted_args=3; line=486
+hook-277,post_updated,add_action,L4,todo,callback='wp_check_for_changed_dates'; priority=12; accepted_args=3; line=489
+hook-278,attachment_updated,add_action,L4,todo,callback='wp_check_for_changed_dates'; priority=12; accepted_args=3; line=490
+hook-279,init,add_action,L4,todo,callback='_show_post_preview'; priority=10 (default); accepted_args=1 (default); line=493
+hook-280,wp_head,add_action,L4,todo,callback='wp_post_preview_js'; priority=1; accepted_args=1 (default); line=496
+hook-281,pre_option_gmt_offset,add_filter,L4,todo,callback='wp_timezone_override_offset'; priority=10 (default); accepted_args=1 (default); line=499
+hook-282,default_option_link_manager_enabled,add_filter,L4,todo,callback='__return_true'; priority=10 (default); accepted_args=1 (default); line=502
+hook-283,pre_option_embed_autourls,add_filter,L4,todo,callback='__return_true'; priority=10 (default); accepted_args=1 (default); line=505
+hook-284,heartbeat_settings,add_filter,L4,todo,callback='wp_heartbeat_settings'; priority=10 (default); accepted_args=1 (default); line=508
+hook-285,admin_enqueue_scripts,add_action,L4,todo,callback='wp_auth_check_load'; priority=10 (default); accepted_args=1 (default); line=511
+hook-286,heartbeat_send,add_filter,L4,todo,callback='wp_auth_check'; priority=10 (default); accepted_args=1 (default); line=512
+hook-287,heartbeat_nopriv_send,add_filter,L4,todo,callback='wp_auth_check'; priority=10 (default); accepted_args=1 (default); line=513
+hook-288,authenticate,add_filter,L4,todo,callback='wp_authenticate_username_password'; priority=20; accepted_args=3; line=516
+hook-289,authenticate,add_filter,L4,todo,callback='wp_authenticate_email_password'; priority=20; accepted_args=3; line=517
+hook-290,authenticate,add_filter,L4,todo,callback='wp_authenticate_application_password'; priority=20; accepted_args=3; line=518
+hook-291,authenticate,add_filter,L4,todo,callback='wp_authenticate_spam_check'; priority=99; accepted_args=1 (default); line=519
+hook-292,determine_current_user,add_filter,L4,todo,callback='wp_validate_auth_cookie'; priority=10 (default); accepted_args=1 (default); line=520
+hook-293,determine_current_user,add_filter,L4,todo,callback='wp_validate_logged_in_cookie'; priority=20; accepted_args=1 (default); line=521
+hook-294,determine_current_user,add_filter,L4,todo,callback='wp_validate_application_password'; priority=20; accepted_args=1 (default); line=522
+hook-295,admin_init,add_action,L4,todo,callback='_wp_check_for_scheduled_split_terms'; priority=10 (default); accepted_args=1 (default); line=525
+hook-296,split_shared_term,add_action,L4,todo,callback='_wp_check_split_default_terms'; priority=10; accepted_args=4; line=526
+hook-297,split_shared_term,add_action,L4,todo,callback='_wp_check_split_terms_in_menus'; priority=10; accepted_args=4; line=527
+hook-298,split_shared_term,add_action,L4,todo,callback='_wp_check_split_nav_menu_terms'; priority=10; accepted_args=4; line=528
+hook-299,wp_split_shared_term_batch,add_action,L4,todo,callback='_wp_batch_split_terms'; priority=10 (default); accepted_args=1 (default); line=529
+hook-300,admin_init,add_action,L4,todo,callback='_wp_check_for_scheduled_update_comment_type'; priority=10 (default); accepted_args=1 (default); line=532
+hook-301,wp_update_comment_type_batch,add_action,L4,todo,callback='_wp_batch_update_comment_type'; priority=10 (default); accepted_args=1 (default); line=533
+hook-302,comment_post,add_action,L4,todo,callback='wp_new_comment_notify_moderator'; priority=10 (default); accepted_args=1 (default); line=536
+hook-303,comment_post,add_action,L4,todo,callback='wp_new_comment_notify_postauthor'; priority=10 (default); accepted_args=1 (default); line=537
+hook-304,rest_insert_comment,add_action,L4,todo,callback='wp_new_comment_via_rest_notify_postauthor'; priority=10 (default); accepted_args=1 (default); line=538
+hook-305,rest_insert_comment,add_action,L4,todo,callback='wp_notify_note_mentions'; priority=10; accepted_args=3; line=539
+hook-306,after_password_reset,add_action,L4,todo,callback='wp_password_change_notification'; priority=10 (default); accepted_args=1 (default); line=540
+hook-307,register_new_user,add_action,L4,todo,callback='wp_send_new_user_notifications'; priority=10 (default); accepted_args=1 (default); line=541
+hook-308,edit_user_created_user,add_action,L4,todo,callback='wp_send_new_user_notifications'; priority=10; accepted_args=2; line=542
+hook-309,init,add_action,L4,todo,callback='rest_api_init'; priority=10 (default); accepted_args=1 (default); line=545
+hook-310,rest_api_init,add_action,L4,todo,callback='rest_api_default_filters'; priority=10; accepted_args=1; line=546
+hook-311,rest_api_init,add_action,L4,todo,callback='register_initial_settings'; priority=10; accepted_args=1 (default); line=547
+hook-312,rest_api_init,add_action,L4,todo,callback='create_initial_rest_routes'; priority=99; accepted_args=1 (default); line=548
+hook-313,parse_request,add_action,L4,todo,callback='rest_api_loaded'; priority=10 (default); accepted_args=1 (default); line=549
+hook-314,wp_abilities_api_categories_init,add_action,L4,todo,callback='wp_register_core_ability_categories'; priority=10 (default); accepted_args=1 (default); line=552
+hook-315,wp_abilities_api_init,add_action,L4,todo,callback='wp_register_core_abilities'; priority=10 (default); accepted_args=1 (default); line=553
+hook-316,init,add_action,L4,todo,callback='_wp_connectors_init'; priority=15; accepted_args=1 (default); line=556
+hook-317,init,add_action,L4,todo,callback='wp_sitemaps_get_server'; priority=10 (default); accepted_args=1 (default); line=559
+hook-318,setup_theme,add_action,L4,todo,callback='create_initial_theme_features'; priority=0; accepted_args=1 (default); line=565
+hook-319,after_setup_theme,add_action,L4,todo,callback='_add_default_theme_supports'; priority=1; accepted_args=1 (default); line=566
+hook-320,wp_loaded,add_action,L4,todo,callback='_custom_header_background_just_in_time'; priority=10 (default); accepted_args=1 (default); line=567
+hook-321,wp_head,add_action,L4,todo,callback='_custom_logo_header_styles'; priority=10 (default); accepted_args=1 (default); line=568
+hook-322,plugins_loaded,add_action,L4,todo,callback='_wp_customize_include'; priority=10 (default); accepted_args=1 (default); line=569
+hook-323,transition_post_status,add_action,L4,todo,callback='_wp_customize_publish_changeset'; priority=10; accepted_args=3; line=570
+hook-324,admin_enqueue_scripts,add_action,L4,todo,callback='_wp_customize_loader_settings'; priority=10 (default); accepted_args=1 (default); line=571
+hook-325,delete_attachment,add_action,L4,todo,callback='_delete_attachment_theme_mod'; priority=10 (default); accepted_args=1 (default); line=572
+hook-326,transition_post_status,add_action,L4,todo,callback='_wp_keep_alive_customize_changeset_dependent_auto_drafts'; priority=20; accepted_args=3; line=573
+hook-327,plugins_loaded,add_action,L4,todo,callback='wp_initialize_theme_preview_hooks'; priority=1; accepted_args=1 (default); line=576
+hook-328,init,add_action,L4,todo,callback='wp_initialize_site_preview_hooks'; priority=1; accepted_args=1 (default); line=579
+hook-329,save_post,add_action,L4,todo,callback='delete_get_calendar_cache'; priority=10 (default); accepted_args=1 (default); line=582
+hook-330,delete_post,add_action,L4,todo,callback='delete_get_calendar_cache'; priority=10 (default); accepted_args=1 (default); line=583
+hook-331,update_option_start_of_week,add_action,L4,todo,callback='delete_get_calendar_cache'; priority=10 (default); accepted_args=1 (default); line=584
+hook-332,update_option_gmt_offset,add_action,L4,todo,callback='delete_get_calendar_cache'; priority=10 (default); accepted_args=1 (default); line=585
+hook-333,transition_post_status,add_action,L4,todo,callback='__clear_multi_author_cache'; priority=10 (default); accepted_args=1 (default); line=588
+hook-334,init,add_action,L4,todo,callback='create_initial_post_types'; priority=0; accepted_args=1 (default); line=591
+hook-335,admin_menu,add_action,L4,todo,callback='_add_post_type_submenus'; priority=10 (default); accepted_args=1 (default); line=592
+hook-336,before_delete_post,add_action,L4,todo,callback='_reset_front_page_settings_for_post'; priority=10 (default); accepted_args=1 (default); line=593
+hook-337,before_delete_post,add_action,L4,todo,callback='_reset_privacy_policy_page_for_post'; priority=10 (default); accepted_args=1 (default); line=594
+hook-338,wp_trash_post,add_action,L4,todo,callback='_reset_front_page_settings_for_post'; priority=10 (default); accepted_args=1 (default); line=595
+hook-339,change_locale,add_action,L4,todo,callback='create_initial_post_types'; priority=10 (default); accepted_args=1 (default); line=596
+hook-340,request,add_filter,L4,todo,callback='_post_format_request'; priority=10 (default); accepted_args=1 (default); line=599
+hook-341,term_link,add_filter,L4,todo,callback='_post_format_link'; priority=10; accepted_args=3; line=600
+hook-342,get_post_format,add_filter,L4,todo,callback='_post_format_get_term'; priority=10 (default); accepted_args=1 (default); line=601
+hook-343,get_terms,add_filter,L4,todo,callback='_post_format_get_terms'; priority=10; accepted_args=3; line=602
+hook-344,wp_get_object_terms,add_filter,L4,todo,callback='_post_format_wp_get_object_terms'; priority=10 (default); accepted_args=1 (default); line=603
+hook-345,init,add_action,L4,todo,callback='kses_init'; priority=10 (default); accepted_args=1 (default); line=606
+hook-346,set_current_user,add_action,L4,todo,callback='kses_init'; priority=10 (default); accepted_args=1 (default); line=607
+hook-347,wp_default_scripts,add_action,L4,todo,callback='wp_default_scripts'; priority=10 (default); accepted_args=1 (default); line=610
+hook-348,wp_default_scripts,add_action,L4,todo,callback='wp_default_packages'; priority=10 (default); accepted_args=1 (default); line=611
+hook-349,wp_default_scripts,add_action,L4,todo,callback='wp_default_script_modules'; priority=10 (default); accepted_args=1 (default); line=612
+hook-350,wp_enqueue_scripts,add_action,L4,todo,callback='wp_localize_jquery_ui_datepicker'; priority=1000; accepted_args=1 (default); line=614
+hook-351,wp_enqueue_scripts,add_action,L4,todo,callback='wp_common_block_scripts_and_styles'; priority=10 (default); accepted_args=1 (default); line=615
+hook-352,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_classic_theme_styles'; priority=10 (default); accepted_args=1 (default); line=616
+hook-353,admin_enqueue_scripts,add_action,L4,todo,callback='wp_localize_jquery_ui_datepicker'; priority=1000; accepted_args=1 (default); line=617
+hook-354,admin_enqueue_scripts,add_action,L4,todo,callback='wp_common_block_scripts_and_styles'; priority=10 (default); accepted_args=1 (default); line=618
+hook-355,admin_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_command_palette_assets'; priority=10 (default); accepted_args=1 (default); line=619
+hook-356,admin_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_view_transitions_admin_css'; priority=10 (default); accepted_args=1 (default); line=620
+hook-357,enqueue_block_assets,add_action,L4,todo,callback='wp_enqueue_classic_theme_styles'; priority=10 (default); accepted_args=1 (default); line=621
+hook-358,enqueue_block_assets,add_action,L4,todo,callback='wp_enqueue_registered_block_scripts_and_styles'; priority=10 (default); accepted_args=1 (default); line=622
+hook-359,enqueue_block_assets,add_action,L4,todo,callback='enqueue_block_styles_assets'; priority=30; accepted_args=1 (default); line=623
+hook-360,wp_default_styles,add_action,L4,todo,callback='wp_load_classic_theme_block_styles_on_demand'; priority=0; accepted_args=1 (default); line=624
+hook-361,enqueue_block_editor_assets,add_action,L4,todo,callback='wp_enqueue_registered_block_scripts_and_styles'; priority=10 (default); accepted_args=1 (default); line=638
+hook-362,enqueue_block_editor_assets,add_action,L4,todo,callback='enqueue_editor_block_styles_assets'; priority=10 (default); accepted_args=1 (default); line=639
+hook-363,enqueue_block_editor_assets,add_action,L4,todo,callback='wp_enqueue_editor_block_directory_assets'; priority=10 (default); accepted_args=1 (default); line=640
+hook-364,enqueue_block_editor_assets,add_action,L4,todo,callback='wp_enqueue_editor_format_library_assets'; priority=10 (default); accepted_args=1 (default); line=641
+hook-365,enqueue_block_editor_assets,add_action,L4,todo,callback='wp_enqueue_block_editor_script_modules'; priority=10 (default); accepted_args=1 (default); line=642
+hook-366,enqueue_block_editor_assets,add_action,L4,todo,callback='wp_enqueue_global_styles_css_custom_properties'; priority=10 (default); accepted_args=1 (default); line=643
+hook-367,enqueue_block_editor_assets,add_action,L4,todo,callback='_wp_enqueue_auto_register_blocks'; priority=10 (default); accepted_args=1 (default); line=644
+hook-368,wp_print_scripts,add_action,L4,todo,callback='wp_just_in_time_script_localization'; priority=10 (default); accepted_args=1 (default); line=645
+hook-369,print_scripts_array,add_filter,L4,todo,callback='wp_prototype_before_jquery'; priority=10 (default); accepted_args=1 (default); line=646
+hook-370,customize_controls_print_styles,add_action,L4,todo,callback='wp_resource_hints'; priority=1; accepted_args=1 (default); line=647
+hook-371,admin_head,add_action,L4,todo,callback='wp_check_widget_editor_deps'; priority=10 (default); accepted_args=1 (default); line=648
+hook-372,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_global_styles'; priority=10 (default); accepted_args=1 (default); line=651
+hook-373,wp_footer,add_action,L4,todo,callback='wp_enqueue_global_styles'; priority=1; accepted_args=1 (default); line=652
+hook-374,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_stored_styles'; priority=10 (default); accepted_args=1 (default); line=655
+hook-375,wp_footer,add_action,L4,todo,callback='wp_enqueue_stored_styles'; priority=1; accepted_args=1 (default); line=656
+hook-376,wp_default_styles,add_action,L4,todo,callback='wp_default_styles'; priority=10 (default); accepted_args=1 (default); line=658
+hook-377,style_loader_src,add_filter,L4,todo,callback='wp_style_loader_src'; priority=10; accepted_args=2; line=659
+hook-378,wp_head,add_action,L4,todo,callback='wp_enqueue_img_auto_sizes_contain_css_fix'; priority=0; accepted_args=1 (default); line=661
+hook-379,wp_head,add_action,L4,todo,callback='wp_print_auto_sizes_contain_css_fix'; priority=1; accepted_args=1 (default); line=662
+hook-380,wp_head,add_action,L4,todo,callback='wp_maybe_inline_styles'; priority=1; accepted_args=1 (default); line=663
+hook-381,wp_footer,add_action,L4,todo,callback='wp_maybe_inline_styles'; priority=1; accepted_args=1 (default); line=664
+hook-382,init,add_action,L4,todo,callback='_wp_footnotes_kses_init'; priority=10 (default); accepted_args=1 (default); line=671
+hook-383,set_current_user,add_action,L4,todo,callback='_wp_footnotes_kses_init'; priority=10 (default); accepted_args=1 (default); line=672
+hook-384,force_filtered_html_on_import,add_filter,L4,todo,callback='_wp_footnotes_force_filtered_html_on_import_filter'; priority=999; accepted_args=1 (default); line=673
+hook-385,theme_wp_navigation_templates,add_filter,L4,todo,callback='__return_empty_array'; priority=10 (default); accepted_args=1 (default); line=680
+hook-386,init,add_action,L4,todo,callback='create_initial_taxonomies'; priority=0; accepted_args=1 (default); line=683
+hook-387,change_locale,add_action,L4,todo,callback='create_initial_taxonomies'; priority=10 (default); accepted_args=1 (default); line=684
+hook-388,template_redirect,add_action,L4,todo,callback='redirect_canonical'; priority=10 (default); accepted_args=1 (default); line=687
+hook-389,template_redirect,add_action,L4,todo,callback='wp_redirect_admin_locations'; priority=1000; accepted_args=1 (default); line=688
+hook-390,wp_playlist_scripts,add_action,L4,todo,callback='wp_playlist_scripts'; priority=10 (default); accepted_args=1 (default); line=691
+hook-391,customize_controls_enqueue_scripts,add_action,L4,todo,callback='wp_plupload_default_settings'; priority=10 (default); accepted_args=1 (default); line=692
+hook-392,plugins_loaded,add_action,L4,todo,callback='_wp_add_additional_image_sizes'; priority=0; accepted_args=1 (default); line=693
+hook-393,plupload_default_settings,add_filter,L4,todo,callback='wp_show_heic_upload_error'; priority=10 (default); accepted_args=1 (default); line=694
+hook-394,admin_init,add_action,L4,todo,callback='wp_set_client_side_media_processing_flag'; priority=10 (default); accepted_args=1 (default); line=697
+hook-395,load-post.php,add_action,L4,todo,callback='wp_set_up_cross_origin_isolation'; priority=10 (default); accepted_args=1 (default); line=699
+hook-396,load-post-new.php,add_action,L4,todo,callback='wp_set_up_cross_origin_isolation'; priority=10 (default); accepted_args=1 (default); line=700
+hook-397,load-site-editor.php,add_action,L4,todo,callback='wp_set_up_cross_origin_isolation'; priority=10 (default); accepted_args=1 (default); line=701
+hook-398,load-widgets.php,add_action,L4,todo,callback='wp_set_up_cross_origin_isolation'; priority=10 (default); accepted_args=1 (default); line=702
+hook-399,nav_menu_item_id,add_filter,L4,todo,callback='_nav_menu_item_id_use_once'; priority=10; accepted_args=2; line=704
+hook-400,nav_menu_css_class,add_filter,L4,todo,callback='wp_nav_menu_remove_menu_item_has_children_class'; priority=10; accepted_args=4; line=705
+hook-401,after_setup_theme,add_action,L4,todo,callback='wp_setup_widgets_block_editor'; priority=1; accepted_args=1 (default); line=708
+hook-402,init,add_action,L4,todo,callback='wp_widgets_init'; priority=1; accepted_args=1 (default); line=709
+hook-403,change_locale,add_action,L4,todo,"callback=array('WP_Widget_Media','reset_default_labels'); priority=10 (default); accepted_args=1 (default); line=710"
+hook-404,widgets_init,add_action,L4,todo,callback='_wp_block_theme_register_classic_sidebars'; priority=1; accepted_args=1 (default); line=711
+hook-405,template_redirect,add_action,L4,todo,callback='_wp_admin_bar_init'; priority=0; accepted_args=1 (default); line=715
+hook-406,admin_init,add_action,L4,todo,callback='_wp_admin_bar_init'; priority=10 (default); accepted_args=1 (default); line=716
+hook-407,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_admin_bar_bump_styles'; priority=10 (default); accepted_args=1 (default); line=717
+hook-408,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_admin_bar_header_styles'; priority=10 (default); accepted_args=1 (default); line=718
+hook-409,admin_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_admin_bar_header_styles'; priority=10 (default); accepted_args=1 (default); line=719
+hook-410,before_signup_header,add_action,L4,todo,callback='_wp_admin_bar_init'; priority=10 (default); accepted_args=1 (default); line=720
+hook-411,activate_header,add_action,L4,todo,callback='_wp_admin_bar_init'; priority=10 (default); accepted_args=1 (default); line=721
+hook-412,wp_body_open,add_action,L4,todo,callback='wp_admin_bar_render'; priority=0; accepted_args=1 (default); line=722
+hook-413,wp_footer,add_action,L4,todo,callback='wp_admin_bar_render'; priority=1000; accepted_args=1 (default); line=723
+hook-414,in_admin_header,add_action,L4,todo,callback='wp_admin_bar_render'; priority=0; accepted_args=1 (default); line=724
+hook-415,media_buttons,add_action,L4,todo,callback='media_buttons'; priority=10 (default); accepted_args=1 (default); line=727
+hook-416,image_send_to_editor,add_filter,L4,todo,callback='image_add_caption'; priority=20; accepted_args=8; line=728
+hook-417,media_send_to_editor,add_filter,L4,todo,callback='image_media_send_to_editor'; priority=10; accepted_args=3; line=729
+hook-418,rest_api_init,add_action,L4,todo,callback='wp_oembed_register_route'; priority=10 (default); accepted_args=1 (default); line=732
+hook-419,rest_pre_serve_request,add_filter,L4,todo,callback='_oembed_rest_pre_serve_request'; priority=10; accepted_args=4; line=733
+hook-420,wp_head,add_action,L4,todo,callback='wp_oembed_add_discovery_links'; priority=4; accepted_args=1 (default); line=735
+hook-421,wp_head,add_action,L4,todo,callback='wp_oembed_add_discovery_links'; priority=10 (default); accepted_args=1 (default); line=736
+hook-422,wp_head,add_action,L4,todo,callback='wp_oembed_add_host_js'; priority=10 (default); accepted_args=1 (default); line=737
+hook-423,embed_oembed_html,add_filter,L4,todo,callback='wp_maybe_enqueue_oembed_host_js'; priority=10 (default); accepted_args=1 (default); line=738
+hook-424,embed_head,add_action,L4,todo,callback='enqueue_embed_scripts'; priority=1; accepted_args=1 (default); line=740
+hook-425,embed_head,add_action,L4,todo,callback='print_emoji_detection_script'; priority=10 (default); accepted_args=1 (default); line=741
+hook-426,embed_head,add_action,L4,todo,callback='wp_enqueue_embed_styles'; priority=9; accepted_args=1 (default); line=742
+hook-427,embed_head,add_action,L4,todo,callback='print_embed_styles'; priority=10 (default); accepted_args=1 (default); line=743
+hook-428,embed_head,add_action,L4,todo,callback='wp_print_head_scripts'; priority=20; accepted_args=1 (default); line=744
+hook-429,embed_head,add_action,L4,todo,callback='wp_print_styles'; priority=20; accepted_args=1 (default); line=745
+hook-430,embed_head,add_action,L4,todo,callback='wp_robots'; priority=10 (default); accepted_args=1 (default); line=746
+hook-431,embed_head,add_action,L4,todo,callback='rel_canonical'; priority=10 (default); accepted_args=1 (default); line=747
+hook-432,embed_head,add_action,L4,todo,callback='locale_stylesheet'; priority=30; accepted_args=1 (default); line=748
+hook-433,enqueue_embed_scripts,add_action,L4,todo,callback='wp_enqueue_emoji_styles'; priority=10 (default); accepted_args=1 (default); line=749
+hook-434,embed_content_meta,add_action,L4,todo,callback='print_embed_comments_button'; priority=10 (default); accepted_args=1 (default); line=751
+hook-435,embed_content_meta,add_action,L4,todo,callback='print_embed_sharing_button'; priority=10 (default); accepted_args=1 (default); line=752
+hook-436,embed_footer,add_action,L4,todo,callback='print_embed_sharing_dialog'; priority=10 (default); accepted_args=1 (default); line=754
+hook-437,embed_footer,add_action,L4,todo,callback='print_embed_scripts'; priority=10 (default); accepted_args=1 (default); line=755
+hook-438,embed_footer,add_action,L4,todo,callback='wp_print_footer_scripts'; priority=20; accepted_args=1 (default); line=756
+hook-439,excerpt_more,add_filter,L4,todo,callback='wp_embed_excerpt_more'; priority=20; accepted_args=1 (default); line=758
+hook-440,the_excerpt_embed,add_filter,L4,todo,callback='wptexturize'; priority=10 (default); accepted_args=1 (default); line=759
+hook-441,the_excerpt_embed,add_filter,L4,todo,callback='convert_chars'; priority=10 (default); accepted_args=1 (default); line=760
+hook-442,the_excerpt_embed,add_filter,L4,todo,callback='wpautop'; priority=10 (default); accepted_args=1 (default); line=761
+hook-443,the_excerpt_embed,add_filter,L4,todo,callback='shortcode_unautop'; priority=10 (default); accepted_args=1 (default); line=762
+hook-444,the_excerpt_embed,add_filter,L4,todo,callback='wp_embed_excerpt_attachment'; priority=10 (default); accepted_args=1 (default); line=763
+hook-445,oembed_dataparse,add_filter,L4,todo,callback='wp_filter_oembed_iframe_title_attribute'; priority=5; accepted_args=3; line=765
+hook-446,oembed_dataparse,add_filter,L4,todo,callback='wp_filter_oembed_result'; priority=10; accepted_args=3; line=766
+hook-447,oembed_response_data,add_filter,L4,todo,callback='get_oembed_response_data_rich'; priority=10; accepted_args=4; line=767
+hook-448,pre_oembed_result,add_filter,L4,todo,callback='wp_filter_pre_oembed_result'; priority=10; accepted_args=3; line=768
+hook-449,user_has_cap,add_filter,L4,todo,callback='wp_maybe_grant_install_languages_cap'; priority=1; accepted_args=1 (default); line=771
+hook-450,user_has_cap,add_filter,L4,todo,callback='wp_maybe_grant_resume_extensions_caps'; priority=1; accepted_args=1 (default); line=772
+hook-451,user_has_cap,add_filter,L4,todo,callback='wp_maybe_grant_site_health_caps'; priority=1; accepted_args=4; line=773
+hook-452,render_block_context,add_filter,L4,todo,callback='_block_template_render_without_post_block_context'; priority=10 (default); accepted_args=1 (default); line=776
+hook-453,pre_wp_unique_post_slug,add_filter,L4,todo,callback='wp_filter_wp_template_unique_post_slug'; priority=10; accepted_args=5; line=777
+hook-454,save_post_wp_template_part,add_action,L4,todo,callback='wp_set_unique_slug_on_create_template_part'; priority=10 (default); accepted_args=1 (default); line=778
+hook-455,wp_enqueue_scripts,add_action,L4,todo,callback='wp_enqueue_block_template_skip_link'; priority=10 (default); accepted_args=1 (default); line=779
+hook-456,wp_footer,add_action,L4,todo,callback='the_block_template_skip_link'; priority=10 (default); accepted_args=1 (default); line=780
+hook-457,after_setup_theme,add_action,L4,todo,callback='wp_enable_block_templates'; priority=1; accepted_args=1 (default); line=781
+hook-458,wp_loaded,add_action,L4,todo,callback='_add_template_loader_filters'; priority=10 (default); accepted_args=1 (default); line=782
+hook-459,rest_wp_navigation_item_schema,add_filter,L4,todo,"callback=array('WP_Navigation_Fallback','update_wp_navigation_post_schema'); priority=10 (default); accepted_args=1 (default); line=785"
+hook-460,render_block,add_filter,L4,todo,callback='wp_render_typography_support'; priority=10; accepted_args=2; line=788
+hook-461,render_block,add_filter,L4,todo,callback='wp_strip_inline_note_markers'; priority=10 (default); accepted_args=1 (default); line=791
+hook-462,init,add_action,L4,todo,callback='wp_register_persisted_preferences_meta'; priority=10 (default); accepted_args=1 (default); line=794
+hook-463,init,add_action,L4,todo,callback='wp_create_initial_post_meta'; priority=10 (default); accepted_args=1 (default); line=797
+hook-464,wp_save_post_revision_post_has_changed,add_filter,L4,todo,callback='wp_check_revisioned_meta_fields_have_changed'; priority=10; accepted_args=3; line=800
+hook-465,_wp_put_post_revision,add_action,L4,todo,callback='wp_save_revisioned_meta_fields'; priority=10; accepted_args=2; line=803
+hook-466,wp_creating_autosave,add_action,L4,todo,callback='wp_autosave_post_revisioned_meta_fields'; priority=10 (default); accepted_args=1 (default); line=806
+hook-467,wp_restore_post_revision,add_action,L4,todo,callback='wp_restore_post_revision_meta'; priority=10; accepted_args=2; line=809
+hook-468,wp_head,add_action,L4,todo,callback='wp_print_font_faces'; priority=50; accepted_args=1 (default); line=812
+hook-469,deleted_post,add_action,L4,todo,callback='_wp_after_delete_font_family'; priority=10; accepted_args=2; line=813
+hook-470,before_delete_post,add_action,L4,todo,callback='_wp_before_delete_font_face'; priority=10; accepted_args=2; line=814
+hook-471,init,add_action,L4,todo,callback='_wp_register_default_font_collections'; priority=10 (default); accepted_args=1 (default); line=815
+hook-472,init,add_action,L4,todo,callback='_wp_register_default_icon_collections'; priority=0; accepted_args=1 (default); line=818
+hook-473,init,add_action,L4,todo,callback='_wp_register_default_icons'; priority=10 (default); accepted_args=1 (default); line=819
+hook-474,rest_pre_insert_wp_template,add_filter,L4,todo,callback='inject_ignored_hooked_blocks_metadata_attributes'; priority=10 (default); accepted_args=1 (default); line=822
+hook-475,rest_pre_insert_wp_template_part,add_filter,L4,todo,callback='inject_ignored_hooked_blocks_metadata_attributes'; priority=10 (default); accepted_args=1 (default); line=823
+hook-476,get_entity_view_config_posttype_{$post_type},add_filter,L4,todo,"callback=""_wp_get_entity_view_config_posttype_{$post_type}""; priority=5; accepted_args=1 (default); line=830"

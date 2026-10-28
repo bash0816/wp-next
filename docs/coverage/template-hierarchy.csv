@@ -1,0 +1,34 @@
+id,name,category,compat_level,status,notes
+tpl-001,single,hierarchy-base,L3,todo,"get_template_hierarchy(""single"") => single, singular, index; verified=wp eval on reference"
+tpl-002,page,hierarchy-base,L3,todo,"get_template_hierarchy(""page"") => page, singular, index; verified=wp eval on reference"
+tpl-003,archive,hierarchy-base,L3,todo,"get_template_hierarchy(""archive"") => archive, index; verified=wp eval on reference"
+tpl-004,home,hierarchy-base,L3,todo,"get_template_hierarchy(""home"") => home, index; verified=wp eval on reference"
+tpl-005,index,hierarchy-base,L3,todo,"get_template_hierarchy(""index"") => index; verified=wp eval on reference"
+tpl-006,search,hierarchy-base,L3,todo,"get_template_hierarchy(""search"") => search, index; verified=wp eval on reference"
+tpl-007,404,hierarchy-base,L3,todo,"get_template_hierarchy(""404"") => 404, index; verified=wp eval on reference"
+tpl-008,single-{slug},hierarchy-derivative,L3,todo,"get_template_hierarchy(""single-post-hello-world"") => single-post-hello-world, single-post, single, singular, index; verified"
+tpl-009,single-{post_type},hierarchy-derivative,L3,todo,"get_template_hierarchy(""single-post-5"") => single-post-5, single-post, single, singular, index; verified (id form resolves like slug form)"
+tpl-010,page-{slug},hierarchy-derivative,L3,todo,"get_template_hierarchy(""page-about"") => page-about, page, singular, index; verified"
+tpl-011,page-{id},hierarchy-derivative,L3,todo,"get_template_hierarchy(""page-7"") => page-7, page, singular, index; verified"
+tpl-012,archive-{post_type},hierarchy-derivative,L3,todo,"get_template_hierarchy(""archive-product"") => archive-product, archive, index; verified"
+tpl-013,front-page,hierarchy-derivative,L3,todo,"get_template_hierarchy(""front-page"") => front-page, home, index; verified"
+tpl-014,get_query_template,template-function,L3,todo,wp-includes/template.php:23
+tpl-015,get_index_template,template-function,L3,todo,wp-includes/template.php:118
+tpl-016,get_404_template,template-function,L3,todo,wp-includes/template.php:134
+tpl-017,get_archive_template,template-function,L3,todo,wp-includes/template.php:150
+tpl-018,get_post_type_archive_template,template-function,L3,todo,wp-includes/template.php:176
+tpl-019,get_author_template,template-function,L3,todo,wp-includes/template.php:214
+tpl-020,get_category_template,template-function,L3,todo,wp-includes/template.php:254
+tpl-021,get_tag_template,template-function,L3,todo,wp-includes/template.php:300
+tpl-022,get_taxonomy_template,template-function,L3,todo,wp-includes/template.php:349
+tpl-023,get_date_template,template-function,L3,todo,wp-includes/template.php:383
+tpl-024,get_home_template,template-function,L3,todo,wp-includes/template.php:399
+tpl-025,get_front_page_template,template-function,L3,todo,wp-includes/template.php:417
+tpl-026,get_privacy_policy_template,template-function,L3,todo,wp-includes/template.php:435
+tpl-027,get_page_template,template-function,L3,todo,wp-includes/template.php:471
+tpl-028,get_search_template,template-function,L3,todo,wp-includes/template.php:518
+tpl-029,get_single_template,template-function,L3,todo,wp-includes/template.php:553
+tpl-030,get_embed_template,template-function,L3,todo,wp-includes/template.php:602
+tpl-031,get_singular_template,template-function,L3,todo,wp-includes/template.php:632
+tpl-032,get_attachment_template,template-function,L3,todo,wp-includes/template.php:663
+tpl-033,get_template_hierarchy,template-function,L3,todo,wp-includes/block-template-utils.php:1603 (block-theme hierarchy; source of verified chains above)
