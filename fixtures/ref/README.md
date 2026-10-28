@@ -48,3 +48,6 @@ $SSH 'sudo docker exec wpref tar c -C /var/www/html/wp-content/themes/twentytwen
 
 - テーマ twentytwentyfive は GNU GPL v2 以降 (style.css ヘッダ: `License: GNU General Public License v2 or later`)。`themes/` 以下はこのライセンスに従う。
 - それ以外のデータ(投稿・HTML・feed・REST応答)は検証用のスパイクデータ。取得時にメールアドレスを確認したところ、テーマ内のプレースホルダ(example.com)のみだった。
+
+## latest-posts/ (2026-10-28 取得)
+基準WP上で一時的に5件(private/draft/保護(publish+パスワード)/公開/future)を作成し、`apply_filters('the_content', '<!-- wp:latest-posts ... /-->')` の出力を default/one/asc.html に保存。mixed-posts.json は作成した行(ID 13〜17)。取得後に投稿は force delete 済み(基準WPの投稿は ID 1,5,7 のみ)。匿名(ログインなし)文脈の出力。
