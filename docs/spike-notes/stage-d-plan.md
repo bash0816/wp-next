@@ -80,12 +80,12 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - URL は全て `http://127.0.0.1:8080` 系 (サイト基底) か、外部 `https://wordpress.org` `https://example.invalid/` `https://s.w.org/`。
 - `data-wp-*` 属性は header の navigation に集中 (`data-wp-interactive="core/navigation"`, `data-wp-context` の JSON, `data-wp-on--click`, `data-wp-class--is-menu-open` 等)。
 
-## 6. 検証
+## 5.1 領域分解の検証
 
 - IP 検査: `command grep -nE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" fixtures/ref/regions/*.html` の結果は全て `127.0.0.1` (計 20 件)。127.0.0.1 以外の IP なし。
 - 抽出スクリプトの再実行結果は §7 の報告を参照 (本文書作成時点で未再実行の場合は未検証)。
 
-## 7. 未検証 / 次の作業
+## 5.2 領域分解の未検証 / 次の作業
 
 - 未検証: gate 42 件と各ブロック名の完全一致 (クラス名からの推定のみ)。
 - 未検証: `packages/render` 側で wrapper ブロック (group, query 等) が未対応のまま渡った場合の挙動。テストは未作成。
@@ -114,4 +114,4 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 3. **登録表+共通再帰 dispatch**: `BlockRegistry: blockName → { validateAttrs(attrs), render(block, ctx) }`。再帰 dispatch は最上位でも group 内でも DB 本文内(wp_navigation の page-list 等)でも同じ規則(未知ブロックは全階層で拒否)。`ctx` = { theme, services(取得サービス), renderState(採番) }。`modal-N` の採番は**ページ全体で共有**(header と footer 間でも重複なし)。現行 `renderContent.ts` の最上位限定の動的判定は、この dispatch に置き換える(既存14件の latest-posts テスト・renderBlocks テストは回帰として維持)。
 4. **DB 境界**: `packages/db` が公開ナビ・固定ページを SQL で選別し必要な DTO だけ返す(例 `selectPublishedPagesForNav`, `selectLatestNavigationPost`)。render に status 判定・SQL は置かない。`post_status` を参照する新規 db ファイルは lint 許可リストに限定追加。**前提**: 現行 schema.sql に `menu_order` と `post_parent` 階層列が無い → db-mapping(docs/db-mapping.md の missing 列)に従い、必要列のみ追加(post_parent は既存、menu_order を追加)し、ダンプ取り込みの対応を D-1d-1 の前提テストに含める。保護ページの扱いは実WP期待値で確定(ADR-027 を暗黙に拡張しない)。
 5. **対象範囲の明記**: D-1(header 領域一致)は v0.1 ゲート 88ID のうち group / site-title / navigation / page-list 等の**一部**のみの達成であり、header 一致だけで該当ブロック全体や 88ID の達成と扱わない。ゲート ID との対応は各単位完了時に台帳 status と test_id を更新する。
-6. **節整理**: 旧 §6 は本節(§7)に置換済み。§1〜5 のブロック名は class 接頭辞からの推定であり、正規名は台帳(blocks.csv)の name で確定する。
+6. **節整理**: D-1 のテスト計画は本節(§7)が唯一の現行契約(旧 v1/v2 の §6 は削除済み。§5.1/5.2 は領域分解の記録)。§1〜5 のブロック名は class 接頭辞からの推定であり、正規名は台帳(blocks.csv)の name で確定する。
