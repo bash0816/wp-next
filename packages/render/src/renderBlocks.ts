@@ -3,7 +3,7 @@ import { parse } from '@wordpress/block-serialization-default-parser';
 import { parseFragment, serialize } from 'parse5';
 import { sanitizeHtml } from './sanitizeHtml.js';
 
-type ParsedBlock = {
+export type ParsedBlock = {
   blockName: string | null;
   attrs: Record<string, unknown> | null;
   innerBlocks: ParsedBlock[];
@@ -26,7 +26,7 @@ function convertSingleQuotes(text: string): string {
   return text.replace(/(^|[\s([{])'/g, '$1‘').replace(/'/g, '’');
 }
 
-function texturizeText(html: string): string {
+export function texturizeText(html: string): string {
   const fragment = parseFragment(html) as unknown as TreeNode;
   const walk = (node: TreeNode, skip: boolean): void => {
     for (const child of node.childNodes ?? []) {
@@ -88,7 +88,7 @@ function addClassesToFirstElement(html: string, classes: string[]): string {
   return serialize(fragment as never);
 }
 
-function renderBlock(block: ParsedBlock): string {
+export function renderBlock(block: ParsedBlock): string {
   if (block.blockName === null) {
     // フリーフォーム HTML: 空白のみは捨て、それ以外はそのまま通す (後段でサニタイズ)
     return block.innerHTML.trim() === '' ? '' : block.innerHTML;

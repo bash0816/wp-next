@@ -7,6 +7,7 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@wordpress/block-serialization-default-parser": "^6.0.0",
+    "@wpn/db": "workspace:*",
     "parse5": "^8.0.1"
   }
 }
