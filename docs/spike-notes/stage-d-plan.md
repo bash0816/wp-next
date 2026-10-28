@@ -101,7 +101,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - D-1b-1 layout入力生成: attrs・theme.json(settings/styles)・block support から wp_json_encode 入力の6要素(used_layout, has_block_gap_support, gap_value, should_skip_gap_serialization, fallback_gap_value, block_spacing。名前・型・導出規則は docs/spike-notes/container-class-hash.md §ハッシュ入力に統一)を組み立てる関数。検査: global styles と settings の区別、キー順、null、「生成される layout CSS が空ならクラスを付けない」(attrs.style の有無とは区別)、group 2個(ec1e7a1e, fbffc046)と navigation(6e943505)の3値を**独立した期待値**(基準HTML)から検査。固定値の埋め込みはレビューで検出。
 - D-1b-2 group の HTML: layout type default/constrained/flex の class、spacing preset→style、align*、container class(layoutClass.ts を使用)。
 - D-1c site-title: level 0、DB blogname、href=siteurl、エスケープ(`<>&"'` を含む名前、属性脱出、javascript: URL は含まれない)。
-- D-1d-1 DB: ナビ解決 = navigation ブロックに ref が無い場合、WP同様に**最新の publish な wp_navigation 投稿**(基準では ID4、content=`<!-- wp:page-list /-->`)を解決。無ければ範囲外=診断付き拒否。page-list: publish の固定ページのみ、匿名でprivate/draft/future/保護ページが出ない(混在fixtureで検査、保護ページは実WPで期待値を取得して判断=ADR-027を暗黙拡張しない)、タイトル・URL漏洩なし、公開→非公開に変えた後の再描画で消える、空・複数件・並び(menu_order,title)・親子階層。
+- D-1d-1 DB: ナビ解決 = navigation ブロックに ref が無い場合、WP同様に**最新の publish な wp_navigation 投稿**(基準では ID4、content=`<!-- wp:page-list /-->`)を解決。無ければ範囲外=診断付き拒否。page-list: publish の固定ページのみ、匿名で draft/private/future は出ない・パスワード保護の publish ページは**出る**(実測、§7.1-4 と fixtures/ref/set-header2、ADR-033)。DTO に本文・password を含めない。混在 fixture で検査。
 - D-1d-2 navigation HTML: 固定マークアップ(SVG、data-wp-*)、`data-wp-context` の JSON を HTML 属性境界で正しくエスケープ、`modal-N` は描画コンテキスト単位の連番(同一描画内の重複なし、次の描画でリセット)。
 - D-1e header 合成: `<header class="wp-block-template-part">` ラッパ。全体を上記2組で正規化DOM一致。
 負例/安全まとめ: 未対応PHP式、循環、未知ブロック、不正属性、特殊文字・属性脱出・javascript:URL・data-wp-context の注入、非公開ページ露出。
