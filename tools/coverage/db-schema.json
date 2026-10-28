@@ -1,0 +1,1712 @@
+{
+  "generated_by": "tools/coverage/extract-schema.mjs",
+  "inputs": {
+    "dump": {
+      "path": "fixtures/ref/db/dump.sql",
+      "sha256": "fd1c5369aa0b702688b0b12375df9bed3b7d5ac24f90ddbad79edffe8b5a6cf9"
+    },
+    "current": {
+      "path": "packages/db/src/schema.sql",
+      "sha256": "78ee6e3ea53fa649c93813e7593a7298302c7ca151305659e206802a668f6db8"
+    },
+    "csv": {
+      "path": "docs/coverage/db-tables.csv"
+    }
+  },
+  "reference": {
+    "tables": [
+      {
+        "name": "wp_commentmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "comment_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_comments",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "comment_ID",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "comment_post_ID",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "comment_author",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "comment_author_email",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "comment_author_url",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "comment_author_IP",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "comment_date",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "comment_date_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "comment_content",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "comment_karma",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "comment_approved",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'1'",
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "comment_agent",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "comment_type",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'comment'",
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "comment_parent",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "user_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "comment_ID"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_links",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "link_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "link_url",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "link_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "link_image",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "link_target",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "link_description",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "link_visible",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'Y'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "link_owner",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'1'",
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "link_rating",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "link_updated",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "link_rel",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "link_notes",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "link_rss",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "link_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_options",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "option_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "option_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "option_value",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "autoload",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'yes'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "option_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_postmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "post_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_posts",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "ID",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "post_author",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "post_date",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "post_date_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "post_content",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "post_title",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "post_excerpt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "post_status",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'publish'",
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "comment_status",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'open'",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "ping_status",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'open'",
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "post_password",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "post_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "to_ping",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "pinged",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "post_modified",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 15,
+            "name": "post_modified_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 16,
+            "name": "post_content_filtered",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 17,
+            "name": "post_parent",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 18,
+            "name": "guid",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 19,
+            "name": "menu_order",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 20,
+            "name": "post_type",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'post'",
+            "pk": 0
+          },
+          {
+            "cid": 21,
+            "name": "post_mime_type",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 22,
+            "name": "comment_count",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "ID"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_term_relationships",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "object_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_taxonomy_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "term_order",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "object_id",
+          "term_taxonomy_id"
+        ],
+        "indexes": [
+          {
+            "name": "sqlite_autoindex_wp_term_relationships_1",
+            "unique": true,
+            "origin": "pk",
+            "partial": false,
+            "columns": [
+              "object_id",
+              "term_taxonomy_id"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "wp_term_taxonomy",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "term_taxonomy_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "taxonomy",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "description",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "parent",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "count",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "term_taxonomy_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_termmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_terms",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "slug",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "term_group",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "term_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_usermeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "umeta_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "umeta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "wp_users",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "ID",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_login",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "user_pass",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "user_nicename",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "user_email",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "user_url",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "user_registered",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'0000-00-00 00:00:00'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "user_activation_key",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "user_status",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "'0'",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "ID"
+        ],
+        "indexes": []
+      }
+    ]
+  },
+  "current": {
+    "tables": [
+      {
+        "name": "commentmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "comment_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "comments",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "comment_ID",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "comment_post_ID",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "comment_author",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "comment_content",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "comment_approved",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'1'",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "comment_date_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "user_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "comment_ID"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "media_parents",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "attachment_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "parent_post_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 2
+          }
+        ],
+        "primaryKey": [
+          "attachment_id",
+          "parent_post_id"
+        ],
+        "indexes": [
+          {
+            "name": "sqlite_autoindex_media_parents_1",
+            "unique": true,
+            "origin": "pk",
+            "partial": false,
+            "columns": [
+              "attachment_id",
+              "parent_post_id"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "options",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "option_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "option_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "option_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "autoload",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'yes'",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "option_id"
+        ],
+        "indexes": [
+          {
+            "name": "sqlite_autoindex_options_1",
+            "unique": true,
+            "origin": "u",
+            "partial": false,
+            "columns": [
+              "option_name"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "postmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "post_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": [
+          {
+            "name": "postmeta_meta_key",
+            "unique": false,
+            "origin": "c",
+            "partial": false,
+            "columns": [
+              "meta_key"
+            ]
+          },
+          {
+            "name": "postmeta_post_id",
+            "unique": false,
+            "origin": "c",
+            "partial": false,
+            "columns": [
+              "post_id"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "posts",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "ID",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "post_author",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "post_date_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "post_content",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "post_title",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "post_excerpt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "post_status",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'draft'",
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "post_password",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "post_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "post_type",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "'post'",
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "post_parent",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "post_modified_gmt",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "auth_version",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "1",
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "visibility_epoch",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "1",
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "post_mime_type",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "ID"
+        ],
+        "indexes": [
+          {
+            "name": "posts_type_name",
+            "unique": false,
+            "origin": "c",
+            "partial": false,
+            "columns": [
+              "post_type",
+              "post_name"
+            ]
+          },
+          {
+            "name": "posts_status_author",
+            "unique": false,
+            "origin": "c",
+            "partial": false,
+            "columns": [
+              "post_status",
+              "post_author"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "term_relationships",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "object_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_taxonomy_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 2
+          },
+          {
+            "cid": 2,
+            "name": "term_order",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "object_id",
+          "term_taxonomy_id"
+        ],
+        "indexes": [
+          {
+            "name": "sqlite_autoindex_term_relationships_1",
+            "unique": true,
+            "origin": "pk",
+            "partial": false,
+            "columns": [
+              "object_id",
+              "term_taxonomy_id"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "term_taxonomy",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "term_taxonomy_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "taxonomy",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "description",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "parent",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "count",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "term_taxonomy_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "termmeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "meta_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "meta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "terms",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "term_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "slug",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "term_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "usage_counter",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "period",
+            "type": "TEXT",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "used",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": "0",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "limit_value",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "key"
+        ],
+        "indexes": [
+          {
+            "name": "sqlite_autoindex_usage_counter_1",
+            "unique": true,
+            "origin": "pk",
+            "partial": false,
+            "columns": [
+              "key"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "usermeta",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "umeta_id",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_id",
+            "type": "INTEGER",
+            "notnull": true,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "meta_key",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "meta_value",
+            "type": "TEXT",
+            "notnull": false,
+            "default": null,
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "umeta_id"
+        ],
+        "indexes": []
+      },
+      {
+        "name": "users",
+        "columns": [
+          {
+            "cid": 0,
+            "name": "ID",
+            "type": "INTEGER",
+            "notnull": false,
+            "default": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "user_login",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "user_pass",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "user_nicename",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "user_email",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "user_registered",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "display_name",
+            "type": "TEXT",
+            "notnull": true,
+            "default": "''",
+            "pk": 0
+          }
+        ],
+        "primaryKey": [
+          "ID"
+        ],
+        "indexes": []
+      }
+    ]
+  },
+  "checks": {
+    "reference_table_count": 12,
+    "reference_column_total": 94,
+    "core_cols_match": [
+      {
+        "table": "wp_commentmeta",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_comments",
+        "extracted_cols": 15,
+        "csv_core_cols": 15,
+        "match": true
+      },
+      {
+        "table": "wp_links",
+        "extracted_cols": 13,
+        "csv_core_cols": 13,
+        "match": true
+      },
+      {
+        "table": "wp_options",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_postmeta",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_posts",
+        "extracted_cols": 23,
+        "csv_core_cols": 23,
+        "match": true
+      },
+      {
+        "table": "wp_term_relationships",
+        "extracted_cols": 3,
+        "csv_core_cols": 3,
+        "match": true
+      },
+      {
+        "table": "wp_term_taxonomy",
+        "extracted_cols": 6,
+        "csv_core_cols": 6,
+        "match": true
+      },
+      {
+        "table": "wp_termmeta",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_terms",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_usermeta",
+        "extracted_cols": 4,
+        "csv_core_cols": 4,
+        "match": true
+      },
+      {
+        "table": "wp_users",
+        "extracted_cols": 10,
+        "csv_core_cols": 10,
+        "match": true
+      }
+    ],
+    "core_cols_all_match": true
+  }
+}
