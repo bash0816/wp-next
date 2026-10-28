@@ -205,7 +205,7 @@ function inlinePattern(body: string): ThemeFiles {
 }
 
 const printfUrl = (url: string): string =>
-  `<a href="' . esc_url( __( '${url}', 'fx' ) ) . '" rel="nofollow">X</a>`;
+  `'<a href="' . esc_url( __( '${url}', 'fx' ) ) . '" rel="nofollow">X</a>'`;
 
 describe('expandPatterns: esc_html_x / esc_attr_x (A)', () => {
   it('esc_html_x escapes the text argument and ignores the context argument', () => {
@@ -242,6 +242,7 @@ describe('expandPatterns: printf footer idiom (B)', () => {
     ['javascript: URL', `<?php printf( esc_html__( 'Go %s', 'fx' ), ${printfUrl('javascript:alert(1)')} ); ?>`],
     ['%s count 0', `<?php printf( esc_html__( 'No placeholder', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
     ['%s count 2', `<?php printf( esc_html__( '%s and %s', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
+    ['LABEL contains a tag', `<?php printf( esc_html__( 'Go %s', 'fx' ), '<a href="' . esc_url( __( 'https://example.com', 'fx' ) ) . '" rel="nofollow"><b>X</b></a>' ); ?>`],
     ['second argument is a variable', `<?php printf( esc_html__( 'Go %s', 'fx' ), $x ); ?>`],
     ['second argument is a function call', `<?php printf( esc_html__( 'Go %s', 'fx' ), foo() ); ?>`],
     ['non-printf function (sprintf)', `<?php echo sprintf( esc_html__( 'Go %s', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
