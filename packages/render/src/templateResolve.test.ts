@@ -197,3 +197,83 @@ describe('real theme regression: twentytwentyfive', () => {
     expect(out).toContain('<!-- wp:');
   });
 });
+
+/** Inline single-pattern theme (slug fx/neg -> patterns/neg.php) for negative cases. */
+function inlinePattern(body: string): ThemeFiles {
+  const src = `<?php\n/**\n * Title: Neg\n * Slug: fx/neg\n */\n\n?>\n${body}\n`;
+  return { read: (relPath: string) => (relPath === 'patterns/neg.php' ? src : undefined) };
+}
+
+const printfUrl = (url: string): string =>
+  `<a href="' . esc_url( __( '${url}', 'fx' ) ) . '" rel="nofollow">X</a>`;
+
+describe('expandPatterns: esc_html_x / esc_attr_x (A)', () => {
+  it('esc_html_x escapes the text argument and ignores the context argument', () => {
+    const out = expandPatterns(pattern('fx/esc-x'), theme);
+    expect(out).toContain('<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>');
+    expect(out).not.toContain('<script>');
+    expect(out).not.toContain('CTXMARK');
+  });
+
+  it('esc_attr_x escapes quotes in the attribute value and ignores the context argument', () => {
+    const out = expandPatterns(pattern('fx/esc-x'), theme);
+    expect(out).not.toContain('"onmouseover=');
+    expect(out).toContain('data-x="&quot;onmouseover=&quot;alert(1)"');
+    expect(out).not.toContain('CTXMARK');
+  });
+});
+
+describe('expandPatterns: printf footer idiom (B)', () => {
+  const expected = 'Designed with <a href="https://wordpress.org" rel="nofollow">WordPress</a>';
+
+  it('expands the footer-shaped printf block to the expected line', () => {
+    const out = expandPatterns(pattern('fx/footer-printf'), theme);
+    expect(out).toContain(expected);
+    expect(out).not.toContain('<?');
+  });
+
+  it('escapes the FMT text (a < in FMT becomes an entity)', () => {
+    const body = `<?php printf( esc_html__( 'A<B %s', 'fx' ), '<a href="' . esc_url( __( 'https://example.com', 'fx' ) ) . '" rel="nofollow">X</a>' ); ?>`;
+    const out = expandPatterns(pattern('fx/neg'), inlinePattern(body));
+    expect(out).toContain('A&lt;B <a href="https://example.com" rel="nofollow">X</a>');
+  });
+
+  const negatives: Array<[string, string]> = [
+    ['javascript: URL', `<?php printf( esc_html__( 'Go %s', 'fx' ), ${printfUrl('javascript:alert(1)')} ); ?>`],
+    ['%s count 0', `<?php printf( esc_html__( 'No placeholder', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
+    ['%s count 2', `<?php printf( esc_html__( '%s and %s', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
+    ['second argument is a variable', `<?php printf( esc_html__( 'Go %s', 'fx' ), $x ); ?>`],
+    ['second argument is a function call', `<?php printf( esc_html__( 'Go %s', 'fx' ), foo() ); ?>`],
+    ['non-printf function (sprintf)', `<?php echo sprintf( esc_html__( 'Go %s', 'fx' ), ${printfUrl('https://example.com')} ); ?>`],
+  ];
+  it.each(negatives)('rejects %s as unsupported-php', (_name, body) => {
+    expect(errorCodeOf(() => expandPatterns(pattern('fx/neg'), inlinePattern(body)))).toBe(
+      'unsupported-php',
+    );
+  });
+});
+
+describe('expandPatterns: esc_url(get_template_directory_uri()) stays unsupported (C)', () => {
+  it('rejects the call as unsupported-php', () => {
+    const body = `<a href="<?php echo esc_url( get_template_directory_uri() ); ?>">x</a>`;
+    expect(errorCodeOf(() => expandPatterns(pattern('fx/neg'), inlinePattern(body)))).toBe(
+      'unsupported-php',
+    );
+  });
+});
+
+describe('real theme regression: twentytwentyfive footer printf', () => {
+  it('expands the footer part with no leftover PHP and the reference Designed-with line', () => {
+    const ref = readFileSync(
+      new URL('../../../fixtures/ref/regions/footer.html', import.meta.url),
+      'utf8',
+    );
+    const expected = ref.match(/Designed with <a [^>]*>[^<]*<\/a>/)?.[0];
+    expect(expected).toBeDefined();
+
+    const out = expandPatterns(resolveTemplatePart(realTheme, 'footer'), realTheme);
+    expect(out).not.toContain('<?php');
+    expect(out).not.toContain('<?');
+    expect(out).toContain(expected as string);
+  });
+});

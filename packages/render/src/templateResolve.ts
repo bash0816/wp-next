@@ -34,9 +34,34 @@ const MAX_DEPTH = 16;
 /** `<!-- wp:pattern ... /-->` (self-closing 形式のみ正常系)。group1 = 属性テキスト, group2 = "/" の有無 */
 const PATTERN_COMMENT = /<!--\s*wp:pattern\b([\s\S]*?)(\/?)-->/g;
 
-/** 許可する PHP 式: esc_html_e / esc_attr_e / echo esc_html__ / echo esc_attr__ (単引用符リテラル2個) */
-const PHP_ALLOWED =
-  /<\?php\s+(?:esc_(?:html|attr)_e|echo\s+esc_(?:html|attr)__)\(\s*'((?:[^'\\]|\\.)*)'\s*,\s*'(?:[^'\\]|\\.)*'\s*\)\s*;\s*\?>|<\?(?:php|=)/g;
+/** トークン間に許可する空白とブロックコメント */
+const SP = String.raw`(?:\s|/\*[\s\S]*?\*/)*`;
+/** PHP 単引用符リテラル (キャプチャ版 / 非キャプチャ版) */
+const LIT = String.raw`'((?:[^'\\]|\\.)*)'`;
+const LIT_NC = String.raw`'(?:[^'\\]|\\.)*'`;
+
+/** `<?php ... ?>` ブロック1個。中身は式ごとに照合する */
+const PHP_BLOCK = /<\?php([\s\S]*?)\?>/g;
+
+/** 許可式1: esc_html_e / esc_attr_e / echo esc_html__ / echo esc_attr__ ( 'X', 'dom' ) */
+const PHP_LEGACY = new RegExp(
+  String.raw`^(?:esc_(?:html|attr)_e|echo\s+esc_(?:html|attr)__)${SP}\(${SP}${LIT}${SP},${SP}${LIT_NC}${SP}\)${SP};$`,
+);
+
+/** 許可式A: echo esc_html_x / esc_attr_x ( 'X', 'ctx', 'dom' ). ctx と dom は無視 */
+const PHP_X = new RegExp(
+  String.raw`^echo\s+esc_(?:html|attr)_x${SP}\(${SP}${LIT}${SP},${SP}${LIT_NC}${SP},${SP}${LIT_NC}${SP}\)${SP};$`,
+);
+
+/**
+ * 許可式B: printf( esc_html__( 'FMT', 'dom' ), '<a href="' . esc_url( __( 'URL', 'dom' ) ) . '" rel="nofollow">LABEL</a>' );
+ * キャプチャ: 1=FMT, 2=URL, 3=LABEL
+ */
+const PHP_PRINTF = new RegExp(
+  String.raw`^printf${SP}\(${SP}esc_html__${SP}\(${SP}${LIT}${SP},${SP}${LIT_NC}${SP}\)${SP},${SP}` +
+    String.raw`'<a href="'${SP}\.${SP}esc_url${SP}\(${SP}__${SP}\(${SP}${LIT}${SP},${SP}${LIT_NC}${SP}\)${SP}\)${SP}\.${SP}` +
+    String.raw`'" rel="nofollow">((?:[^'\\]|\\.)*)</a>'${SP}\)${SP};$`,
+);
 
 /** PHP の開始タグ (未対応式の検出用) */
 const PHP_OPEN = /<\?(?:php|=)/;
@@ -69,13 +94,43 @@ function stripHeader(src: string): string {
   return inner.trim() === '' ? src.slice(m[0].length) : src;
 }
 
-function translatePhp(body: string): string {
-  return body.replace(PHP_ALLOWED, (match: string, literal?: string) => {
-    if (literal === undefined) {
-      throw new ThemeResolveError('unsupported-php', match);
+/** 1ブロックの中身 (code) を許可式と照合する。一致しなければ unsupported-php。 */
+function translatePhpBlock(match: string, code: string): string {
+  const src = code.trim();
+
+  const legacy = PHP_LEGACY.exec(src);
+  if (legacy) {
+    return escapeEntities(unescapeSingleQuoted(legacy[1] ?? ''));
+  }
+
+  const xctx = PHP_X.exec(src);
+  if (xctx) {
+    return escapeEntities(unescapeSingleQuoted(xctx[1] ?? ''));
+  }
+
+  const printf = PHP_PRINTF.exec(src);
+  if (printf) {
+    const fmt = unescapeSingleQuoted(printf[1] ?? '');
+    const url = unescapeSingleQuoted(printf[2] ?? '');
+    const label = unescapeSingleQuoted(printf[3] ?? '');
+    if (fmt.split('%s').length !== 2) {
+      throw new ThemeResolveError('unsupported-php', `printf FMT must contain exactly one %s: ${match}`);
     }
-    return escapeEntities(unescapeSingleQuoted(literal));
-  });
+    if (!/^https?:\/\//.test(url)) {
+      throw new ThemeResolveError('unsupported-php', `printf URL must be absolute http(s): ${match}`);
+    }
+    if (/[<>"']/.test(label)) {
+      throw new ThemeResolveError('unsupported-php', `printf LABEL contains forbidden characters: ${match}`);
+    }
+    const anchor = `<a href="${escapeEntities(url)}" rel="nofollow">${escapeEntities(label)}</a>`;
+    return escapeEntities(fmt).replace('%s', () => anchor);
+  }
+
+  throw new ThemeResolveError('unsupported-php', match);
+}
+
+function translatePhp(body: string): string {
+  return body.replace(PHP_BLOCK, (match: string, code: string) => translatePhpBlock(match, code));
 }
 
 function parseSlug(attrText: string): string {
