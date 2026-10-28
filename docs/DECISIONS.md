@@ -38,3 +38,8 @@
 - ADR-033 (2026-10-28) 基準WP実測(fixtures/ref/set-header2): ①匿名のpage-listナビにはパスワード保護のpublishページが出る(接頭辞なし)、draftは出ない、並びはmenu_order→title ②navigationブロックのref無しは最新のpublishなwp_navigationを使い、より新しいdraftは無視。③サイトタイトルにホームでのみaria-current="page"。ナビの一覧タイトル露出はADR-027と同種の例外。
 - ADR-034 (2026-10-28) D-1 header: **STEP2=Go(2回目)、STEP3=Go(4回目)**(GPT-6.1-sol)。計画=docs/spike-notes/stage-d-plan.md §7。これでSTEP4(テスト作成)へ進む。layoutClass.ts(先行作成分)はGo後に検証してコミット。
 - ADR-035 (2026-10-28) D-1b-1 layout入力: 設計訂正3点(基準WP実測): ①used_layout=attrs.layout ?? ブロック型の supports.layout.default(fixtures/ref/block-supports/layout-defaults.json)、テーマ settings.layout は使わない ②グローバルスタイル由来 fallback_gap の var:preset|t|s は var(--wp--preset--t--s) に解決(属性由来 gap は raw) ③layout CSS が空のブロックはコンテナクラスなし(クラス列は部分列で比較)。appearanceTools:true は spacing.blockGap に展開。22件・mutation 4種検出。docs/spike-notes/container-class-hash.md の注記更新は別途。
+
+## ADR-036: D-1b-2 登録表+再帰dispatchとgroupブロック(2026-10-29)
+- `blockRegistry.ts`(BlockRegistry/renderTree。未登録ブロックは全階層で拒否)と `groupBlock.ts` を導入。header 領域の group 3階層が基準 `regions/header.html` と正規化DOM一致(site-title/navigation はスタブ置換)。
+- コンテナクラスは flex は常に、constrained は contentSize/wideSize 指定時のみ付与(WP の layout CSS 非空条件の近似)。**未検証の近似**: constrained で他要素(blockGap 等)のみの場合は D-1 の基準にないため未確認。
+- 検証: 全体622件 Green、型/lint OK、mutation 5種(global-padding除去、container除去、ハッシュ入力誤り、tagName許可、CSS値許可)すべて検出。
