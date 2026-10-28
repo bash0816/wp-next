@@ -1,0 +1,28 @@
+{
+    "core/buttons": {
+        "type": "flex"
+    },
+    "core/columns": {
+        "type": "flex",
+        "flexWrap": "nowrap"
+    },
+    "core/comments-pagination": {
+        "type": "flex"
+    },
+    "core/gallery": {
+        "type": "flex"
+    },
+    "core/navigation": {
+        "type": "flex"
+    },
+    "core/query-pagination": {
+        "type": "flex"
+    },
+    "core/social-links": {
+        "type": "flex"
+    },
+    "core/tab-list": {
+        "type": "flex",
+        "flexWrap": "wrap"
+    }
+}
