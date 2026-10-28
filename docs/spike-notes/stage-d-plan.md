@@ -91,14 +91,19 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 未検証: `packages/render` 側で wrapper ブロック (group, query 等) が未対応のまま渡った場合の挙動。テストは未作成。
 - 次の作業 (Stage D): 領域単位の失敗テスト (Red) を先に書き、skip-link → header → main-02 の順で対応する。
 
-## 6. D-1 header 領域のテスト計画 (STEP3 相当)
-目的: `fixtures/ref/regions/header.html` と、テーマ(parts/header.html → patterns/header.php)+DB から TS で生成した HTML が正規化DOM一致する。
-入力: fixtures/ref/themes/twentytwentyfive、基準DBダンプ(options: blogname=wpref, siteurl; posts: page 一覧=ナビ項目)。コードに期待値を埋めない。
-実装単位(TDD順、各 Red→Green):
-1. D-1a テーマ解決: `resolveTemplatePart(theme, slug)`(parts/*.html)、pattern 参照 `wp:pattern {"slug"}`(patterns/*.php の `<?php ... ?>` ヘッダ除去、`esc_html_e('X','domain')`/`esc_attr_e`/`echo esc_url(...)` の TS 代替、未対応PHP式は診断付きで拒否、循環検出)。
-2. D-1b group ブロック: layout type default/constrained/flex の class(is-layout-*, wp-block-group-is-layout-*, is-content-justification-*, is-nowrap, has-global-padding)と style 属性(spacing preset → var(--wp--preset--spacing--N))、container class ハッシュ(layoutClass.ts)。
-3. D-1c site-title: level 0 は `<p class="wp-block-site-title"><a href target=_self rel=home>`、DB blogname。
-4. D-1d navigation: 子なし → ページ一覧フォールバック(DB の publish 固定ページ)。data-wp-* 属性、responsive container の固定マークアップ、id='modal-1' (wp_unique_id 相当の連番)、SVG。
-5. D-1e header 全体合成: template-part ラッパ `<header class="wp-block-template-part">`。
-負例/安全: 未知ブロック・未対応PHP式・pattern 循環は診断付きで拒否(フォールバックしない)。タイトル等の DB 値は文脈別エスケープ(テキスト/属性/URL)。非公開ページがナビに出ない(匿名)。
-合格: header.html と正規化DOM一致(class/href/子要素順/本文は消さない)+上記負例。
+## 6. D-1 header 領域のテスト計画 v2 (STEP3 No-Go[Major5/Minor1] 対応版)
+目的: `fixtures/ref/regions/header.html` と、テーマ(parts/header.html → patterns/header.php)+DB から TS で生成した HTML が正規化DOM一致する。範囲外: 一般PHP解釈、CSS全体、ナビの実ブラウザ動作(JS)。
+共通契約(docs/08 継承): 比較器は parse5 の正規化DOM(コメント/要素間空白/属性順/siteurl/nonce/ver のみ無視。class/href/子要素順/本文は消さない)。生成側の入力は**テーマとDBダンプのみ**(期待値をコードに埋めない)。比較器負例: header の属性欠落・子要素の欠落・二重化を検出すること。**過適合防止のため2組の入力**: (i)基準そのもの (ii)site名・ページ名・slug・並び・階層を変えたDB(期待値は実WPで再取得して fixtures/ref/set-header2/ に保存。再取得は私がレビュー後に実施)。
+匿名Actor固定。DBアクセスは packages/db の関数経由でSQLにて可視性を適用(JSフィルタでの除外は不合格)。
+
+単位(各 Red→Green):
+- D-1a テーマ解決: parts/*.html、`wp:pattern {"slug"}`→patterns/*.php。PHPヘッダ(`<?php ... ?>` コメントのみ)除去は許可、**実行式(esc_html_e 等)は独立した小fixtureで TS 代替を検証**(header.php には出力式が無い)。未対応PHP式は診断付き拒否(黙って消さない)。循環: 自己循環・相互循環を拒否、同じpatternの兄弟参照(非循環)は成功。未知ブロックは group/pattern の内側でも拒否。不正属性(JSONパース不能、型違い)は拒否。
+- D-1b-1 layout入力生成: attrs・theme.json(settings/styles)・block support から wp_json_encode 入力の6要素(layout, has_global_padding?, gap, hasBlockGap?, fallbackGap, styleOverrides)を組み立てる関数。検査: global styles と settings の区別、キー順、null、style が空ならクラスを付けない、group 2個(ec1e7a1e, fbffc046)と navigation(6e943505)の3値を**独立した期待値**(基準HTML)から検査。固定値の埋め込みはレビューで検出。
+- D-1b-2 group の HTML: layout type default/constrained/flex の class、spacing preset→style、align*、container class(layoutClass.ts を使用)。
+- D-1c site-title: level 0、DB blogname、href=siteurl、エスケープ(`<>&"'` を含む名前、属性脱出、javascript: URL は含まれない)。
+- D-1d-1 DB: ナビ解決 = navigation ブロックに ref が無い場合、WP同様に**最新の publish な wp_navigation 投稿**(基準では ID4、content=`<!-- wp:page-list /-->`)を解決。無ければ範囲外=診断付き拒否。page-list: publish の固定ページのみ、匿名でprivate/draft/future/保護ページが出ない(混在fixtureで検査、保護ページは実WPで期待値を取得して判断=ADR-027を暗黙拡張しない)、タイトル・URL漏洩なし、公開→非公開に変えた後の再描画で消える、空・複数件・並び(menu_order,title)・親子階層。
+- D-1d-2 navigation HTML: 固定マークアップ(SVG、data-wp-*)、`data-wp-context` の JSON を HTML 属性境界で正しくエスケープ、`modal-N` は描画コンテキスト単位の連番(同一描画内の重複なし、次の描画でリセット)。
+- D-1e header 合成: `<header class="wp-block-template-part">` ラッパ。全体を上記2組で正規化DOM一致。
+負例/安全まとめ: 未対応PHP式、循環、未知ブロック、不正属性、特殊文字・属性脱出・javascript:URL・data-wp-context の注入、非公開ページ露出。
+
+注: layoutClass.ts(ハッシュ関数)は先行して作成済みだが、STEP2/3 の Go まで未コミットで保留(手順違反の是正)。
