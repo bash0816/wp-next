@@ -33,3 +33,4 @@
 - ADR-029 (2026-10-28) ロードマップ v2(docs/09)を GPT-6.1-sol が再レビュー: **Go**(v1は No-Go: Blocker3/Major4/Minor1 → §5 で解消)。残Minorは本文統合のみで反映済み。これは計画のGoであり実装・互換達成の認定ではない。次: ゲートID凍結(docs/coverage/gates)、台帳拡張(test_id等の列・粒度)、L4スパイク計画(docs/10)、db-mapping。
 - 注記 (2026-10-28) db-mapping: 基準dump.sqlにはCREATE INDEXが無く、基準側の索引は主キーのみ。WP本来の索引(wp_get_db_schemaの KEY 定義)との突合はL1ゲートで別途必要。日時形式(空白区切り vs ISO8601)、options.autoload 値(on/auto/off vs yes)、post_status inherit、PHPシリアライズ値の扱いは未解決の論点(docs/db-mapping.md §4)。
 - ADR-030 (2026-10-28) v0.1ゲート凍結案: docs/coverage/gates/v0.1.txt(88 ID: ブロック42=TT25の7テンプレ+2パーツ+参照パターン10を再帰展開して実使用、テンプレ階層14、RESTコレクション12+個別GET20)。**発見**: TT25のsingle等はcomments・navigation・query・post-*系を使うため、v0.1に「コメント表示」「ナビ」「クエリループ」が必須で、現状done=2/42(heading, paragraph)。v0.1は大きい。範囲縮小(コメント除外=wontfixにはユーザー承認が必要)か、v0.1を分割(v0.1a=ページ/投稿本文+ヘッダ/フッタ、v0.1b=コメント・クエリ)するかをユーザー判断に仰ぐ。STEP2レビュー前の凍結案。
+- ADR-031 (2026-10-28) ユーザー決定: v0.1は分割せず1つで進める(ゲート88ID・コメントも対象)。止まらず進める運用: 判断が要る点は推奨案で進め、後で報告する。
