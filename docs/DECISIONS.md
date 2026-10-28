@@ -36,3 +36,4 @@
 - ADR-031 (2026-10-28) ユーザー決定: v0.1は分割せず1つで進める(ゲート88ID・コメントも対象)。止まらず進める運用: 判断が要る点は推奨案で進め、後で報告する。
 - ADR-032 (2026-10-28) 段階D D-1(header) STEP2設計レビュー: 1回目No-Go(Major4/Minor1)→設計契約v3(信頼境界2系統・layout6要素・登録表+再帰dispatch・DB境界)→2回目 **Go**(GPT-6.1-sol)。STEP3(テスト計画)は1回目No-Go(Major5/Minor1)でv3に反映済み、再レビュー中。layoutClass.tsは手順違反(STEP2/3前にSTEP4-5委任)の是正として未コミット保留。
 - ADR-033 (2026-10-28) 基準WP実測(fixtures/ref/set-header2): ①匿名のpage-listナビにはパスワード保護のpublishページが出る(接頭辞なし)、draftは出ない、並びはmenu_order→title ②navigationブロックのref無しは最新のpublishなwp_navigationを使い、より新しいdraftは無視。③サイトタイトルにホームでのみaria-current="page"。ナビの一覧タイトル露出はADR-027と同種の例外。
+- ADR-034 (2026-10-28) D-1 header: **STEP2=Go(2回目)、STEP3=Go(4回目)**(GPT-6.1-sol)。計画=docs/spike-notes/stage-d-plan.md §7。これでSTEP4(テスト作成)へ進む。layoutClass.ts(先行作成分)はGo後に検証してコミット。
