@@ -43,6 +43,9 @@ importers:
 
   packages/render:
     dependencies:
+      '@wordpress/block-serialization-default-parser':
+        specifier: ^6.0.0
+        version: 6.0.0
       parse5:
         specifier: ^8.0.1
         version: 8.0.1
@@ -188,6 +191,10 @@ packages:
 
   '@vitest/spy@5.0.5':
     resolution: {integrity: sha512-lwJRExuH417257Q5wv9QYugN9IMJkoxcrKrYxGPQkBzl7wlNpTUxD/5yNX4ESKVUIShKPgkGchYPFMWOOk0wzw==}
+
+  '@wordpress/block-serialization-default-parser@6.0.0':
+    resolution: {integrity: sha512-C9HgZeToeeNouMGjTnz5WV8z4vNZ+NBrX4af4Npy6F/VrikOpMAYYJ5hi1K07g/o9hzalZMYN+fHXvuQcYK9MQ==}
+    engines: {node: '>=22.13.0'}
 
   assertion-error@2.0.1:
     resolution: {integrity: sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA==}
@@ -537,6 +544,8 @@ snapshots:
       vite: 8.3.5(@types/node@26.6.5)
 
   '@vitest/spy@5.0.5': {}
+
+  '@wordpress/block-serialization-default-parser@6.0.0': {}
 
   assertion-error@2.0.1: {}
 
