@@ -43,3 +43,7 @@
 - `blockRegistry.ts`(BlockRegistry/renderTree。未登録ブロックは全階層で拒否)と `groupBlock.ts` を導入。header 領域の group 3階層が基準 `regions/header.html` と正規化DOM一致(site-title/navigation はスタブ置換)。
 - コンテナクラスは flex は常に、constrained は contentSize/wideSize 指定時のみ付与(WP の layout CSS 非空条件の近似)。**未検証の近似**: constrained で他要素(blockGap 等)のみの場合は D-1 の基準にないため未確認。
 - 検証: 全体622件 Green、型/lint OK、mutation 5種(global-padding除去、container除去、ハッシュ入力誤り、tagName許可、CSS値許可)すべて検出。
+
+## ADR-037: D-1c site-title(2026-10-29)
+- `siteTitleBlock.ts` 追加。基準 `regions/header.html`(aria-current なし)と `set-header2`(ホーム、aria-current="page")の site-title と一致。`RenderCtx` に `site`/`page` を optional で追加(未設定なら site-title は RangeError で拒否)。
+- 検証: 全体651件 Green、型/lint OK、mutation(aria値、target許可、scheme許可、text の `<`/`&` エスケープ)検出。`&` エスケープのテストが無かったため追加(DOM比較では `&` と `&amp;` は区別できないので、実体参照風の名前で検査)。

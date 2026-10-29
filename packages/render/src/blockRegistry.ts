@@ -2,9 +2,13 @@
 import { type GlobalConfig } from './layoutInput.js';
 import { type ParsedBlock, UnsupportedBlockError } from './renderBlocks.js';
 
+// site / page は D-1c の core/site-title 用。既存の呼び出しを壊さないため optional。
+// site / page を必要とするレンダラは、無いときに fail-closed で RangeError を投げる。
 export type RenderCtx = {
   global: GlobalConfig;
   renderState: { modalCounter: number };
+  site?: { name: string; url: string };
+  page?: { isHome: boolean; isSingular: boolean };
 };
 
 export type BlockRenderer = {
