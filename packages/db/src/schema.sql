@@ -14,6 +14,7 @@ CREATE TABLE posts (
   post_name TEXT NOT NULL DEFAULT '',
   post_type TEXT NOT NULL DEFAULT 'post',
   post_parent INTEGER NOT NULL DEFAULT 0,
+  menu_order INTEGER NOT NULL DEFAULT 0,
   post_modified_gmt TEXT NOT NULL DEFAULT '',
   auth_version INTEGER NOT NULL DEFAULT 1,
   visibility_epoch INTEGER NOT NULL DEFAULT 1,

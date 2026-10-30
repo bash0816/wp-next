@@ -47,3 +47,8 @@
 ## ADR-037: D-1c site-title(2026-10-29)
 - `siteTitleBlock.ts` 追加。基準 `regions/header.html`(aria-current なし)と `set-header2`(ホーム、aria-current="page")の site-title と一致。`RenderCtx` に `site`/`page` を optional で追加(未設定なら site-title は RangeError で拒否)。
 - 検証: 全体651件 Green、型/lint OK、mutation(aria値、target許可、scheme許可、text の `<`/`&` エスケープ)検出。`&` エスケープのテストが無かったため追加(DOM比較では `&` と `&amp;` は区別できないので、実体参照風の名前で検査)。
+
+## ADR-038: D-1d-1 DBのナビ解決(2026-10-31)
+- `packages/db/src/navigation.ts`: `selectLatestNavigationPost`(最新publishのwp_navigation、より新しいdraftは無視)、`selectPublishedPagesForNav`(publish固定ページ、保護ページ含む=ADR-033、DTOは{id,title,slug,parent,menuOrder}のみ)。schema.sql に `menu_order` 列を追加(db-mapping の missing 列の一部)。lint 許可リストに navigation.ts を限定追加。
+- 検証: 全体663件 Green、型/lint OK、mutation(status許可、最新規則、menu_order並び、post_type許可、DTOへの余計な列の流出)検出。
+- 未対応: ダンプ取り込み側の menu_order 対応は D-1e 以降(L1 ゲートで扱う)。

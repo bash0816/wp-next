@@ -121,3 +121,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 実行: `pnpm vitest run <file>` を1ファイルずつ。Red の分類: (1)機能不足=モジュール未存在 or 期待と異なる出力、(2)環境不備=fixture 未取得・import 失敗(これは Red と認めず、fixture 不足として報告)。各単位の想定 Red 理由を報告に含める。
 - 入力経路の分離: golden(期待値)は fixtures/ref のファイルのみ。生成側の入力はテーマ+DBダンプのみ。両者を同じ変数経由にしない。
 - 比較コンテキスト: ホーム由来の set-header2 と single 由来の regions/header.html では site-title の aria-current が異なる → 描画コンテキスト(isHome/isSingular)を ctx に持つ。
+
+### 7.3 進捗(2026-10-31)
+- 完了: D-1a(テーマ解決)、D-1b-1(layout入力)、D-1b-2(登録表+group、ADR-036)、D-1c(site-title、ADR-037)、D-1d-1(DBナビ解決、ADR-038)。
+- 残り: D-1d-2(navigation HTML)、D-1e(header合成と2組比較)。
