@@ -124,4 +124,4 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 
 ### 7.3 進捗(2026-10-31)
 - 完了: D-1a(テーマ解決)、D-1b-1(layout入力)、D-1b-2(登録表+group、ADR-036)、D-1c(site-title、ADR-037)、D-1d-1(DBナビ解決、ADR-038)。
-- 残り: D-1d-2(navigation HTML)、D-1e(header合成と2組比較)。
+- 完了(追記): D-1d-2(navigation、ADR-039)。残り: D-1e(header合成と2組比較)。

@@ -52,3 +52,9 @@
 - `packages/db/src/navigation.ts`: `selectLatestNavigationPost`(最新publishのwp_navigation、より新しいdraftは無視)、`selectPublishedPagesForNav`(publish固定ページ、保護ページ含む=ADR-033、DTOは{id,title,slug,parent,menuOrder}のみ)。schema.sql に `menu_order` 列を追加(db-mapping の missing 列の一部)。lint 許可リストに navigation.ts を限定追加。
 - 検証: 全体663件 Green、型/lint OK、mutation(status許可、最新規則、menu_order並び、post_type許可、DTOへの余計な列の流出)検出。
 - 未対応: ダンプ取り込み側の menu_order 対応は D-1e 以降(L1 ゲートで扱う)。
+
+## ADR-039: D-1d-2 navigation / page-list / navigation-link(2026-10-31)
+- `navigationBlock.ts`: 基準3組(regions/header.html、set-header2 の保護ページ・NavB)の `<nav>` と正規化DOM一致。DB結果は呼び出し側が事前取得して `ctx.navigation` に渡す(render に SQL/status 判定を置かない)。modal ID は `renderState.modalCounter` でページ共有。
+- 設計訂正: Haiku 実装は子ブロックを専用ローカル registry で描画していた(§7.1-3 の単一 registry に反する)。渡された `renderChildren` を使う形に修正し、テストも実 registry 経由にした。nav 要素の class と data-wp-interactive の間の空白欠落も修正。
+- 制限: 階層ページ(parent≠0)、ref 指定、wp_navigation 候補ゼロは診断付き拒否。navigation-link の属性形(`{"label","url","kind"}`)と NavB の post_content は**想定入力**(基準 WP の実 content は未記録)。プロトコル相対URL(`//host`)は拒否。
+- 検証: 全体681件 Green、型/lint OK、mutation(modal採番、post null、data-wp-context エスケープ、ハッシュ入力、parent、プロトコル相対、scheme)検出。Haiku の1回目実装は autocompact thrashing で失敗、範囲を絞った再試行で成功。

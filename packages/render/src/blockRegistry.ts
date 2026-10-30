@@ -9,6 +9,11 @@ export type RenderCtx = {
   renderState: { modalCounter: number };
   site?: { name: string; url: string };
   page?: { isHome: boolean; isSingular: boolean };
+  // D-1d-2 の core/navigation 用。無い文脈では navigation 系レンダラが fail-closed で RangeError を投げる。
+  navigation?: {
+    post: { id: number; content: string } | null;
+    pages: Array<{ id: number; title: string; slug: string; parent: number; menuOrder: number }>;
+  };
 };
 
 export type BlockRenderer = {
