@@ -151,7 +151,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - `ref` 指定(v3): D-2 でも navigation の `ref` 指定は未対応=拒否(§8.1-1 の ref タイトル規則は実測説明であり実装対象ではない)。拒否の回帰テストを D-2d に含める。
 - 期待値の区別(v3): 『期待値は fixtures の HTML のみ』は**実測DOM比較**(ゲート根拠)に限る。テーマ入力を変えた過適合対策の手書き期待値は『ソース由来・未実測』の分岐回帰であり、ゲート根拠にしない。
 - 共通(v2): 追加する ctx フィールド(`site.tagline`/`site.logoId`/`renderState.navNameCounts`)は**すべて optional**とし、既存の header 用 ctx・既存テストを変更せずに型検査・回帰が通ること。合格条件に「既存 header 合成・navigation・投稿由来 paragraph/sanitize の全テスト+`pnpm typecheck` が緑」を含める。
-- D-2a: `site-logo`(未設定=空/設定済み=拒否)、`site-tagline`(空=空/非空=実測形/未対応属性=拒否)、`spacer`(height/width 検証)。ctx.site に `tagline: string`、`logoId: number|null` を追加。
+- D-2a: `site-logo`(未設定=空/設定済み=拒否)、`site-tagline`(空=空/非空=実測形/未対応属性=拒否)、`spacer`(height/width 検証)。ctx.site に `tagline?: string`、`logoId?: number | null` を追加(いずれも optional、省略規則は『ctx の省略規則(v3)』)。
 - D-2b: `columns`/`column`。
 - D-2c: `paragraph`(theme 由来、fontSize→`has-<slug>-font-size`、`wp-block-paragraph`、内側 HTML は sanitize)。既存 renderBlocks の paragraph(投稿由来)との重複を避け、共通部は再利用。
 - D-2d: navigation の非 responsive 経路(overlayMenu never、インライン子、orientation vertical、aria-label カウンタ)。header の既存 18 件を回帰として維持。
@@ -163,7 +163,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - D-2b: 基準の columns/column と一致、width ''/'100%'/'30%'/不正('abc'、'1;x')、コンテナクラスは layoutInput 経由(ハッシュ直書き禁止)、column 内の子が再帰 dispatch を通る(未知ブロックは column 内でも拒否)。
 - D-2c: fontSize 未指定/small/不正スラッグ(`a b`、`"`)、内側 HTML に `<script>`・`onclick`・`javascript:` を含む入力が除去/拒否、基準 2 つの paragraph と一致(printf 展開済みの `<a href="https://wordpress.org" rel="nofollow">` を保持)。
 - 過適合対策(v2、全単位): テーマ入力を変えた in-memory テーマ(ラベル・URL・件数・順序・column 幅・spacing を変更)でも描画でき、期待値は WP ソース規則から手書きしたものを使う。**これらは実測 fixture ではなく『ソース由来・未実測』と明記**し、ゲート上は実測 2 組のみを根拠とする。
-- D-2d: footer の 2 nav と一致(aria-label ` 2`/` 3`)、header+footer の同一 ctx で header は属性なし・footer は ` 2` ` 3`、ariaLabel 指定は優先、同名 2 つで `<名前> 2`、新 ctx でリセット、modal 採番を消費しない(header modal-1 のまま)、`ariaLabel` に引用符・`<>&`・`" onmouseover="x` を与えても属性が増えず値が保持される(合成 API 経由で DOM 検査)、`#`/`#a` は受理・`javascript:`/`//host` は拒否、ラベルに `&`/`"`/`<`/実体参照風(PHP 展開後)→拒否、カウンタ名に `__proto__`/`constructor`、footer 単独描画で番号が基準と異なる、orientation 不正→拒否、overlayMenu 未知値→拒否、inline 子の navigation-link は header 側と同じ URL 検証。
+- D-2d: ref 無し+インライン子の navigation は `ctx.navigation` を省略しても成功する(wp_navigation 投稿必須チェックが残っていないこと。header の ref 無し+子なしは従来どおり ctx.navigation 必須)。footer の 2 nav と一致(aria-label ` 2`/` 3`)、header+footer の同一 ctx で header は属性なし・footer は ` 2` ` 3`、ariaLabel 指定は優先、同名 2 つで `<名前> 2`、新 ctx でリセット、modal 採番を消費しない(header modal-1 のまま)、`ariaLabel` に引用符・`<>&`・`" onmouseover="x` を与えても属性が増えず値が保持される(合成 API 経由で DOM 検査)、`#`/`#a` は受理・`javascript:`/`//host` は拒否、ラベルに `&`/`"`/`<`/実体参照風(PHP 展開後)→拒否、カウンタ名に `__proto__`/`constructor`、footer 単独描画で番号が基準と異なる、orientation 不正→拒否、overlayMenu 未知値→拒否、inline 子の navigation-link は header 側と同じ URL 検証。
 - D-2c 追加(v2): 投稿由来 paragraph(renderBlocks)のサニタイズ回帰(既存テスト)を維持。共通化部分は『theme 由来』『投稿由来』の入口を分け、投稿由来は必ず sanitizeHtml を通ることを検査。
 - D-2e: regions/footer.html(isHome=false、tagline 空)と set-footer2(isHome=true、tagline/特殊文字名)の 2 組で全体一致。比較器負例(column 欠落、nav の aria-label 欠落、spacer 二重化)。header+footer を同一 ctx で描画しても modal-1 が重複しない。
 - ゲート表記: footer 一致は group/columns/column/spacer/navigation/site-tagline/paragraph の部分達成(§7.1-5)。台帳は notes に partial を追記し done にしない。
