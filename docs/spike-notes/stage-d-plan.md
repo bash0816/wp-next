@@ -125,3 +125,35 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 ### 7.3 進捗(2026-10-31)
 - 完了: D-1a(テーマ解決)、D-1b-1(layout入力)、D-1b-2(登録表+group、ADR-036)、D-1c(site-title、ADR-037)、D-1d-1(DBナビ解決、ADR-038)。
 - 完了(追記): D-1d-2(navigation、ADR-039)、D-1e(header合成、ADR-040)。**D-1 完了**。次: D-2 footer、D-3 main-01/main-02。
+
+## 8. D-2 footer 領域 設計契約 v1 とテスト計画 v1(2026-10-31)
+
+目的: `fixtures/ref/regions/footer.html`(single 由来)と `fixtures/ref/set-footer2/footer.name-tagline-special.html`(home 由来、特殊文字のサイト名+tagline)に、テーマ(parts/footer.html→patterns/footer.php)+ctx のみから生成した HTML が正規化DOM**全体一致**する。継承: §7.1 の信頼境界・登録表・DB境界・ゲート扱い(§7.1-5)。範囲外: site-logo の実画像、一般PHP、CSS、JS。
+
+### 8.1 基準 WP の実測(ソース: wp-includes/blocks/navigation.php、site-logo.php、site-tagline.php、7.1.3)
+1. **navigation の aria-label**: 名前 = `attrs.ariaLabel` → なければ `ref` 公開投稿の title → なければ空。**ページ内で名前ごとの出現回数を数え**(static。header も数える)、2回目以降は `"<名前> <回数>"`、空でなければ aria-label を出す。実測: header の ref 無し nav=名前空(1回目、属性なし)、footer の2つの nav は `" 2"` `" 3"`(先頭に空白)。→ `renderState.navNameCounts: Record<string,number>` をページ共有で持つ。
+2. **overlayMenu:"never"**: responsive コンテナ(ボタン・modal・data-wp-*)を出さず、`<nav class="is-vertical wp-block-navigation is-layout-flex wp-container-core-navigation-is-layout-<hash> wp-block-navigation-is-layout-flex" aria-label="…"><ul class="wp-block-navigation__container is-vertical wp-block-navigation">…</ul></nav>`。header(responsive)と class 構成が異なる(is-responsive/items-justified/is-content-justification なし、orientation vertical で `is-vertical`)。modal 採番は消費しない。
+3. **ref 無し+インライン子ブロック**: 子の navigation-link を描画(wp_navigation の解決は不要)。header の ref 無し+子なしとは別経路。
+4. **site-logo**: カスタムロゴ未設定(theme_mod custom_logo=false)のとき出力は空。設定済みは D-2 範囲外=診断付き拒否。
+5. **site-tagline**: blogdescription が空なら出力なし。非空なら `<p class="wp-block-site-tagline">`+テキストescape(実測 set-footer2。`level`/`textAlign` 属性は D-2 では未指定のみ対応、指定は拒否)。
+6. **site-title の aria-current**: footer の site-title も home でのみ付く(set-footer2 実測)。
+7. **paragraph(theme 由来)**: `<p class="has-small-font-size wp-block-paragraph">`(7.1 は `wp-block-paragraph` を付与)。内側 HTML は theme/PHP 展開結果=信頼できない入力として sanitizeHtml を通す。
+8. **spacer**: `<div style="height:…;width:0px" aria-hidden="true" class="wp-block-spacer"></div>`(属性順は無視されるが class・値は検査)。`height`/`width` は preset 変数か長さのみ許可。
+9. **columns/column**: columns は `is-layout-flex wp-container-core-columns-is-layout-<hash> wp-block-columns-is-layout-flex`(ハッシュは layoutInput 実装済み 794e3cfa)、column は `is-layout-flow wp-block-column-is-layout-flow`、`width:"100%"` は `style="flex-basis:100%"`、`width:""` は style なし。
+10. group の blockGap は style 属性ではなくコンテナ CSS(ハッシュ入力に入る)。`verticalAlignment` は group の class に出ない(実測 footer.html)。
+
+### 8.2 単位(各 STEP4→5→6→7、順に)
+- D-2a: `site-logo`(未設定=空/設定済み=拒否)、`site-tagline`(空=空/非空=実測形/未対応属性=拒否)、`spacer`(height/width 検証)。ctx.site に `tagline: string`、`logoId: number|null` を追加。
+- D-2b: `columns`/`column`。
+- D-2c: `paragraph`(theme 由来、fontSize→`has-<slug>-font-size`、`wp-block-paragraph`、内側 HTML は sanitize)。既存 renderBlocks の paragraph(投稿由来)との重複を避け、共通部は再利用。
+- D-2d: navigation の非 responsive 経路(overlayMenu never、インライン子、orientation vertical、aria-label カウンタ)。header の既存 18 件を回帰として維持。
+- D-2e: `renderFooter`(createDefaultRegistry に追加)と全体比較 2 組。
+
+### 8.3 テスト計画
+- 全単位共通: 期待値は fixtures の HTML のみ(コードに埋めない)。生成入力は theme+ctx。比較は htmlEquals。各 it に検出対象と想定 Red(機能不足=モジュール未存在/出力差。環境不備は Red と認めない)。
+- D-2a: (1)基準 footer の該当部分と一致 (2)tagline 空→出力なし、非空(set-footer2)→一致、特殊文字(`<b>`、`&`)が要素にならない (3)logoId 設定→拒否、未知属性(level、textAlign)→拒否 (4)spacer: height/width に `;` `"` `<` `url(`、負値/単位なし→拒否、preset→`var(--wp--preset--spacing--N)`。
+- D-2b: 基準の columns/column と一致、width ''/'100%'/'30%'/不正('abc'、'1;x')、コンテナクラスは layoutInput 経由(ハッシュ直書き禁止)、column 内の子が再帰 dispatch を通る(未知ブロックは column 内でも拒否)。
+- D-2c: fontSize 未指定/small/不正スラッグ(`a b`、`"`)、内側 HTML に `<script>`・`onclick`・`javascript:` を含む入力が除去/拒否、基準 2 つの paragraph と一致(printf 展開済みの `<a href="https://wordpress.org" rel="nofollow">` を保持)。
+- D-2d: footer の 2 nav と一致(aria-label ` 2`/` 3`)、header+footer の同一 ctx で header は属性なし・footer は ` 2` ` 3`、ariaLabel 指定は優先、同名 2 つで `<名前> 2`、新 ctx でリセット、modal 採番を消費しない(header modal-1 のまま)、orientation 不正→拒否、overlayMenu 未知値→拒否、inline 子の navigation-link は header 側と同じ URL 検証。
+- D-2e: regions/footer.html(isHome=false、tagline 空)と set-footer2(isHome=true、tagline/特殊文字名)の 2 組で全体一致。比較器負例(column 欠落、nav の aria-label 欠落、spacer 二重化)。header+footer を同一 ctx で描画しても modal-1 が重複しない。
+- ゲート表記: footer 一致は group/columns/column/spacer/navigation/site-tagline/paragraph の部分達成(§7.1-5)。台帳は notes に partial を追記し done にしない。
