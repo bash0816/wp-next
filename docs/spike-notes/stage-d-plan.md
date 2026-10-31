@@ -167,3 +167,27 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - D-2c 追加(v2): 投稿由来 paragraph(renderBlocks)のサニタイズ回帰(既存テスト)を維持。共通化部分は『theme 由来』『投稿由来』の入口を分け、投稿由来は必ず sanitizeHtml を通ることを検査。
 - D-2e: regions/footer.html(isHome=false、tagline 空)と set-footer2(isHome=true、tagline/特殊文字名)の 2 組で全体一致。比較器負例(column 欠落、nav の aria-label 欠落、spacer 二重化)。header+footer を同一 ctx で描画しても modal-1 が重複しない。
 - ゲート表記: footer 一致は group/columns/column/spacer/navigation/site-tagline/paragraph の部分達成(§7.1-5)。台帳は notes に partial を追記し done にしない。
+
+### 8.4 テスト計画の追補 v4(STEP3 v3 No-Go: Major5/Minor2 を反映。§8.3 と併読、矛盾時は本節が優先)
+**A. 採番の mutation 対策(D-2d/e)**
+- 名前別カウンタ: 同一 ctx で navigation を `ariaLabel` = `A, B, A, (空), B` の順に描画し、aria-label を厳密に `A / B / A 2 / 属性なし / B 2`(空名は header 想定の初回=属性なし。空名が 2 回目なら ` 2`)と固定。単一カウンタ実装・名前を無視する実装を検出。`__proto__`/`constructor` は初回=名前そのまま、再登場=`<名前> 2`。
+- modal 採番(順序固定): `header → footer → header` で modal ID が `modal-1 → (footer は modal 要素なし) → modal-2`、`footer → header` で header が `modal-1`。footer が採番を消費する実装を検出。
+**B. 属性導出の独立検査(D-2b/c)**
+- 保存 HTML(innerHTML)を**固定**したまま `width`/`fontSize` 属性だけを変えたブロックを渡し、出力が属性由来(`flex-basis:30%`、`has-large-font-size`)になること。保存 HTML のコピーで代用する実装を検出。
+- columns のコンテナハッシュ: `ctx.global` の gap(blockGap)を変えたケースで、独立に計算した期待(layoutInput 経由ではなく md5 規則をテスト内で再実装した検算関数、被検査側 helper 非使用)と一致し、基準ハッシュ固定を検出。
+**C. サニタイズ負例の具体化(D-2c)**
+- 入口ごと(theme 由来 paragraph / 投稿由来 paragraph)に、別ケースで `<script>`、`onclick`/`onerror` 等のイベント属性、`javascript:`/`data:` href を渡す。**方針は『除去』**: 出力 DOM に危険要素・属性・URL が無く、安全な本文テキストと `<a href="https://wordpress.org" rel="nofollow">` は残る。例外を投げる場合は `RangeError`/所定の診断型のみ合格とし、TypeError 等は不合格。
+**D. fail-closed(D-2a/e)**
+- `renderFooter` に、`parts/footer.html` 欠落(ThemeResolveError unknown-part)、footer 直下の未知ブロック、column/group 内の入れ子の未知ブロックを渡し、`UnsupportedBlockError` を検査(黙って捨てる実装を検出)。
+- D-2a の未取得 ctx: `tagline` だけ省略、`logoId` だけ省略、両方省略、をそれぞれ RangeError(片方の検証削除を検出)。
+**E. Red の分類と実行表**
+| 単位 | テスト配置 | 実行 | 想定 Red |
+|---|---|---|---|
+| D-2a | packages/render/src/{siteLogo,siteTagline,spacer}Block.test.ts(または footerLeaf.test.ts にまとめる) | `pnpm vitest run <file>` | 新規モジュール未存在による収集失敗(各 assertion の Red 証拠ではない旨を報告に明記。実装後の最初の実行で assertion 単位の Red/Green を確認するため、**Haiku は実装前に各 assertion が到達可能であること(スタブ実装で失敗内容を確認)を報告する**) |
+| D-2b | columnsBlock.test.ts | 同上 | 同上 |
+| D-2c | paragraphBlock.test.ts | 同上 | 同上。既存 renderBlocks 投稿 paragraph の回帰は開始時から Green で良い |
+| D-2d | navigationBlock.test.ts へ追記(非 responsive 経路) | 同上 | 既存 18 件は Green 維持、新規追加分のみ Red(出力差=機能不足) |
+| D-2e | footerCompose.test.ts、headerCompose.test.ts の登録キー集合更新 | 同上 | モジュール未存在 |
+- 既存機能の回帰テスト(header 合成、navigation、投稿 paragraph/sanitize)は開始時点から Green でよい。環境不備(fixture 不足、import パス誤り)は Red と認めず fixture 不足として報告。
+**F. 手書き期待値の出典**
+- 手書き期待値のコメントに『WP 7.1.3 wp-includes/blocks/<file>.php:<関数> の規則』と test_id(`D2x-NN`)を付す。期待値生成に被検査側の helper を使わない。
