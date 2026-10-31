@@ -187,7 +187,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 | D-2b | columnsBlock.test.ts | 同上 | 同上 |
 | D-2c | paragraphBlock.test.ts | 同上 | 同上。既存 renderBlocks 投稿 paragraph の回帰は開始時から Green で良い |
 | D-2d | navigationBlock.test.ts へ追記(非 responsive 経路) | 同上 | 既存 18 件は Green 維持、新規追加分のみ Red(出力差=機能不足) |
-| D-2e | footerCompose.test.ts、headerCompose.test.ts の登録キー集合更新 | 同上 | モジュール未存在。**スタブ導入後に全体比較・比較器負例(column 欠落/nav の aria-label 欠落/spacer 二重化)・fail-closed が assertion 単位で失敗することを確認し報告する** |
+| D-2e | footerCompose.test.ts、headerCompose.test.ts の登録キー集合更新 | 同上 | モジュール未存在。**スタブ導入後、全体比較と fail-closed は assertion 単位で Red になることを確認して報告する。比較器負例(column 欠落/nav の aria-label 欠落/spacer 二重化)は既存 `htmlEquals` に基準DOMと破壊後DOMを渡す検査なので Green を許容し、『改変が成立していること』と『比較 assertion に到達していること』を確認して報告する(比較器自体を失敗させる必要はない)** |
 - 既存機能の回帰テスト(header 合成、navigation、投稿 paragraph/sanitize)は開始時点から Green でよい。環境不備(fixture 不足、import パス誤り)は Red と認めず fixture 不足として報告。
 **F. 手書き期待値の出典**
 - 手書き期待値のコメントに『WP 7.1.3 wp-includes/blocks/<file>.php:<関数> の規則』と test_id(`D2x-NN`)を付す。期待値生成に被検査側の helper を使わない。

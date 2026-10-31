@@ -65,3 +65,8 @@
 - 検証: 全体697件 Green、型/lint OK、mutation(pattern 展開なし、ラッパ class、navigation-link 未登録)検出。比較器負例(要素欠落・class 欠落・li 二重化)も確認。
 - 台帳: §7.1-5 に従い、group/navigation/navigation-link/site-title は status を todo のまま notes に `partial=D-1 header領域一致のみ` を追記(ブロック全体の done ではない)。
 - 未達: footer、main(single/home のループ・コメント・query)、E 段階(theme.json→CSS)。navigation の ref 指定・階層ページ・レスポンシブ以外の overlay、実ブラウザ動作は範囲外。
+
+## ADR-041: D-2 footer の STEP2/STEP3 が Go(2026-10-31)
+- 設計契約 v3(stage-d-plan.md §8.1〜8.2)は GPT-6.1-sol の STEP2 で 3 回目に Go。主な決定: navigation の aria-label は名前ごとのページ共有カウンタ(Map、header→footer の順で固定)、overlayMenu never は非 responsive 経路で modal 採番を消費しない、navigation-link のフラグメント URL(`#`)許可、PHP 展開後ラベルの特殊文字は未実測のため拒否、ctx の追加フィールドは optional で未取得は拒否(`tagline`/`logoId`)、`ref` 指定は拒否。
+- テスト計画(§8.3〜8.4)は STEP3 で 3 回目に Go。名前別採番・modal 順序の mutation 対策、属性導出の独立検査、サニタイズは正常終了必須、fail-closed、実行表。
+- 基準データ: fixtures/ref/set-footer2(blogname/blogdescription を一時設定して取得、復元確認済み)。ゲート扱いは §7.1-5 を継承(partial、done にしない)。
