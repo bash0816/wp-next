@@ -176,9 +176,9 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 保存 HTML(innerHTML)を**固定**したまま `width`/`fontSize` 属性だけを変えたブロックを渡し、出力が属性由来(`flex-basis:30%`、`has-large-font-size`)になること。保存 HTML のコピーで代用する実装を検出。
 - columns のコンテナハッシュ: `ctx.global` の gap(blockGap)を変えたケースで、独立に計算した期待(layoutInput 経由ではなく md5 規則をテスト内で再実装した検算関数、被検査側 helper 非使用)と一致し、基準ハッシュ固定を検出。
 **C. サニタイズ負例の具体化(D-2c)**
-- 入口ごと(theme 由来 paragraph / 投稿由来 paragraph)に、別ケースで `<script>`、`onclick`/`onerror` 等のイベント属性、`javascript:`/`data:` href を渡す。**方針は『除去』**: 出力 DOM に危険要素・属性・URL が無く、安全な本文テキストと `<a href="https://wordpress.org" rel="nofollow">` は残る。例外を投げる場合は `RangeError`/所定の診断型のみ合格とし、TypeError 等は不合格。
+- 入口ごと(theme 由来 paragraph / 投稿由来 paragraph)に、別ケースで `<script>`、`onclick`/`onerror` 等のイベント属性、`javascript:`/`data:` href を渡す。**方針は『除去』**: 出力 DOM に危険要素・属性・URL が無く、安全な本文テキストと `<a href="https://wordpress.org" rel="nofollow">` は残る。**列挙したサニタイズケースは正常終了を必須**とし(例外は不合格)、危険部分の除去と安全部分の保持を**同じ出力**で検査する。診断付き拒否(`RangeError` 等の所定型)は、不正属性(型違い・範囲外)など**別の入力ケース**に限定し、そこでも TypeError 等は不合格。
 **D. fail-closed(D-2a/e)**
-- `renderFooter` に、`parts/footer.html` 欠落(ThemeResolveError unknown-part)、footer 直下の未知ブロック、column/group 内の入れ子の未知ブロックを渡し、`UnsupportedBlockError` を検査(黙って捨てる実装を検出)。
+- `renderFooter` に、`parts/footer.html` 欠落は `ThemeResolveError` かつ `code === 'unknown-part'`、footer 直下の未知ブロックと column/group 内の入れ子の未知ブロックは `UnsupportedBlockError`(ケースを分けて検査。黙って捨てる実装を検出)。
 - D-2a の未取得 ctx: `tagline` だけ省略、`logoId` だけ省略、両方省略、をそれぞれ RangeError(片方の検証削除を検出)。
 **E. Red の分類と実行表**
 | 単位 | テスト配置 | 実行 | 想定 Red |
@@ -187,7 +187,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 | D-2b | columnsBlock.test.ts | 同上 | 同上 |
 | D-2c | paragraphBlock.test.ts | 同上 | 同上。既存 renderBlocks 投稿 paragraph の回帰は開始時から Green で良い |
 | D-2d | navigationBlock.test.ts へ追記(非 responsive 経路) | 同上 | 既存 18 件は Green 維持、新規追加分のみ Red(出力差=機能不足) |
-| D-2e | footerCompose.test.ts、headerCompose.test.ts の登録キー集合更新 | 同上 | モジュール未存在 |
+| D-2e | footerCompose.test.ts、headerCompose.test.ts の登録キー集合更新 | 同上 | モジュール未存在。**スタブ導入後に全体比較・比較器負例(column 欠落/nav の aria-label 欠落/spacer 二重化)・fail-closed が assertion 単位で失敗することを確認し報告する** |
 - 既存機能の回帰テスト(header 合成、navigation、投稿 paragraph/sanitize)は開始時点から Green でよい。環境不備(fixture 不足、import パス誤り)は Red と認めず fixture 不足として報告。
 **F. 手書き期待値の出典**
 - 手書き期待値のコメントに『WP 7.1.3 wp-includes/blocks/<file>.php:<関数> の規則』と test_id(`D2x-NN`)を付す。期待値生成に被検査側の helper を使わない。
