@@ -126,7 +126,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 完了: D-1a(テーマ解決)、D-1b-1(layout入力)、D-1b-2(登録表+group、ADR-036)、D-1c(site-title、ADR-037)、D-1d-1(DBナビ解決、ADR-038)。
 - 完了(追記): D-1d-2(navigation、ADR-039)、D-1e(header合成、ADR-040)。**D-1 完了**。次: D-2 footer、D-3 main-01/main-02。
 
-## 8. D-2 footer 領域 設計契約 v2 とテスト計画 v2(2026-10-31、STEP2 v1 No-Go: Major5/Minor2 を反映)
+## 8. D-2 footer 領域 設計契約 v3 とテスト計画 v3(2026-10-31、STEP2 v1 No-Go: Major5/Minor2、v2 No-Go: Major1/Minor2 を反映)
 
 目的: `fixtures/ref/regions/footer.html`(single 由来)と `fixtures/ref/set-footer2/footer.name-tagline-special.html`(home 由来、特殊文字のサイト名+tagline)に、テーマ(parts/footer.html→patterns/footer.php)+ctx のみから生成した HTML が正規化DOM**全体一致**する。継承: §7.1 の信頼境界・登録表・DB境界・ゲート扱い(§7.1-5)。範囲外: site-logo の実画像、一般PHP、CSS、JS。
 
@@ -147,6 +147,9 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 12. group の blockGap は style 属性ではなくコンテナ CSS(ハッシュ入力に入る)。`verticalAlignment` は group の class に出ない(実測 footer.html)。
 
 ### 8.2 単位(各 STEP4→5→6→7、順に)
+- ctx の省略規則(v3): `site.tagline?: string`、`site.logoId?: number | null`。**footer 描画で `tagline`/`logoId` が `undefined`(情報未取得)なら診断付き RangeError で拒否**(未取得を『未設定』と誤認しない)。`tagline === ''` は非表示、`logoId === null` は空出力、数値(設定済み)は拒否。header 描画はこれらを参照しないため既存 ctx のまま動く。D-2a のテストに『省略→拒否』『空/null→空出力』『設定済み→拒否』を含める。
+- `ref` 指定(v3): D-2 でも navigation の `ref` 指定は未対応=拒否(§8.1-1 の ref タイトル規則は実測説明であり実装対象ではない)。拒否の回帰テストを D-2d に含める。
+- 期待値の区別(v3): 『期待値は fixtures の HTML のみ』は**実測DOM比較**(ゲート根拠)に限る。テーマ入力を変えた過適合対策の手書き期待値は『ソース由来・未実測』の分岐回帰であり、ゲート根拠にしない。
 - 共通(v2): 追加する ctx フィールド(`site.tagline`/`site.logoId`/`renderState.navNameCounts`)は**すべて optional**とし、既存の header 用 ctx・既存テストを変更せずに型検査・回帰が通ること。合格条件に「既存 header 合成・navigation・投稿由来 paragraph/sanitize の全テスト+`pnpm typecheck` が緑」を含める。
 - D-2a: `site-logo`(未設定=空/設定済み=拒否)、`site-tagline`(空=空/非空=実測形/未対応属性=拒否)、`spacer`(height/width 検証)。ctx.site に `tagline: string`、`logoId: number|null` を追加。
 - D-2b: `columns`/`column`。
@@ -155,7 +158,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - D-2e: `renderFooter`(createDefaultRegistry に追加)と全体比較 2 組。**既存 headerCompose.test の登録キー 5 個完全一致テストを新しい集合へ更新する(私が意図的に更新。更新理由を ADR に記録)**。
 
 ### 8.3 テスト計画
-- 全単位共通: 期待値は fixtures の HTML のみ(コードに埋めない)。生成入力は theme+ctx。比較は htmlEquals。各 it に検出対象と想定 Red(機能不足=モジュール未存在/出力差。環境不備は Red と認めない)。
+- 全単位共通: 実測DOM比較の期待値は fixtures の HTML のみ(コードに埋めない)。生成入力は theme+ctx。比較は htmlEquals。各 it に検出対象と想定 Red(機能不足=モジュール未存在/出力差。環境不備は Red と認めない)。
 - D-2a: (1)基準 footer の該当部分と一致 (2)tagline 空→出力なし、非空(set-footer2)→一致、特殊文字(`<b>`、`&`)が要素にならない (3)logoId 設定→拒否、未知属性(level、textAlign)→拒否 (4)spacer: height/width に `;` `"` `<` `url(`、負値/単位なし→拒否、preset→`var(--wp--preset--spacing--N)`。
 - D-2b: 基準の columns/column と一致、width ''/'100%'/'30%'/不正('abc'、'1;x')、コンテナクラスは layoutInput 経由(ハッシュ直書き禁止)、column 内の子が再帰 dispatch を通る(未知ブロックは column 内でも拒否)。
 - D-2c: fontSize 未指定/small/不正スラッグ(`a b`、`"`)、内側 HTML に `<script>`・`onclick`・`javascript:` を含む入力が除去/拒否、基準 2 つの paragraph と一致(printf 展開済みの `<a href="https://wordpress.org" rel="nofollow">` を保持)。
