@@ -127,6 +127,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 完了(追記): D-1d-2(navigation、ADR-039)、D-1e(header合成、ADR-040)。**D-1 完了**。次: D-2 footer、D-3 main-01/main-02。
 - 完了(追記): D-2a(site-logo / site-tagline / spacer。`footerLeaf.test.ts` 35 件、package 内全体 Green、typecheck・lint OK、mutation 検証済み。STEP6 で補強テスト D2a-21〜23 を追加)。ctx.site に tagline?/logoId? を optional 追加。createDefaultRegistry への登録は D-2e。次: D-2b columns/column。
 - 完了(追記): D-2b(columns/column。`columnsBlock.test.ts` 18 件、packages/render 276 件 Green、typecheck・lint OK、mutation 検証済み)。STEP6 でテスト欠陥 2 件を修正(D2b-08: ブロック別 gap が優先されるため blockGapByBlock を変更、D2b-10: 別解析ノードの参照比較)。D2b-14 でハッシュを md5 で独立検算(基準 794e3cfa を再現: `[{"type":"flex","flexWrap":"nowrap"},true,null,false,"var(--wp--preset--spacing--50)",null]`)。次: D-2c paragraph。
+- 完了(追記): D-2c(テーマ由来 paragraph。`paragraphBlock.test.ts` 20 件、packages/render 296 件 Green、typecheck・lint OK、mutation 検証済み。STEP6 で外殻 p 検査の補強 D2c-10 を追加。残る生存 1 件は parse5 検査が同入力を拒否する等価変更)。次: D-2d navigation 非 responsive 経路。
 
 ## 8. D-2 footer 領域 設計契約 v3 とテスト計画 v3(2026-10-31、STEP2 v1 No-Go: Major5/Minor2、v2 No-Go: Major1/Minor2 を反映)
 
