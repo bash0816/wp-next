@@ -58,3 +58,10 @@
 - 設計訂正: Haiku 実装は子ブロックを専用ローカル registry で描画していた(§7.1-3 の単一 registry に反する)。渡された `renderChildren` を使う形に修正し、テストも実 registry 経由にした。nav 要素の class と data-wp-interactive の間の空白欠落も修正。
 - 制限: 階層ページ(parent≠0)、ref 指定、wp_navigation 候補ゼロは診断付き拒否。navigation-link の属性形(`{"label","url","kind"}`)と NavB の post_content は**想定入力**(基準 WP の実 content は未記録)。プロトコル相対URL(`//host`)は拒否。
 - 検証: 全体681件 Green、型/lint OK、mutation(modal採番、post null、data-wp-context エスケープ、ハッシュ入力、parent、プロトコル相対、scheme)検出。Haiku の1回目実装は autocompact thrashing で失敗、範囲を絞った再試行で成功。
+
+## ADR-040: D-1e header 合成と D-1 完了(2026-10-31)
+- `headerCompose.ts`(`createDefaultRegistry`/`renderHeader`): テーマ+ctx のみから header 全体を生成し、基準3組(regions/header.html=single、set-header2 の保護ページ入り・NavB=home)と正規化DOMで**全体一致**。D-1(header 領域)の達成条件を満たした。
+- テスト側の欠陥を修正: dump.sql 読み取りが先頭の INSERT しか見ない手製トークナイザだった → scratch SQLite に流す方式へ。
+- 検証: 全体697件 Green、型/lint OK、mutation(pattern 展開なし、ラッパ class、navigation-link 未登録)検出。比較器負例(要素欠落・class 欠落・li 二重化)も確認。
+- 台帳: §7.1-5 に従い、group/navigation/navigation-link/site-title は status を todo のまま notes に `partial=D-1 header領域一致のみ` を追記(ブロック全体の done ではない)。
+- 未達: footer、main(single/home のループ・コメント・query)、E 段階(theme.json→CSS)。navigation の ref 指定・階層ページ・レスポンシブ以外の overlay、実ブラウザ動作は範囲外。
