@@ -125,6 +125,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 ### 7.3 進捗(2026-10-31)
 - 完了: D-1a(テーマ解決)、D-1b-1(layout入力)、D-1b-2(登録表+group、ADR-036)、D-1c(site-title、ADR-037)、D-1d-1(DBナビ解決、ADR-038)。
 - 完了(追記): D-1d-2(navigation、ADR-039)、D-1e(header合成、ADR-040)。**D-1 完了**。次: D-2 footer、D-3 main-01/main-02。
+- 完了(追記): D-2a(site-logo / site-tagline / spacer。`footerLeaf.test.ts` 35 件、package 内全体 Green、typecheck・lint OK、mutation 検証済み。STEP6 で補強テスト D2a-21〜23 を追加)。ctx.site に tagline?/logoId? を optional 追加。createDefaultRegistry への登録は D-2e。次: D-2b columns/column。
 
 ## 8. D-2 footer 領域 設計契約 v3 とテスト計画 v3(2026-10-31、STEP2 v1 No-Go: Major5/Minor2、v2 No-Go: Major1/Minor2 を反映)
 

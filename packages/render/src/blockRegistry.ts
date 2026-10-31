@@ -7,7 +7,9 @@ import { type ParsedBlock, UnsupportedBlockError } from './renderBlocks.js';
 export type RenderCtx = {
   global: GlobalConfig;
   renderState: { modalCounter: number };
-  site?: { name: string; url: string };
+  // D-2a の core/site-tagline / core/site-logo 用。tagline / logoId が undefined のときは
+  // 各レンダラが fail-closed で RangeError を投げる(§8.2)。'' と null は未設定として空出力。
+  site?: { name: string; url: string; tagline?: string; logoId?: number | null };
   page?: { isHome: boolean; isSingular: boolean };
   // D-1d-2 の core/navigation 用。無い文脈では navigation 系レンダラが fail-closed で RangeError を投げる。
   navigation?: {

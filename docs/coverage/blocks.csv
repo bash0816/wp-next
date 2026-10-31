@@ -92,12 +92,12 @@ rss,core/rss,widgets,L3,todo,dynamic=yes; evidence=registry render_callback=rend
 search,core/search,widgets,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_search; supports=__experimentalBorder;align;anchor;color;html;interactivity;spacing;typography
 separator,core/separator,design,L3,done,dynamic=no; evidence=registry render_callback=-; supports=align;anchor;color;interactivity;spacing
 shortcode,core/shortcode,widgets,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_shortcode; supports=className;customCSS;customClassName;html;visibility
-site-logo,core/site-logo,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_site_logo; supports=align;alignWide;anchor;color;filter;html;interactivity;spacing
-site-tagline,core/site-tagline,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_site_tagline; supports=__experimentalBorder;align;anchor;color;contentRole;html;interactivity;spacing;typography
+site-logo,core/site-logo,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_site_logo; supports=align;alignWide;anchor;color;filter;html;interactivity;spacing; partial=D-2a footer領域一致のみ(logoId=null空出力・設定済み拒否)。done にしない(§7.1-5)
+site-tagline,core/site-tagline,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_site_tagline; supports=__experimentalBorder;align;anchor;color;contentRole;html;interactivity;spacing;typography; partial=D-2a footer領域一致のみ(属性なし・tagline空/非空)。level/textAlign等は拒否。done にしない(§7.1-5)
 site-title,core/site-title,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_site_title; supports=__experimentalBorder;align;anchor;color;html;interactivity;spacing;typography; partial=D-1 header領域一致のみ(test=packages/render/src/headerCompose.test.ts, 2026-10-31)。ブロック全体は未達
 social-link,core/social-link,widgets,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_social_link; supports=anchor;html;interactivity;reusable
 social-links,core/social-links,widgets,L3,todo,dynamic=no; evidence=registry render_callback=-; supports=__experimentalBorder;__experimentalExposeControlsToChildren;align;anchor;color;contentRole;html;interactivity;layout;listView;spacing
-spacer,core/spacer,design,L3,todo,dynamic=no; evidence=registry render_callback=-; supports=anchor;interactivity;spacing
+spacer,core/spacer,design,L3,todo,dynamic=no; evidence=registry render_callback=-; supports=anchor;interactivity;spacing; partial=D-2a footer領域一致のみ(height必須・width任意・長さ/preset のみ)。done にしない(§7.1-5)
 tab-list,core/tab-list,design,L3,todo,dynamic=yes; evidence=registry render_callback=block_core_tab_list_render_callback; supports=__experimentalBorder;ariaLabel;color;html;layout;lock;spacing;typography;visibility
 tab-panel,core/tab-panel,design,L3,todo,dynamic=yes; evidence=registry render_callback=block_core_tab_panel_render; supports=anchor;color;html;layout;spacing;typography;visibility
 tab-panels,core/tab-panels,design,L3,todo,dynamic=no; evidence=registry render_callback=-; supports=__experimentalBorder;color;html;lock;spacing;typography;visibility
