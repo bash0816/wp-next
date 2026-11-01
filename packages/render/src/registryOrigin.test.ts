@@ -42,6 +42,7 @@ const EXPECTED_THEME_KEYS = [
 	'core/post-terms',
 	'core/post-author-name',
 	'core/post-featured-image',
+	'core/post-content',
 ];
 
 // 型テスト(D3a1-04)。実行はされないが `pnpm typecheck` が検査する。
@@ -58,7 +59,7 @@ function _nominalTypeChecks(theme: ThemeRegistry, post: PostRegistry): void {
 void _nominalTypeChecks;
 
 describe('D3a1 registry origin', () => {
-	it('D3a1-01: createThemeRegistry は 19 キーの完全一致、createPostRegistry は空', () => {
+	it('D3a1-01: createThemeRegistry は 20 キーの完全一致、createPostRegistry は空', () => {
 		// Red理由: 現行 headerCompose.ts は createDefaultRegistry(5キー)のみ export し、
 		// createThemeRegistry は未 export のため TypeError (not a function) になる。
 		const themeKeys = [...createThemeRegistry().keys()].sort();

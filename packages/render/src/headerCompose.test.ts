@@ -313,6 +313,7 @@ describe('createDefaultRegistry: 登録ブロックの契約', () => {
 					'core/post-terms',
 					'core/post-author-name',
 					'core/post-featured-image',
+					'core/post-content',
 			].sort(),
 		);
 	});

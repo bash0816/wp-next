@@ -1,7 +1,8 @@
 export * from './normalizeDom.js';
 export * from './renderBlocks.js';
 export * from './sanitizeHtml.js';
-export { renderContent } from './renderContent.js';
+export { renderContent, renderPostBody } from './renderContent.js';
+export { postContentRenderer } from './postContent.js';
 export { createThemeRegistry, renderHeader } from './headerCompose.js';
 export {
   ThemeRegistry,

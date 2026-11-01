@@ -16,7 +16,6 @@ export interface RenderContentContext {
  * 出力はすべて sanitizeHtml を通す。DB には直接依存せず、ctx.queries 経由で問い合わせる。
  */
 export function renderContent(postContent: string, ctx: RenderContentContext): string {
-  const blocks = parse(postContent) as ParsedBlock[];
   // global は layout(テーマ側)用。投稿起点のブロックは参照しないため、ここだけで空値を埋める。
   const renderCtx: RenderCtx = {
     global: {} as GlobalConfig,
@@ -24,6 +23,15 @@ export function renderContent(postContent: string, ctx: RenderContentContext): s
     site: { name: '', url: ctx.siteUrl },
     queries: ctx.queries,
   };
-  const html = renderTree(blocks, renderCtx, createPostRegistry());
+  return renderPostBody(postContent, renderCtx);
+}
+
+/**
+ * 本文 post_content を投稿用レジストリで描画し、texturize と sanitizeHtml を通した HTML を返す。
+ * core/post-content(テーマ側)からも同じパイプラインを使うため、ここに切り出している。
+ */
+export function renderPostBody(postContent: string, ctx: RenderCtx): string {
+  const blocks = parse(postContent) as ParsedBlock[];
+  const html = renderTree(blocks, ctx, createPostRegistry());
   return sanitizeHtml(texturizeText(html));
 }
