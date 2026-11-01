@@ -268,3 +268,264 @@ describe('core/group: fail-closed(RangeError)', () => {
 		expect(err).toBeInstanceOf(RangeError);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// D3z1: 後続セクション(post-navigation / more-posts / main)のフィクスチャ一致
+// 期待値は fixtures/ref から正規表現で抽出する(手写しの期待値を使わない)。
+// ---------------------------------------------------------------------------
+
+type StartTag = { tag: string; attrs: Record<string, string> };
+
+// 開始タグを parse5 で解析する(属性値は DOM が復号した値)。
+async function startTag(html: string): Promise<StartTag> {
+	const { parseFragment } = await import('parse5');
+	const frag = parseFragment(html);
+	const node = frag.childNodes.find((n) => 'tagName' in n) as unknown as
+		| { tagName: string; attrs: { name: string; value: string }[] }
+		| undefined;
+	if (!node) throw new Error(`要素が見つからない: ${html}`);
+	return { tag: node.tagName, attrs: Object.fromEntries(node.attrs.map((a) => [a.name, a.value])) };
+}
+
+// 比較用の形。class と style の宣言は順序を保持する配列にする。
+function shape(t: StartTag): { tag: string; classes: string[]; styles: string[]; rest: Record<string, string> } {
+	const { class: cls = '', style = '', ...rest } = t.attrs;
+	return {
+		tag: t.tag,
+		classes: cls.split(/\s+/).filter(Boolean),
+		styles: style.split(';').map((s) => s.trim()).filter(Boolean),
+		rest,
+	};
+}
+
+// フィクスチャから正規表現で開始タグを1つ抽出する(id 属性は除去する)。
+function fixtureTag(file: string, re: RegExp): string {
+	const src = readFileSync(join(FIXTURES, file), 'utf8');
+	const m = re.exec(src);
+	if (!m) throw new Error(`${file} に該当タグなし: ${re.source}`);
+	return m[0].replace(/ id="[^"]*"/, '');
+}
+
+async function expectSameStartTag(html: string, expected: string): Promise<void> {
+	expect(shape(await startTag(html))).toEqual(shape(await startTag(expected)));
+}
+
+describe('D3z1: 後続セクションのフィクスチャ一致', () => {
+	// D3z1-01 (Green予測): margin のみ・is-layout-flow の外側 group。現実装で一致する見込み。
+	it('D3z1-01: post-navigation 外側 group が main-01 の外側 div と一致する', async () => {
+		const html = renderGroup({
+			align: 'wide',
+			style: { spacing: { margin: { top: 'var:preset|spacing|60', bottom: 'var:preset|spacing|60' } } },
+			layout: { type: 'default' },
+		});
+		const expected = fixtureTag('regions/main-01.html', /<div class="wp-block-group alignwide is-layout-flow[^"]*" style="margin-top:[^"]*">/);
+		await expectSameStartTag(html, expected);
+	});
+
+	// D3z1-02 (Red予測): tagName nav / ariaLabel / border / flex の未実装。
+	// 現実装は optionalEnum(tagName, ['div']) により nav で RangeError となる。
+	it('D3z1-02: post-navigation 内側 nav が main-01 の nav 開始タグと一致し </nav> で閉じる', async () => {
+		const html = renderGroup({
+			ariaLabel: 'Post navigation',
+			tagName: 'nav',
+			align: 'wide',
+			style: {
+				border: { top: { color: 'var:preset|color|accent-6', width: '1px' } },
+				spacing: { padding: { top: 'var:preset|spacing|40', bottom: 'var:preset|spacing|40' } },
+			},
+			layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' },
+		});
+		const expected = fixtureTag('regions/main-01.html', /<nav class="[^"]*" aria-label="Post navigation" style="[^"]*">/);
+		await expectSameStartTag(html, expected);
+		expect(html.trimEnd().endsWith('</nav>')).toBe(true);
+	});
+
+	// D3z1-03 (外側: Green予測 / card: Red予測)
+	// card は border の辺順・verticalAlignment(class なし)・空配列辺の扱いに依存する。
+	it('D3z1-03: more-posts 外側 group が main-02 の外側 div と一致する', async () => {
+		const html = renderGroup({
+			align: 'wide',
+			style: { spacing: { padding: { top: 'var:preset|spacing|60', bottom: 'var:preset|spacing|60' } } },
+			layout: { type: 'constrained' },
+		});
+		const expected = fixtureTag('regions/main-02.html', /<div class="wp-block-group alignwide has-global-padding is-layout-constrained[^"]*" style="padding-top:[^"]*">/);
+		await expectSameStartTag(html, expected);
+	});
+
+	// D3z1-03 card (Red予測): border の辺順、verticalAlignment、空配列辺を含む入力。
+	it('D3z1-03: more-posts の card が main-02 の card 開始タグと一致する', async () => {
+		const html = renderGroup({
+			align: 'full',
+			style: {
+				spacing: { padding: { top: 'var:preset|spacing|30', bottom: 'var:preset|spacing|30' } },
+				border: {
+					bottom: { color: 'var:preset|color|accent-6', width: '1px' },
+					top: [],
+					right: [],
+					left: [],
+				},
+			},
+			layout: { type: 'flex', flexWrap: 'nowrap', verticalAlignment: 'center', justifyContent: 'space-between' },
+		});
+		const expected = fixtureTag('regions/main-02.html', /<div class="wp-block-group alignfull is-content-justification-space-between[^"]*" style="border-bottom-color:[^"]*">/);
+		await expectSameStartTag(html, expected);
+	});
+
+	// D3z1-04 (Red予測): tagName main が未対応。現実装は tagName を無視して div を出す。
+	it('D3z1-04: tagName main の出力が spike の main 開始タグと一致し id を持たない', async () => {
+		const html = renderGroup({
+			tagName: 'main',
+			style: { spacing: { margin: { top: 'var:preset|spacing|60' } } },
+			layout: { type: 'constrained' },
+		});
+		expect(html).toBe(
+			'<main class="wp-block-group has-global-padding is-layout-constrained wp-block-group-is-layout-constrained" style="margin-top:var(--wp--preset--spacing--60)"></main>',
+		);
+		const expected = fixtureTag('spike-blocks.html', /<main id="wp--skip-link--target"[^>]*>/);
+		await expectSameStartTag(html, expected);
+	});
+});
+
+describe('D3z1: tagName の受理・拒否', () => {
+	// D3z1-05 (Red予測): div 以外は現実装で RangeError になる。
+	it.each(['div', 'main', 'nav', 'header', 'footer', 'section'])('D3z1-05: tagName=%s が開始タグと終了タグに反映される', async (tag) => {
+		const html = renderGroup({ tagName: tag });
+		expect((await startTag(html)).tag).toBe(tag);
+		expect(html.trimEnd().endsWith(`</${tag}>`)).toBe(true);
+	});
+
+	// D3z1-05 (Red予測): 許可外の値は RangeError。現実装は ['div'] のみ許可するため
+	// script / a / DIV / '' / 1 / null は RangeError になる見込み。
+	it.each([['script'], ['a'], ['DIV'], [''], [1], [null]])('D3z1-05: tagName=%j は RangeError', (v) => {
+		expect(captureError(() => renderGroup({ tagName: v }))).toBeInstanceOf(RangeError);
+	});
+});
+
+describe('D3z1: ariaLabel', () => {
+	// D3z1-06 (Red予測): ariaLabel は未実装のため aria-label が出力されない。
+	it('D3z1-06: tagName=nav の ariaLabel が aria-label として出力される', async () => {
+		const html = renderGroup({ tagName: 'nav', ariaLabel: 'Post navigation' });
+		expect((await startTag(html)).attrs['aria-label']).toBe('Post navigation');
+	});
+
+	// D3z1-06 (Red予測): 値を属性として解釈されず、そのまま保持されること。
+	it.each([['a"b'], ['<x>&'], ['" onmouseover="x']])('D3z1-06: ariaLabel=%j は属性を追加せず値を保持する', async (v) => {
+		const html = renderGroup({ tagName: 'nav', ariaLabel: v });
+		const t = await startTag(html);
+		expect(t.attrs['aria-label']).toBe(v);
+		expect(Object.keys(t.attrs)).not.toContain('onmouseover');
+	});
+
+	// D3z1-06 (Red予測): 非文字列は RangeError。
+	it.each([[1], [{}]])('D3z1-06: ariaLabel=%j(非文字列)は RangeError', (v) => {
+		expect(captureError(() => renderGroup({ tagName: 'nav', ariaLabel: v }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3z1-06 (Red予測): nav 以外で ariaLabel は RangeError。
+	// 注意: tagName main は現状でも RangeError になるため、main はこの検証に含めない(誤って Green になるのを避ける)。
+	it.each([['既定の div', {}], ['tagName=div', { tagName: 'div' }]])('D3z1-06: %s で ariaLabel は RangeError', (_label, extra) => {
+		expect(captureError(() => renderGroup({ ...extra, ariaLabel: 'Post navigation' }))).toBeInstanceOf(RangeError);
+	});
+});
+
+describe('D3z1: align(回帰ガード)', () => {
+	// D3z1-07 回帰ガード(Green予測): alignfull / alignwide は wp-block-group の直後に出る。
+	it.each([['full'], ['wide']])('D3z1-07: align=%s が wp-block-group の直後に align%s として出る', (a) => {
+		const tokens = firstClassTokens(renderGroup({ align: a }));
+		expect(tokens.slice(0, 2)).toEqual(['wp-block-group', `align${a}`]);
+	});
+
+	// D3z1-07 回帰ガード(Green予測): 許可外の値は RangeError。
+	it.each([['left'], [''], [1]])('D3z1-07: align=%j は RangeError', (a) => {
+		expect(captureError(() => renderGroup({ align: a }))).toBeInstanceOf(RangeError);
+	});
+});
+
+describe('D3z1: style.border(フィクスチャ由来の順序と fail-closed)', () => {
+	// D3z1-08 (Red予測): border は未実装。出力順は top-color, top-width, bottom-color, bottom-width, padding。
+	it('D3z1-08: border の出力順が top-color, top-width, bottom-color, bottom-width, padding の順になる', async () => {
+		const html = renderGroup({
+			style: {
+				border: {
+					bottom: { color: 'var:preset|color|accent-6', width: '2px' },
+					top: { color: 'var:preset|color|accent-6', width: '1px' },
+				},
+				spacing: { padding: { top: 'var:preset|spacing|40' } },
+			},
+		});
+		expect(shape(await startTag(html)).styles).toEqual([
+			'border-top-color:var(--wp--preset--color--accent-6)',
+			'border-top-width:1px',
+			'border-bottom-color:var(--wp--preset--color--accent-6)',
+			'border-bottom-width:2px',
+			'padding-top:var(--wp--preset--spacing--40)',
+		]);
+	});
+
+	// D3z1-08 (Red予測): 不正な color / width は RangeError。現実装は border を検証しないため通過する。
+	it.each([['url(x)'], ['red;x:y'], ['#fff'], ['var:preset|color|Accent-6'], ['var:preset|color|accent 6'], ['accent-6']])(
+		'D3z1-08: border.top.color=%j は RangeError',
+		(c) => {
+			expect(captureError(() => renderGroup({ style: { border: { top: { color: c } } } }))).toBeInstanceOf(RangeError);
+		},
+	);
+
+	it.each([['-1px'], ['1'], ['url(x)']])('D3z1-08: border.top.width=%j は RangeError', (w) => {
+		expect(captureError(() => renderGroup({ style: { border: { top: { width: w } } } }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3z1-08 (Red予測): 未知キー・非空の left.color は RangeError。
+	it.each([
+		['border.radius', { border: { radius: '4px' } }],
+		['border.left.color(非空)', { border: { left: { color: 'var:preset|color|accent-6' } } }],
+	])('D3z1-08: 未知キー %s は RangeError', (_label, border) => {
+		expect(captureError(() => renderGroup({ style: border }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3z1-08 回帰ガード(Green予測): 空配列の辺は受理され、宣言を出さない。
+	it('D3z1-08: 空配列の border 辺は受理され無視される(回帰ガード)', async () => {
+		const html = renderGroup({ style: { border: { top: [], right: [], bottom: [], left: [] } } });
+		expect(shape(await startTag(html)).styles).toEqual([]);
+	});
+});
+
+describe('D3z1: flex verticalAlignment と flex 回帰ガード', () => {
+	// D3z1-09 (Green予測): 受理されるが class を増やさない。現実装は無視するため一致する見込み。
+	it.each([['top'], ['center'], ['bottom']])('D3z1-09: verticalAlignment=%s は受理され class を増やさない', (va) => {
+		const base = firstClassTokens(renderGroup({ layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' } }));
+		const withVa = firstClassTokens(
+			renderGroup({ layout: { type: 'flex', flexWrap: 'nowrap', verticalAlignment: va, justifyContent: 'space-between' } }),
+		);
+		expect(withoutContainer(withVa)).toEqual(withoutContainer(base));
+	});
+
+	// D3z1-09 (Red予測): 許可外の値は RangeError。現実装は検証しないため通過する。
+	it.each([['middle'], ['Center'], [''], [1]])('D3z1-09: verticalAlignment=%j は RangeError', (va) => {
+		expect(captureError(() => renderGroup({ layout: { type: 'flex', verticalAlignment: va } }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3z1-09 回帰ガード(Green予測): flexWrap / justifyContent の class 出力。
+	it('D3z1-09: flexWrap と justifyContent が class に反映される(回帰ガード)', () => {
+		const tokens = firstClassTokens(renderGroup({ layout: { type: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between' } }));
+		expect(withoutContainer(tokens)).toEqual([
+			'wp-block-group',
+			'is-content-justification-space-between',
+			'is-nowrap',
+			'is-layout-flex',
+			'wp-block-group-is-layout-flex',
+		]);
+	});
+});
+
+// D3z1-08 補強(STEP6 mutation 生存): border の1辺オブジェクトの未知キーと型。
+describe('D3z1-08 補強: border 1辺の構造検査', () => {
+	it.each([
+		['未知キー style', { top: { color: 'var:preset|color|accent-6', width: '1px', style: 'solid' } }],
+		['未知キー radius', { bottom: { width: '1px', radius: '3px' } }],
+		['文字列', { top: '1px' }],
+		['数値', { bottom: 1 }],
+		['null', { top: null }],
+	])('D3z1-08: border %s は RangeError', (_name, border) => {
+		expect(captureError(() => renderGroup({ style: { border } }))).toBeInstanceOf(RangeError);
+	});
+});

@@ -50,8 +50,25 @@ function compareCodePoint(a: string, b: string): number {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
+/** style 属性を正規化する: 宣言ごとに trim、prop と value の前後空白を除去、空宣言を除去、順序は保持 */
+function normalizeStyle(value: string): string {
+  return value
+    .split(';')
+    .map((decl) => decl.trim())
+    .filter((decl) => decl.length > 0)
+    .map((decl) => {
+      const idx = decl.indexOf(':');
+      if (idx < 0) {
+        return decl;
+      }
+      return `${decl.slice(0, idx).trim()}:${decl.slice(idx + 1).trim()}`;
+    })
+    .join(';');
+}
+
 function serializeAttribute(name: string, value: string): string {
-  const normalized = name === 'data-wp-nonce' ? '{{NONCE}}' : replacePlaceholders(value);
+  const base = name === 'style' ? normalizeStyle(value) : value;
+  const normalized = name === 'data-wp-nonce' ? '{{NONCE}}' : replacePlaceholders(base);
   return ` ${name}="${escapeAttr(normalized)}"`;
 }
 

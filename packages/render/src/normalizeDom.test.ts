@@ -186,3 +186,68 @@ describe('実fixture: spike-blocks.html と set2/fixture-two-nested.html', () =>
     expect(htmlEquals(spikeEntry, withNewlines)).toBe(true);
   });
 });
+
+// ---------------------------------------------------------------------------
+// D3z1-11: style 属性の正規化(未実装のため Red になり得る)
+// normalizeDom.ts は style を生文字列で比較する(現状)。
+// ---------------------------------------------------------------------------
+describe('D3z1-11: style 属性の比較', () => {
+	// 回帰ガード(現状 Green 想定): 完全一致は等しい。
+	it('D3z1-11: 同一の style 文字列は等しい(回帰ガード)', () => {
+		expect(htmlEquals('<div style="a:1;b:2"></div>', '<div style="a:1;b:2"></div>')).toBe(true);
+	});
+
+	// Red想定: 末尾セミコロンの有無を正規化していない場合に不一致となる。
+	// 正規化が入るまで Red。
+	it('D3z1-11: 末尾セミコロンの有無は同一視される', () => {
+		expect(htmlEquals('<div style="a:1;b:2;"></div>', '<div style="a:1;b:2"></div>')).toBe(true);
+	});
+
+	// Red想定: 空白(前後・コロン周り・セミコロン周り)の差を吸収していない場合に不一致。
+	it('D3z1-11: 宣言周りの空白差は同一視される', () => {
+		expect(htmlEquals('<div style=" a : 1 ; b:2 "></div>', '<div style="a:1;b:2"></div>')).toBe(true);
+	});
+
+	// 回帰ガード(現状 Green 想定): 宣言の順序は意味を持つものとして区別する。
+	// 順序を正規化するとこの期待値が反転するため、順序変更は別仕様として扱う。
+	it('D3z1-11: 宣言の順序違いは等しくない(回帰ガード)', () => {
+		expect(htmlEquals('<div style="b:2;a:1"></div>', '<div style="a:1;b:2"></div>')).toBe(false);
+	});
+
+	// 回帰ガード(現状 Green 想定): 値が違えば等しくない。
+	it('D3z1-11: 値が異なれば等しくない(回帰ガード)', () => {
+		expect(htmlEquals('<div style="a:2;b:2"></div>', '<div style="a:1;b:2"></div>')).toBe(false);
+	});
+
+	// 現状挙動の固定(観測値に合わせる。期待値は実行結果で確定させる)。
+	it('D3z1-11: style="" と style 属性なしの扱い(現状挙動の固定)', () => {
+		expect(htmlEquals('<div style=""></div>', '<div></div>')).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// D3z1-12: 非 style 属性の比較(回帰ガード)
+// ---------------------------------------------------------------------------
+describe('D3z1-12: 非 style 属性の比較(回帰ガード)', () => {
+	// class トークンは順序を保持して比較する(並べ替えは別物として扱う)。
+	it('D3z1-12: class の順序違いは等しくない', () => {
+		expect(htmlEquals('<div class="a b"></div>', '<div class="b a"></div>')).toBe(false);
+	});
+
+	// aria-label の値が違えば等しくない。
+	it('D3z1-12: aria-label の値が異なれば等しくない', () => {
+		expect(htmlEquals('<nav aria-label="A"></nav>', '<nav aria-label="B"></nav>')).toBe(false);
+	});
+
+	// 属性の書き順は正規化されるため(属性名ソート)、同じ aria-label なら等しい。
+	it('D3z1-12: 属性の書き順が違っても同じ aria-label なら等しい', () => {
+		expect(htmlEquals('<nav aria-label="A" class="x"></nav>', '<nav class="x" aria-label="A"></nav>')).toBe(true);
+	});
+});
+
+// D3z1-11 補強(STEP6 mutation 生存): 空白だけの宣言(`; ;`)は空宣言として除去される。
+describe('D3z1-11 補強: 空白のみの宣言', () => {
+	it('D3z1-11: 空白だけの宣言は無視される', () => {
+		expect(htmlEquals('<div style="a:1; ;b:2"></div>', '<div style="a:1;b:2"></div>')).toBe(true);
+	});
+});

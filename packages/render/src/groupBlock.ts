@@ -10,6 +10,11 @@ const JUSTIFY_VALUES = ['left', 'right', 'center', 'space-between'] as const;
 const SPACING_SIDES = ['top', 'right', 'bottom', 'left'] as const;
 const LENGTH_RE = /^-?\d+(\.\d+)?(px|em|rem|%|vh|vw)$/;
 const PRESET_RE = /^var:preset\|spacing\|([a-z0-9-]+)$/;
+const TAG_NAMES = ['div', 'main', 'nav', 'header', 'footer', 'section'] as const;
+const VERTICAL_ALIGN_VALUES = ['top', 'center', 'bottom'] as const;
+const BORDER_SIDES = ['top', 'bottom'] as const;
+const BORDER_COLOR_RE = /^var:preset\|color\|([a-z0-9-]+)$/;
+const BORDER_WIDTH_RE = /^\d+px$/;
 
 type Obj = Record<string, unknown>;
 
@@ -47,7 +52,41 @@ const spacingToCss = (value: unknown, name: string): string => {
   throw rangeError(`${name} の値が不正です`);
 };
 
+// border の top / bottom 1辺分を宣言へ変換する。空配列・未指定は宣言を出さない。
+const borderSideDecls = (side: (typeof BORDER_SIDES)[number], value: unknown): string[] => {
+  if (value === undefined || (Array.isArray(value) && value.length === 0)) {
+    return [];
+  }
+  if (!isObject(value)) {
+    throw rangeError(`style.border.${side} はオブジェクトである必要があります`);
+  }
+  for (const key of Object.keys(value)) {
+    if (key !== 'color' && key !== 'width') {
+      throw rangeError(`style.border.${side}.${key} は未対応です`);
+    }
+  }
+  const decls: string[] = [];
+  const color = value.color;
+  if (color !== undefined) {
+    const preset = typeof color === 'string' ? BORDER_COLOR_RE.exec(color) : null;
+    if (preset === null) {
+      throw rangeError(`style.border.${side}.color の値が不正です`);
+    }
+    decls.push(`border-${side}-color:var(--wp--preset--color--${preset[1]})`);
+  }
+  const width = value.width;
+  if (width !== undefined) {
+    if (typeof width !== 'string' || !BORDER_WIDTH_RE.test(width)) {
+      throw rangeError(`style.border.${side}.width の値が不正です`);
+    }
+    decls.push(`border-${side}-width:${width}`);
+  }
+  return decls;
+};
+
 type GroupAttrs = {
+  tagName: (typeof TAG_NAMES)[number];
+  ariaLabel: string | undefined;
   align: 'full' | 'wide' | undefined;
   layoutType: 'flow' | 'constrained' | 'flex';
   layout: Obj;
@@ -75,12 +114,44 @@ const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
   const flexWrap = optionalEnum(layout.flexWrap, ['wrap', 'nowrap'] as const, 'layout.flexWrap');
   const orientation = optionalEnum(layout.orientation, ['vertical', 'horizontal'] as const, 'layout.orientation');
 
-  optionalEnum(rawAttrs.tagName, ['div'] as const, 'tagName');
+  optionalEnum(layout.verticalAlignment, VERTICAL_ALIGN_VALUES, 'layout.verticalAlignment');
+
+  const tagName = optionalEnum(rawAttrs.tagName, TAG_NAMES, 'tagName') ?? 'div';
+  let ariaLabel: string | undefined;
+  if (rawAttrs.ariaLabel !== undefined) {
+    if (tagName !== 'nav') {
+      throw rangeError('ariaLabel は tagName が nav のときだけ指定できます');
+    }
+    if (typeof rawAttrs.ariaLabel !== 'string') {
+      throw rangeError('ariaLabel は文字列である必要があります');
+    }
+    ariaLabel = rawAttrs.ariaLabel;
+  }
 
   const styleDecls: string[] = [];
   if (rawAttrs.style !== undefined) {
     if (!isObject(rawAttrs.style)) {
       throw rangeError('style はオブジェクトである必要があります');
+    }
+    const border = rawAttrs.style.border;
+    if (border !== undefined) {
+      if (!isObject(border)) {
+        throw rangeError('style.border はオブジェクトである必要があります');
+      }
+      for (const key of Object.keys(border)) {
+        if (key !== 'top' && key !== 'bottom' && key !== 'left' && key !== 'right') {
+          throw rangeError(`style.border.${key} は未対応です`);
+        }
+      }
+      for (const side of ['left', 'right'] as const) {
+        const v = border[side];
+        if (v !== undefined && !(Array.isArray(v) && v.length === 0)) {
+          throw rangeError(`style.border.${side} は未対応です`);
+        }
+      }
+      for (const side of BORDER_SIDES) {
+        styleDecls.push(...borderSideDecls(side, border[side]));
+      }
     }
     const spacing = rawAttrs.style.spacing;
     if (spacing !== undefined) {
@@ -105,6 +176,8 @@ const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
   }
 
   return {
+    tagName,
+    ariaLabel,
     align,
     layoutType,
     layout,
@@ -162,8 +235,10 @@ export const groupRenderer: BlockRenderer = {
   render: (block: ParsedBlock, ctx: RenderCtx, renderChildren) => {
     const attrs: Obj = block.attrs ?? {};
     const parsed = parseGroupAttrs(attrs);
+    const tag = parsed.tagName;
     const classAttr = escapeAttr(buildClasses(parsed, attrs, ctx).join(' '));
+    const ariaAttr = parsed.ariaLabel !== undefined ? ` aria-label="${escapeAttr(parsed.ariaLabel)}"` : '';
     const styleAttr = parsed.styleDecls.length > 0 ? ` style="${escapeAttr(parsed.styleDecls.join(';'))}"` : '';
-    return `<div class="${classAttr}"${styleAttr}>${renderChildren(block.innerBlocks)}</div>`;
+    return `<${tag} class="${classAttr}"${ariaAttr}${styleAttr}>${renderChildren(block.innerBlocks)}</${tag}>`;
   },
 };
