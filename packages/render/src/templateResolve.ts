@@ -13,7 +13,8 @@ export type ThemeErrorCode =
   | 'unknown-pattern'
   | 'cycle'
   | 'unsupported-php'
-  | 'invalid-attrs';
+  | 'invalid-attrs'
+  | 'unknown-template';
 
 export class ThemeResolveError extends Error {
   readonly code: ThemeErrorCode;
@@ -193,4 +194,85 @@ export function resolveTemplatePart(theme: ThemeFiles, slug: string): string {
 /** `wp:pattern` を patterns/<name>.php の展開結果で再帰的に置換する。 */
 export function expandPatterns(markup: string, theme: ThemeFiles): string {
   return expand(markup, theme, []);
+}
+
+const TEMPLATE_NAME = /^[a-z0-9-]+$/;
+/** `<!-- wp:template-part ... -->` / `... /-->`. group1 = 属性テキスト, group2 = "/" の有無 */
+const TEMPLATE_PART_COMMENT = /<!--\s*wp:template-part\b([\s\S]*?)(\/?)-->/g;
+/** 閉じコメント `<!-- /wp:template-part -->` (非自己閉じ形式の検出用) */
+const TEMPLATE_PART_CLOSE = /<!--\s*\/wp:template-part\s*-->/;
+
+/** template-part の属性 JSON から slug を取り出す。キーは slug のみ、slug は PART_SLUG に一致する文字列。 */
+function parseTemplatePartSlug(attrText: string): string {
+  const text = attrText.trim();
+  let attrs: unknown;
+  try {
+    attrs = JSON.parse(text);
+  } catch {
+    throw new ThemeResolveError('invalid-attrs', `template-part JSON parse failed: ${text}`);
+  }
+  if (typeof attrs !== 'object' || attrs === null || Array.isArray(attrs)) {
+    throw new ThemeResolveError('invalid-attrs', 'template-part attrs must be a JSON object');
+  }
+  const keys = Object.keys(attrs);
+  if (keys.length !== 1 || keys[0] !== 'slug') {
+    throw new ThemeResolveError('invalid-attrs', `template-part attrs must contain only slug: ${text}`);
+  }
+  const slug = (attrs as { slug?: unknown }).slug;
+  if (typeof slug !== 'string' || !PART_SLUG.test(slug)) {
+    throw new ThemeResolveError('invalid-attrs', `malformed template-part slug: ${String(slug)}`);
+  }
+  return slug;
+}
+
+/**
+ * templates/<name>.html を解析し、header / footer の slug と main マークアップを返す。
+ * 規約: template-part はちょうど 2 個。先頭が header、末尾が footer。main は間のマークアップ (trim 済み)。
+ */
+export function parseTemplate(
+  theme: ThemeFiles,
+  name: string,
+): { header: string; footer: string; main: string } {
+  if (!TEMPLATE_NAME.test(name)) {
+    throw new ThemeResolveError('unknown-template', `invalid template name: ${name}`);
+  }
+  const content = theme.read(`templates/${name}.html`);
+  if (content === undefined) {
+    throw new ThemeResolveError('unknown-template', `templates/${name}.html not found`);
+  }
+  if (TEMPLATE_PART_CLOSE.test(content)) {
+    throw new ThemeResolveError('invalid-attrs', 'template-part must be self-closing');
+  }
+
+  const found: { start: number; end: number; slug: string }[] = [];
+  for (const m of content.matchAll(TEMPLATE_PART_COMMENT)) {
+    if (m[2] !== '/') {
+      throw new ThemeResolveError('invalid-attrs', 'template-part must be self-closing');
+    }
+    const start = m.index ?? 0;
+    found.push({ start, end: start + m[0].length, slug: parseTemplatePartSlug(m[1] ?? '') });
+  }
+  if (found.length !== 2) {
+    throw new ThemeResolveError('invalid-attrs', `expected exactly 2 template-parts, found ${found.length}`);
+  }
+  const [head, foot] = found as [(typeof found)[number], (typeof found)[number]];
+  if (content.slice(0, head.start).trim() !== '') {
+    throw new ThemeResolveError('invalid-attrs', 'header template-part must be at the head of the template');
+  }
+  if (content.slice(foot.end).trim() !== '') {
+    throw new ThemeResolveError('invalid-attrs', 'footer template-part must be at the tail of the template');
+  }
+  const main = content.slice(head.end, foot.start).trim();
+  if (main.includes('wp:template-part')) {
+    throw new ThemeResolveError('invalid-attrs', 'main must not contain wp:template-part');
+  }
+  // 位置だけでは header/footer の入れ替えを区別できないため、役割を slug 名に要求する
+  // (TT25 の header / header-large-title / vertical-header などを許し、footer-first は拒否)。
+  if (!head.slug.includes('header')) {
+    throw new ThemeResolveError('invalid-attrs', `first template-part slug must contain "header": ${head.slug}`);
+  }
+  if (!foot.slug.includes('footer')) {
+    throw new ThemeResolveError('invalid-attrs', `last template-part slug must contain "footer": ${foot.slug}`);
+  }
+  return { header: head.slug, footer: foot.slug, main };
 }

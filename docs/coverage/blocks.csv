@@ -104,7 +104,7 @@ tab-panels,core/tab-panels,design,L3,todo,dynamic=no; evidence=registry render_c
 table,core/table,text,L3,todo,dynamic=no; evidence=registry render_callback=-; supports=__experimentalBorder;align;anchor;color;interactivity;spacing;typography
 tabs,core/tabs,design,L3,todo,dynamic=yes; evidence=registry render_callback=block_core_tabs_render_block_callback; supports=align;anchor;color;html;interactivity;layout;spacing;typography
 tag-cloud,core/tag-cloud,widgets,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_tag_cloud; supports=__experimentalBorder;align;anchor;html;interactivity;spacing;typography
-template-part,core/template-part,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_template_part; supports=align;html;interactivity;renaming;reusable
+template-part,core/template-part,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_template_part; supports=align;html;interactivity;renaming;reusable; partial=D-3z2 テンプレートの header/footer template-part 解析(parseTemplate)のみ(test=packages/render/src/templateResolve.test.ts, 2026-11-01)。ブロック全体は未達
 term-count,core/term-count,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_term_count; supports=__experimentalBorder;anchor;color;html;interactivity;spacing;typography
 term-description,core/term-description,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_term_description; supports=__experimentalBorder;align;anchor;color;html;interactivity;spacing;typography
 term-name,core/term-name,theme,L3,todo,dynamic=yes; evidence=registry render_callback=render_block_core_term_name; supports=__experimentalBorder;align;anchor;color;html;interactivity;spacing;typography
