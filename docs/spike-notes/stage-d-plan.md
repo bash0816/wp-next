@@ -196,3 +196,31 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - 既存機能の回帰テスト(header 合成、navigation、投稿 paragraph/sanitize)は開始時点から Green でよい。環境不備(fixture 不足、import パス誤り)は Red と認めず fixture 不足として報告。
 **F. 手書き期待値の出典**
 - 手書き期待値のコメントに『WP 7.1.3 wp-includes/blocks/<file>.php:<関数> の規則』と test_id(`D2x-NN`)を付す。期待値生成に被検査側の helper を使わない。
+
+## 9. D-3 main 領域(設計 v1、2026-11-01、STEP1)
+
+対象: 基準 WP の single(`/spike-blocks/`、投稿 ID 5)の `<main>`。入力は `templates/single.html` + patterns(hidden-written-by / post-navigation / comments / more-posts)。比較対象は `regions/main-01.html`・`regions/main-02.html` と、全体ページ `spike-blocks.html` の `<main id="wp--skip-link--target" …>`(外殻 `tagName:"main"` の group。id は WP コアが付与)。
+
+### 9.1 設計決定(案)
+1. **データ取得は『ポート』で注入する**。render は SQL も `post_status` も持たない(設計 v3 を維持)。`RenderCtx` に optional の `content?: ContentPort`(関数群)と `post?: PostCtx`(現在の投稿 DTO)を追加し、実装は `packages/db` が提供する(sync、node:sqlite)。ポート未提供=情報未取得=RangeError(fail-closed)。ポート一覧: `queryPosts(spec)`(query/post-template 用)、`termsOf(postId, taxonomy)`、`adjacentPost(postId, 'previous'|'next')`、`commentsInfo(postId)`。いずれも**可視性(公開/非公開/パスワード/future)の判定は SQL 側**で完了した DTO のみ返す。DTO に本文・パスワードを含めない(post-content だけ別ポート `contentOf(postId)` で、公開かつ非保護のときのみ本文を返す)。
+2. **spec は検証済みの閉じた型**: `queryPosts` に渡す spec は {postType:'post', perPage, order, orderBy:'date', offset:0, exclude:[], sticky:'', inherit:false, search:'', author:'', taxQuery:null, parents:[]} に限定し、他の値は RangeError(基準で未実測の分岐は拒否)。
+3. **post クラス**(`post-7 post type-post status-publish format-standard hentry category-uncategorized`)は status を含むため、**db 側で算出して DTO の `className` で返す**(render は連結しない。lint の許可リストに該当 db ファイルのみ追加)。
+4. **日付表示**: DTO は `dateLocal`(サイトのタイムゾーンの ISO 8601 `c` 形式)と `dateText`(date_format 適用済み)を持つ。D-3 は `date_format = 'F j, Y'`、タイムゾーン UTC のみ対応(ほかは db 側で未対応として拒否)。render は文字列をエスケープして出すだけ。
+5. **コメント**: D-3 は『コメント 0 件・comment_status=open・匿名』のみ。承認済みコメントが 1 件以上、または closed の場合は RangeError(コメント一覧・ページング・closed 文言・ログイン済みフォームは別単位 D-4)。フォーム定数(maxlength 65525/245/100/200、cookies 同意チェックボックスの有無=`show_comments_cookies_opt_in`)は基準値で固定し、設定が異なれば拒否。`comment_post_ID` は DTO の ID、action は `site.url + /wp-comments-post.php`。
+6. **未実測は拒否**: featured image(サムネイルあり)、post-author-name(基準では空出力。著者名が空でない場合は拒否)、post-terms の tag(基準は 0 件=空出力、タグありは拒否)、パスワード保護投稿、サムネイル、ページ(type=page)の single。**隣接投稿に draft/private/future/保護投稿が絡む場合の WP の挙動は未実測** → STEP3 の前に基準 WP で実測する(一時変更は取得後に復元)。
+7. ブロックは**登録表に追加**(重複登録の拒否は既存どおり): heading・list・list-item・quote・separator(投稿由来の既存 renderBlocks を『テーマ由来の入口』として再利用。投稿由来は sanitize 経由を維持)、post-title、post-date、post-terms、post-content、post-navigation-link、post-author-name、post-featured-image(拒否のみ)、query、post-template、comments、comments-title、comment-template、comments-pagination(+previous/next)、post-comments-form、avatar 等の comment-* は 0 件時に出力しないことの検証が目的で、個別描画は D-4。
+8. 台帳は §7.1-5 に従い notes に `partial=` を追記し status は todo のまま。
+
+### 9.2 実装単位(案、D-3a→g を順に STEP1〜7)
+- D-3a: ポートと DTO の型(`ContentPort`/`PostCtx`/`PostItem`)、heading/list/quote/separator の登録表入口、post-title(level、isLink)、post-date(isLink、textAlign)。
+- D-3b: packages/db の `queryPosts`(可視性は SQL、並びは date desc→ID desc、perPage、className 算出)と query/post-template、より more-posts パターン全体(main-02 一致)。
+- D-3c: `termsOf`(category/post_tag、リンクは term スラッグ URL)と post-terms、post-author-name(空のみ)、post-featured-image(拒否のみ)、hidden-written-by パターン。
+- D-3d: post-content(`contentOf`、外殻クラス `entry-content alignfull wp-block-post-content has-global-padding …`、layout constrained)。既存 `renderContent`(latest-posts を含む)を再利用し、二重サニタイズや欠落がないこと。
+- D-3e: `adjacentPost` と post-navigation-link ×2(矢印、`rel="prev|next"`、タイトルのエスケープ、隣接なしの出力)。post-navigation パターン(nav group、aria-label 属性)。
+- D-3f: comments / comments-title / comment-template / comments-pagination / post-comments-form(0 件・open・匿名のみ)。comments パターン全体。
+- D-3g: `renderMain`(single.html を解決して `<main id="wp--skip-link--target" class="wp-block-group …">` で包む。id は skip-link の target と対応)。main-01/main-02 と `spike-blocks.html` の `<main>` 全体一致、header→main→footer の ctx 共有(modal 採番・aria-label カウンタ)。
+
+### 9.3 未決・リスク
+- main のラッパ属性(id)を render が付けてよいか(skip-link の target と整合)。
+- コンテンツの複数経路(投稿由来 sanitize / テーマ由来)で、同じブロック名が二つの入口を持つ設計の整理(登録表のキーは一つ、入口で信頼境界を分ける)。
+- ポートの同期性(sync)と将来の非同期 DB(v2 Go 移行時)の関係は ADR-029 の範囲外として扱う。
