@@ -213,9 +213,9 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
    - 現在投稿: composition root が `packages/db` の `openCurrentPost(slug|id)` で `{ post: PostCtx; content: ContentPort }` を作る。**匿名閲覧可能・非保護・存在する投稿のみ**返し、他は null。保護投稿のパスワード画面は範囲外。
    - `ContentPort`(現在投稿に束縛): `contentOf()`、`terms('category'|'post_tag')`、`adjacent('previous'|'next')`、`commentsState()`(`'anon-open-empty'|'unsupported'` の列挙のみ。件数を返さない)、`hasThumbnail()`、`author()`(`{name,url}|null`)。
    - 現在投稿に依存しない: `queryPosts(spec)`、`latestPosts(spec)`。
-2. **query のカード単位の文脈(Blocker)**: `queryPosts(spec)` は SQL 認可済みの項目 `QueryItem = { post: PostCtx; content: ContentPort }` の配列を返す(項目ごとにその投稿へ束縛されたポート)。`post-template` は項目ごとに `renderTree(innerBlocks, { ...ctx, post: item.post, content: item.content }, themeRegistry)` を呼ぶ(`renderState` は参照共有、`ctx.post/content` は局所の上書きで、ループ後は外側の文脈に自然に戻る)。render は項目のポートを作らず、他の投稿へ切り替える手段を持たない。負例: 各カードが自分の title/date/URL を使う(外側の現在投稿を使わない)、post-template の後続ブロックが外側の投稿を見る、項目ポートからは他の投稿の本文が取れない。
+2. **query のカード単位の文脈(Blocker)**: `queryPosts(spec)` は SQL 認可済みの項目 `QueryItem = { post: PostCtx; content: ContentPort }` の配列を返す(項目ごとにその投稿へ束縛されたポート)。`post-template` は項目ごとに、提供された `renderChildren(innerBlocks, { post: item.post, content: item.content })` を呼ぶ(第2引数は §9.5-7 の文脈上書き。`renderState` は参照共有、`ctx.post/content` は局所の上書きで、ループ後は外側の文脈に自然に戻る)。render は項目のポートを作らず、他の投稿へ切り替える手段を持たない。負例: 各カードが自分の title/date/URL を使う(外側の現在投稿を使わない)、post-template の後続ブロックが外側の投稿を見る、項目ポートからは他の投稿の本文が取れない。
 3. **query の仕様と選択**: spec は閉じた型(postType:'post'、perPage 1〜100、pages:0、offset:0、order:'desc'、orderBy:'date'、author:''、search:''、exclude:[]、sticky:''、inherit:false、taxQuery:null、parents:[])。SQL 条件は `post_type='post' AND post_status='publish'`(**保護投稿を含む**。実測 M1)、並びは `post_date DESC, ID DESC`(同日時は ID 降順、実測)。DTO の `protected: boolean` を post-title が使い、`Protected: ` 接頭辞(エスケープ後)を付ける。本文・パスワードは DTO に含めない。future 状態・draft・private は SQL で除外。
-4. **adjacent**: 現在投稿の `post_date` を基準に、publish(保護を含む)の直前/直後 1 件。タイトルは接頭辞なし(実測 M2)。隣接なしの出力は**未実測**(基準は両側あり)→ 隣接なしの時は RangeError にせず、実測が済むまで D-3e で『隣接なし』テストを置かない代わりに `UnsupportedDataError`(partial として記録)。
+4. **adjacent**: 現在投稿の `post_date` を基準に、publish(保護を含む)の直前/直後 1 件。タイトルは接頭辞なし(実測 M2)。隣接なしの出力は**未実測**(基準は両側あり)→ 隣接なしの時は `UnsupportedDataError`(契約は D-3e のテストで検証、WP の出力が未実測のため partial として記録。§9.5-6)。
 5. **latest-posts**: ADR-027 と既存 `latestPosts.ts` の挙動(保護投稿を `Protected:` 付きで含める)を維持する。ポートの DTO は既存関数の戻り値そのもの。D-3d0 の既存テストは変更しない。
 6. **post クラス**: db が算出して `className` で返す。生成規則は 9.0 の M3 の順序。対応は『type=post、status=publish、format ∈ {standard, aside}、カテゴリ名順、タグあり可、保護は `post-password-required`、sticky・サムネイル・他 taxonomy は不可』。不可を含む項目は `UnsupportedDataError`(そのクエリ全体を拒否〔黙って除外して並びをずらさない〕。公開サイトで通常運用する前の spike 範囲の partial として ADR に明記)。render は `className` を再検証(`^[A-Za-z0-9_ -]+$`)しエスケープして出す。カテゴリの『名前順』は 2 件の異名でのみ確認(同名・日本語名は未実測)。
 7. **日付**: db が options を読み、`timezone_string=''`・`gmt_offset=0`・`date_format='F j, Y'` のときだけ `dateIso`(`+00:00`)と `dateText` を返す。他は `UnsupportedDataError`。
@@ -226,6 +226,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 12. 台帳は §7.1-5 に従い notes に `partial=` を追記し status は todo のまま。
 
 ### 9.2 実装単位(順に STEP1〜7)
+(**§9.5 の追補は §9.1〜9.2 の記述より優先する**。D-3d0 の『既存テストは Green のまま』は『期待 HTML を変えずに入力の与え方だけを §9.5-4 に従い移行した上で Green』の意味。)
 - D-3z1: `groupBlock` の属性拡張(tagName〔div/main/nav/header/footer/section の許可リスト〕、ariaLabel、align、border top/bottom〔preset 色・`^\d+px$`〕、layout〔default/constrained/flex の nowrap・space-between・verticalAlignment〕)。受入: 既存 header/footer テスト Green、属性エスケープ、不正値拒否。
 - D-3z2: template の `wp:template-part`(header/footer)解決。受入: single.html の先頭/末尾、欠落は ThemeResolveError。
 - D-3z3: パターン内の属性レベル `esc_attr_e` 展開(post-navigation パターン)と特殊文字拒否。受入: 既存の `esc_html_e` 展開テスト Green。
@@ -250,3 +251,4 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 4. **D-3d0 の互換境界(Major)**: `renderContent` の公開 API は `render` 側から DB 型を除去し、`latestPosts` ポートを受け取る形に変える(`{ db, siteUrl }` の直接渡しは廃止)。既存 `renderContent.test.ts` は**期待 HTML を変えず、入力の与え方だけ**を移行する(テスト用に db から `latestPosts` ポートを作るアダプタを `packages/db` が提供し、テストはそれを使う)。この移行は ADR に記録し、変更差分が『入力構築のみ』であることを STEP6 で確認する。
 5. **category の出力と参照(Minor)**: 9.1-9 を `regions/main-01.html` の形(`style="font-weight:300"` を含む)に修正済み。
 6. **隣接なし(Minor)**: `adjacent()` が null を返す(隣接なし)ときの出力は未実測のため、`UnsupportedDataError` を投げる契約を D-3e のテスト対象にする(WP の出力が未実測でも契約は検証できる。partial として記録)。
+7. **`renderChildren` の文脈上書き(Major)**: `renderChildren(blocks, override?)` を `(blocks: ParsedBlock[], override?: { post?: PostCtx; content?: ContentPort }) => string` に拡張する。`override` が許すキーは `post` と `content` のみ(他のキーは RangeError)。実装は `{ ...ctx, ...override }` の新しいオブジェクトを子の描画に渡し、`renderState` は参照を共有、外側の `ctx` は変更しない(ループ後は自然に元へ戻る)。§9.5-3 の子の検証(元の全 innerBlocks が renderChildren を通ること)はこの関数で行うので、post-template が項目ごとに呼ぶ場合も『元の innerBlocks 全体がカードごとに描画された』ことを検査できる(項目数 0 の場合は呼ばれなくてよい:空の query は出力なし)。負例: `override` に未許可キー、項目間で文脈が漏れる(card 2 が card 1 の post を使う)、ループ後に外側の post が上書きされたまま。
