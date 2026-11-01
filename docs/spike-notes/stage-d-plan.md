@@ -244,7 +244,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 - カテゴリ順(名前順の根拠は 2 件のみ)、隣接なしの出力、sticky・サムネイル・format の全種は未実測=拒否。
 - 保護投稿を通常運用でも一覧に出す方針(WP と同じ)は ADR-027 の延長。公開用途で変えるなら別 ADR。
 
-### 9.5 v4 追補(STEP2 v3 の指摘への対応。9.1 の該当項より優先)
+### 9.5 v4・v5 追補(STEP2 v3/v4 の指摘への対応。9.1 の該当項より優先。STEP2 は v5 で Go)
 1. **保護項目は本文を取れない(Blocker)**: `ContentPort.contentOf` は optional(`(() => string) | undefined`)。db は保護項目のポートでは `contentOf` を**付与しない**。`post-content` は `contentOf` が無ければ RangeError(型でも実行時でも拒否)。`openCurrentPost` も保護投稿は null。負例: 保護項目の card 内に `post-content` を置くと拒否、保護項目のポートの `contentOf` が undefined、DTO/ポートのどこからも本文・パスワードが取れない。
 2. **保護カードに日付を出さない(Major)**: 実測(set-main2 混在 fixture)で、保護投稿のカードの `post-date` は出力されない(title のみ)。`post-date` は `post.protected === true` なら空出力。受入条件: 混在 fixture の保護カード(`post-22`)が一致、通常カードは日付あり。
 3. **子の検証契約(Major)**: `renderTree` は、`innerBlocks` を持つ block について、レンダラが提供された `renderChildren` を通して**元の全 innerBlocks(同一性で照合)を描画した**ことを検査する。`renderChildren([])`・一部のみ・別配列は拒否(レンダラが自前で別ソースの子を作る navigation の post.content 等は『innerBlocks が空』のブロックなので対象外)。負例: 子を捨てるレンダラ、子の一部だけ描画するレンダラ、子を別レジストリで描画するレンダラ。
@@ -252,3 +252,82 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 5. **category の出力と参照(Minor)**: 9.1-9 を `regions/main-01.html` の形(`style="font-weight:300"` を含む)に修正済み。
 6. **隣接なし(Minor)**: `adjacent()` が null を返す(隣接なし)ときの出力は未実測のため、`UnsupportedDataError` を投げる契約を D-3e のテスト対象にする(WP の出力が未実測でも契約は検証できる。partial として記録)。
 7. **`renderChildren` の文脈上書き(Major)**: `renderChildren(blocks, override?)` を `(blocks: ParsedBlock[], override?: { post?: PostCtx; content?: ContentPort }) => string` に拡張する。`override` が許すキーは `post` と `content` のみ(他のキーは RangeError)。実装は `{ ...ctx, ...override }` の新しいオブジェクトを子の描画に渡し、`renderState` は参照を共有、外側の `ctx` は変更しない(ループ後は自然に元へ戻る)。§9.5-3 の子の検証(元の全 innerBlocks が renderChildren を通ること)はこの関数で行うので、post-template が項目ごとに呼ぶ場合も『元の innerBlocks 全体がカードごとに描画された』ことを検査できる(項目数 0 の場合は呼ばれなくてよい:空の query は出力なし)。負例: `override` に未許可キー、項目間で文脈が漏れる(card 2 が card 1 の post を使う)、ループ後に外側の post が上書きされたまま。
+
+## 10. D-3 テスト計画(v1、STEP3。対象は §9.1〜9.5 の設計 v5)
+
+共通規則(D-2 §8.3〜8.4 を継承): 期待値は fixtures(`regions/main-0*.html`、`set-main2/*`、`spike-blocks.html`、`themes/twentytwentyfive`)から取り、手書きの期待は出典コメントと test_id(`D3x-NN`)を付ける。WP ソース規則は『未照合』と明記。Red の理由は『出力差=機能不足』かモジュール未存在の収集失敗(各 assertion の Red はスタブ導入後に確認)。ハッシュ(`wp-container-core-*-<8桁>`)は fixture 値と、`node:crypto` の md5 による独立検算の両方で検査し、実装へ固定値を埋め込まない。mutation は sed+`cmp` で実施し、生存は『等価変更』か『テスト補強』かを判断する。比較は `htmlEquals`(正規化 DOM)。信頼境界・認可の負例は各単位で必須。
+
+### D-3z1 group 属性拡張(`groupBlock.test.ts` へ追記)
+- 基準一致: `post-navigation` パターンの外側 group(`align:wide`、margin top/bottom、layout default)と内側 nav group(`tagName:"nav"`、`ariaLabel`、`align:wide`、border top color/width、padding、flex nowrap space-between)が main-01 の該当 HTML と一致。`more-posts` の外側 group(constrained、padding)と card group(border bottom、flex、`verticalAlignment:"center"`)が main-02 の `li` 内 group と一致(verticalAlignment は出力に class を出さない事実と、ハッシュ入力への影響有無を独立 md5 で確認)。
+- tagName: 許可リスト(div/main/nav/header/footer/section)は要素名に反映、`script`・`a`・`DIV`・空・非文字列は RangeError。終了タグも同じ名前。
+- ariaLabel: `aria-label` 属性として出力、`"`・`<>&`・`" onmouseover="x` で属性が増えず値が保持される(DOM 検査)。非文字列は RangeError。nav 以外の tagName でも付与される実測は無い → 許可は nav のみ(他は RangeError)。
+- align: full/wide のみ、`alignfull`/`alignwide` が基準のクラス順位置に出る。不正値は RangeError。
+- border: top/bottom の color は `var:preset|color|<slug>`(slug `^[a-z0-9-]+$`)→`var(--wp--preset--color--<slug>)`、width は `^\d+px$`。style 内の順序は基準(border → padding)に一致。`url()`・`;`・負値・単位なし・未知キー(`radius` 等)・`top: []` 以外の空配列は RangeError(`"top":[],"right":[]` は無視する基準入力を受理)。
+- 回帰: 既存 groupBlock/headerCompose/footerCompose テスト Green。mutation: tagName 許可リスト、border 順序、width 正規表現、ariaLabel のエスケープ。
+
+### D-3z2 template-part 解決(`templateResolve.test.ts` へ追記)
+- `single.html` の `wp:template-part {"slug":"header"}` を `parts/header.html` に、`footer` を `parts/footer.html` に解決し、`<header|footer class="wp-block-template-part">` で包む既存合成と接続する(トップ構造の分解結果を検査)。slug 未知・`area` 等の未対応属性・`theme` 属性は ThemeResolveError/RangeError。循環(template-part が自身を含む)は拒否。パス走査(`../`)は拒否。
+- 負例: 欠落、空 slug、非文字列 slug。mutation: slug→ファイル名の対応。
+
+### D-3z3 属性レベル `esc_attr_e`(`templateResolve.test.ts` へ追記)
+- `post-navigation` パターンの JSON 内 `<?php esc_attr_e( 'Post navigation', 'twentytwentyfive' ); ?>` と HTML 属性内のそれの両方が、`Post navigation` に展開される(出典: 基準 `aria-label="Post navigation"`)。
+- 特殊文字(`"`・`<>&`・`\`)を含む文字列、未対応関数(`_e`、`echo`)、複数式、閉じ忘れは診断付き拒否(黙って残さない・消さない)。既存 `esc_html_e` テストは Green。
+
+### D-3a ports と型、レジストリ分離、renderChildren 契約、heading・post-title・post-date(`ports.test.ts`、`registryOrigin.test.ts`、`postTitleDate.test.ts`)
+- ブランド型: `createThemeRegistry()`/`createPostRegistry()` 以外の Map を `post-content` 入口(後続)や `PostRegistry` を要求する関数へ渡すと型エラー(`// @ts-expect-error` を使う型テスト、`tsc` が実際に検出することを確認)。実行時にも出自タグ不一致は RangeError。レジストリは凍結(後から set できない)。キー集合の完全一致をテーマ側(D-2 の 11 キー+D-3 追加)と投稿側(7 キー)で固定。
+- `renderChildren` 契約(§9.5-3,7): 子を捨てる/一部のみ/空配列を渡す/別レジストリで描画する偽レンダラが拒否される。`override` の未許可キーは RangeError。`{post, content}` の上書きが子の描画中だけ有効で、戻った後に外側の `ctx.post` が不変。項目間で漏れない。`renderState` は共有(modalCounter/navNameCounts が子の描画で進む)。
+- heading: 登録表入口で `wp-block-heading`、level、align、fontSize、style(typography の text-transform 等)を main-02 の `<h2 class="wp-block-heading alignwide has-small-font-size" style="font-style:normal;font-weight:700;letter-spacing:1.4px;text-transform:uppercase">` と一致。属性値の検証(未知キー拒否、`url()`)。投稿由来 heading は従来の sanitize 経路を維持(既存テスト Green)。
+- post-title: level(1/3)、`isLink` と `target="_self"`、fontSize、`Protected: ` 接頭辞(`protected:true`)、エスケープ(`<>&"`)。main-01 の `<h1 class="wp-block-post-title">`(リンクなし)と main-02 の h3(リンクあり)が一致。`ctx.post` 未提供は RangeError。
+- post-date: `isLink`、`textAlign:"right"`→`has-text-align-right`、`<time datetime>` と表示文字列は DTO の `dateIso`/`dateText` を使う。**保護項目は出力なし**(set-main2 の `post-22`)。属性エスケープ。日付 DTO が無ければ RangeError。
+
+### D-3b `queryPosts` と query/post-template と more-posts(`packages/db/src/queryPosts.test.ts`、`packages/render/src/queryBlock.test.ts`)
+- db: 混在 DB(publish・保護・draft・private・future〔状態〕・page・同日時 2 件)を作り、結果が set-main2 の実測と同じ集合・順序(保護を含む、draft/private/future を除く、同日時は ID 降順)。perPage 超過、`offset`/`exclude`/`order` 等 spec の他の値は RangeError(spec 検証)。`className` の生成: 基準 3 件、複数カテゴリ(名前順)、タグ、format aside、保護(`post-password-required`)を set-main2 の li クラスと一致。sticky・サムネイル・他 taxonomy・他 format・`post_type` が post 以外を含む項目は `UnsupportedDataError` でクエリ全体を拒否。日付 DTO: options が基準でなければ `UnsupportedDataError`。
+- 認可の負例: `QueryItem` から他投稿の本文は取れない、保護項目のポートに `contentOf` が無い、`post_status` を render 側に出さない(lint)。`className` はスラッグを `^[a-z0-9-]+$` で検証(`" onclick=` を含む名前の term を DB に入れても出力に出ない/拒否)。
+- render: `regions/main-02.html` 全体(more-posts パターン展開→group→heading→query→post-template→3 カード)が一致。set-main2 の混在・タイブレーク・クラス 2 組が一致(保護カードは日付なし・`Protected:` 付き)。空の結果は出力なし。`queryPosts` ポート未提供は RangeError。カード間でポートが漏れない・外側の `post` が戻る(D-3a の契約を実使用で再確認)。
+- mutation: SQL 条件(保護を含める/future を含める)、並び(ID 昇順化)、perPage、クラスの順序、日付抑止。
+
+### D-3c post-terms・post-author-name・post-featured-image・hidden-written-by(`termsAuthor.test.ts`)
+- post-terms: category 1 件が `regions/main-01.html` の形(`style="font-weight:300"` と `taxonomy-category`)で一致。`fontWeight` 値の検証(`^[1-9]00$`)、未対応 style キー拒否。2 件以上のカテゴリ・`post_tag` 1 件以上は RangeError、`post_tag` 0 件は出力なし。リンク URL は `site.url` 配下で検証、term 名/スラッグのエスケープ。
+- post-author-name: `author()` が null → 空出力(main-01 一致)、`{name,url}` → set-main2 の `main.author-real.html` の形に一致、`isLink:false` や未知属性は RangeError、`url` が `javascript:` や別オリジンなら拒否、`name` の `<>&"` はエスケープ。
+- post-featured-image: `hasThumbnail()` false → 出力なし、true → RangeError、属性 `aspectRatio:"3/2"` は検証して受理。
+- パターン: `hidden-written-by` 全体(group flex wrap + paragraph + author + paragraph + terms)が main-01 該当部と一致、実在著者版は main.author-real と一致。
+- mutation: null 分岐、`isLink`、fontWeight 検証、カテゴリ件数ガード。
+
+### D-3d0 `renderContent` のポート化(`renderContent.test.ts` 移行、`postRegistry.test.ts`)
+- 既存テストは期待 HTML を変えず、入力の与え方(db→`latestPosts` ポート)のみ移行(§9.5-4)。差分が入力構築のみであることを STEP6 で `git diff` により確認。移行前後で同じ件数のテストが Green。
+- `PostRegistry` のキー集合固定(7 キー)。投稿本文に `wp:query`・`wp:post-content`・`wp:comments`・`wp:navigation`・テーマ専用の未登録ブロックを入れると UnsupportedBlockError。list/quote 内の混入(入れ子)も拒否。script・`onclick`・`javascript:`・`data:` を含む本文は除去/拒否(サニタイズ)。
+- latest-posts: 保護投稿を `Protected:` 付きで含める(ADR-027)、draft/private/future は除外、`DatabaseSync` を render が import していない(lint/依存検査)。
+- mutation: レジストリ検査、ポート越しの呼び出し、サニタイズ。
+
+### D-3d post-content(`postContent.test.ts`)
+- `contentOf` の結果を `PostRegistry` で再帰描画し、`entry-content alignfull wp-block-post-content has-global-padding is-layout-constrained wp-block-post-content-is-layout-constrained` の外殻で包む。main-01 の post-content 全体(h2・p・list・quote・hr・latest-posts)が一致(ハッシュなし)。`align:"full"`・`layout:{type:"constrained"}` 以外は RangeError。
+- `contentOf` 未提供(保護項目)は RangeError。入れ子 `post-content` を本文に含めると拒否。`ctx.post` 無しは RangeError。
+- mutation: 外殻クラス、PostRegistry の使用(ThemeRegistry に差し替えると負例が落ちる)。
+
+### D-3e `adjacent` と post-navigation-link とパターン(`postNavigation.test.ts`、`packages/db/src/adjacent.test.ts`)
+- db: 基準 DB で ID 5 の prev=ID 1、next=ID 7。set-main2 の混在 DB で next=保護投稿(タイトル接頭辞なし)、draft/private/future は無視。隣接なし(最初/最後の投稿)は `null`。同日時の隣接は未実測→`UnsupportedDataError`。認可の負例: 直接 ID 指定の API が無いこと、他投稿の本文が取れないこと。
+- render: `post-navigation-link` previous/next の HTML(矢印 span の位置と `aria-hidden`、`rel="prev|next"`、`is-arrow-arrow` クラス)が main-01 一致。属性 `type`/`showTitle`/`arrow` の検証(`arrow:"arrow"` 以外、`showTitle:false`、`linkLabel` 等は RangeError)。タイトルのエスケープ(`<特殊>`・`&`)。隣接が `null` のときは `UnsupportedDataError` 契約。パターン全体(外側 group + nav group)が一致。
+- mutation: prev/next 取り違え、矢印位置、rel。
+
+### D-3f コメント領域(`comments.test.ts`、`packages/db/src/commentsState.test.ts`)
+- db: `commentsState()` が基準 DB の ID 5 で `'anon-open-empty'`。承認済み 1 件(ID 1)、`comment_status='closed'`、`comment_registration=1`、`require_name_email=0`、cookies opt-in 0 の各条件で `'unsupported'`。件数・未承認の有無が戻り値や例外メッセージに出ない。
+- render: comments パターン全体(wrapper、`Comments` 見出し、comments-title・comment-template・pagination が 0 件で出力なし、post-comments-form)が `regions/main-01.html` の該当部と一致。フォーム定数(`maxlength` 4 つ、`autocomplete`、`required`、hidden の `comment_post_ID` と `comment_parent`)を fixture から取って一致。`comment_post_ID` に `PostCtx.id` を使う(別 ID で変わる)。action は `site.url` 検証後 + `/wp-comments-post.php`。`'unsupported'` は RangeError。`reply-title` の `Cancel reply` のパスは投稿の permalink 由来(`/spike-blocks/#respond`)でエスケープ。
+- mutation: 状態ガード、`comment_post_ID`、定数。
+
+### D-3g `renderMain` と全体比較(`mainCompose.test.ts`)
+- 毎回『新規 ctx → header → main → footer』。`regions/main-01.html`・`main-02.html` の各一致に加え、`spike-blocks.html` の `<main id="wp--skip-link--target" …>` 全体が一致。set-main2 の混在版(`main.mixed-status-protected-adjacent`)と classes 版が一致(同じ ctx 構成〔保護・分類を DB に再現〕)。author-real 版も一致。
+- main の id: 最上位 main にのみ付く、main が 2 つ、既存 id、複数 `wp--skip-link--target` は RangeError。
+- header→main→footer の ctx 共有: modal 採番(header の modal-1)、aria-label カウンタ(footer の nav が ` 2` ` 3` になる〔main に nav がないこと〕)、新規 ctx でリセット。`single.html` 欠落は ThemeResolveError、未知ブロックは UnsupportedBlockError(main 直下と group 内)。
+- 比較器負例: card 1 件欠落、nav の `rel` 欠落、`post-password-required` 欠落、保護カードに日付を追加、main の id 欠落。
+- 台帳: 各単位の block 行に `partial=` を追記(status は todo)。
+
+### 実行表
+| 単位 | 配置 | 実行 | Red の理由 |
+|---|---|---|---|
+| D-3z1 | groupBlock.test.ts へ追記 | `pnpm --filter @wpn/render exec vitest run src/groupBlock.test.ts` | 新規追加分のみ Red(未対応属性による RangeError/出力差)。既存は Green |
+| D-3z2/z3 | templateResolve.test.ts へ追記 | 同上 | 同上 |
+| D-3a | ports/registryOrigin/postTitleDate.test.ts | 同上 | モジュール未存在。スタブ導入後に assertion 単位で確認 |
+| D-3b | packages/db/src/queryPosts.test.ts、render/queryBlock.test.ts | 両パッケージ | モジュール未存在 |
+| D-3c〜f | 各 *.test.ts | 同上 | モジュール未存在(db 側は関数未存在) |
+| D-3d0 | renderContent.test.ts 移行、postRegistry.test.ts | 同上 | 入力移行の差分のみ。新テストは Red |
+| D-3g | mainCompose.test.ts | 同上 | モジュール未存在。全体比較・fail-closed はスタブ後に assertion 単位で Red |
