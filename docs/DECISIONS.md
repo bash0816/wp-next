@@ -77,3 +77,8 @@
 - 台帳は §7.1-5 に従い partial 追記のみ(status は todo)。
 - 未照合・未実測: 非空 ariaLabel の 1 つ目に aria-label が付く規則と esc_attr の扱い(WP ソース未照合。空名のみ実測)、overlayMenu never での justifyContent/flexWrap/overlay 色(未実測のため fail-closed)、columns/column/paragraph の WP ソース規則。
 - 未達: main(single/home のループ・コメント・query)= D-3、E 段階(theme.json→CSS)、navigation の ref・階層ページ。
+
+## ADR-043: D-3 main 領域の STEP2/STEP3 が Go(2026-11-01)
+- 設計 v5(stage-d-plan.md §9)は GPT-6.1-terra の STEP2 で 5 回目に Go、テスト計画(§10・§10.9)は STEP3 で 5 回目に Go。基準 WP で M1〜M5 を実測してから設計を確定(DB は丸ごとバックアップから復元・検証済み。fixtures/ref/set-main2)。
+- 主な決定: ポートは現在投稿/項目に束縛(直接 ID 禁止、`QueryItem` ごとのポート)、保護投稿は query・前後ナビに出る(実測。ADR-027 の延長で『一覧のタイトル露出のみ』、本文・日付・パスワードは出さない)、レジストリはブランド型でテーマ/投稿を分離、`renderChildren` に文脈上書きと子の同一性検査、`renderContent` はポート化(入力の与え方のみ移行)、コメントは『匿名・open・承認済み0件』のみ(D-4 で一覧)、未実測は fail-closed(UnsupportedDataError)。
+- 実装単位: D-3z1/z2/z3(group 属性・template-part・属性内 esc_attr_e)→ D-3a → D-3b → D-3c → D-3d0 → D-3d → D-3e → D-3f → D-3g。
