@@ -7,6 +7,11 @@ import { type ParsedBlock } from './renderBlocks.js';
 import { groupRenderer } from './groupBlock.js';
 import { navigationLinkRenderer, navigationRenderer, pageListRenderer } from './navigationBlock.js';
 import { siteTitleRenderer } from './siteTitleBlock.js';
+import { siteLogoRenderer } from './siteLogoBlock.js';
+import { siteTaglineRenderer } from './siteTaglineBlock.js';
+import { spacerRenderer } from './spacerBlock.js';
+import { columnRenderer, columnsRenderer } from './columnsBlock.js';
+import { paragraphRenderer } from './paragraphBlock.js';
 import { expandPatterns, resolveTemplatePart, type ThemeFiles } from './templateResolve.js';
 
 export function createDefaultRegistry(): BlockRegistry {
@@ -16,6 +21,12 @@ export function createDefaultRegistry(): BlockRegistry {
     ['core/navigation', navigationRenderer],
     ['core/page-list', pageListRenderer],
     ['core/navigation-link', navigationLinkRenderer],
+    ['core/site-logo', siteLogoRenderer],
+    ['core/site-tagline', siteTaglineRenderer],
+    ['core/spacer', spacerRenderer],
+    ['core/columns', columnsRenderer],
+    ['core/column', columnRenderer],
+    ['core/paragraph', paragraphRenderer],
   ]);
 }
 

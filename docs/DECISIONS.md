@@ -70,3 +70,10 @@
 - 設計契約 v3(stage-d-plan.md §8.1〜8.2)は GPT-6.1-sol の STEP2 で 3 回目に Go。主な決定: navigation の aria-label は名前ごとのページ共有カウンタ(Map、header→footer の順で固定)、overlayMenu never は非 responsive 経路で modal 採番を消費しない、navigation-link のフラグメント URL(`#`)許可、PHP 展開後ラベルの特殊文字は未実測のため拒否、ctx の追加フィールドは optional で未取得は拒否(`tagline`/`logoId`)、`ref` 指定は拒否。
 - テスト計画(§8.3〜8.4)は STEP3 で 3 回目に Go。名前別採番・modal 順序の mutation 対策、属性導出の独立検査、サニタイズは正常終了必須、fail-closed、実行表。
 - 基準データ: fixtures/ref/set-footer2(blogname/blogdescription を一時設定して取得、復元確認済み)。ゲート扱いは §7.1-5 を継承(partial、done にしない)。
+
+## ADR-042: D-2 footer 領域の実装完了(D-2a〜e)(2026-11-01)
+- 実装単位: D-2a site-logo/site-tagline/spacer、D-2b columns/column(ハッシュは md5 で独立検算)、D-2c テーマ由来 paragraph、D-2d navigation 非 responsive 経路(overlayMenu never、インライン子、`renderState.navNameCounts` の名前別 aria-label 採番、`#` URL、ラベル文字種制限)、D-2e `renderFooter`。基準 `regions/footer.html`(single、tagline 空)と `set-footer2`(home、特殊文字名+tagline)の 2 組が、毎回「新規 ctx → header → footer」の順で正規化 DOM 一致。packages/render は 342 件 Green、各単位で mutation 検証済み。
+- **`createDefaultRegistry()` の登録キーを 5 個から 11 個へ意図的に更新**(core/site-logo, site-tagline, spacer, columns, column, paragraph を追加)。headerCompose.test の登録キー完全一致テストは、この更新に合わせて私が書き換えた。header の描画経路は不変で、既存 header テストは全て Green のまま。
+- 台帳は §7.1-5 に従い partial 追記のみ(status は todo)。
+- 未照合・未実測: 非空 ariaLabel の 1 つ目に aria-label が付く規則と esc_attr の扱い(WP ソース未照合。空名のみ実測)、overlayMenu never での justifyContent/flexWrap/overlay 色(未実測のため fail-closed)、columns/column/paragraph の WP ソース規則。
+- 未達: main(single/home のループ・コメント・query)= D-3、E 段階(theme.json→CSS)、navigation の ref・階層ページ。
