@@ -593,3 +593,13 @@ describe('D3c2-09: fontSize の受理・拒否と class 順序', () => {
 		expect(shape(await startTag(html)).styles).toEqual(['margin-bottom:var(--wp--preset--spacing--60)']);
 	});
 });
+
+// D3g 補強: group の未知属性は黙って捨てず拒否する(anchor が id として出ない等の不一致を fail-closed にする)。
+describe('group: 未知の属性は RangeError', () => {
+	it.each([['anchor', 'x'], ['className', 'is-style-x'], ['metadata', {}], ['lock', {}], ['templateLock', 'all'], ['backgroundColor', 'base'], ['textColor', 'contrast']])(
+		'D3g-group: 属性 %s は RangeError',
+		(key, value) => {
+			expect(captureError(() => renderGroup({ [key]: value }))).toBeInstanceOf(RangeError);
+		},
+	);
+});

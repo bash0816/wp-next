@@ -89,3 +89,9 @@
 - テーマ由来 heading、post-title、post-date を登録表に追加。post-title は基準の保存形式(直引用符)に合わせて `"x"` の対を曲げ、未実測の wptexturize 分岐は拒否する。**wptexturize の全面対応は未実装(parity exception)**。
 - 実測 M1〜M5 に基づく db 側の規則: 保護投稿は query・前後ナビに含まれる(本文・日付なし、`post-password-required`)、draft/private/future は匿名では出ない、同日時は ID 降順、カテゴリは名前順。`sticky_posts` の判定は値のみを見る。
 - 実装中に見つかり修正した不備: 保護クラスの欠落、カテゴリ順(slug 順→名前順)、sticky の添字/値の取り違え、URL の `encodeURIComponent` 欠落、`@wpn/db` の `exports` が deep import を塞いだ件(`./src/*` を許可)。
+
+## ADR-045: D-3 main 領域の実装完了(2026-11-01)
+- D-3z1〜D-3g を完了。基準 `spike-blocks.html` の `<main>` 全体が S0 で正規化 DOM 一致し、実測 M1〜M5 を再現する追加 fixture(set-main2 の S1〜S3)も一致。header→main→footer を同一 ctx で描画しても採番(modal・aria-label)が衝突しない。
+- 構成: 認可は SQL 側(`openCurrentPost`/`queryPosts`/`adjacent`/`commentsState`/`terms`/`author`)で完結し、render は束縛されたポートの DTO しか見ない。レジストリはテーマ用(21→28 キー)と投稿用(7 キー)を名目型で分離し、`renderChildren` は子の同一性を検査する。投稿本文は投稿用レジストリだけで描画して sanitize。
+- 台帳は §7.1-5 に従い、関連ブロックの notes に `partial=` を追記(status は todo のまま)。差異と未実測の仮定は docs/parity-exceptions.md に一覧化。
+- 未達: 本文/コメントの一覧・ページング・closed、タグ・複数カテゴリの表示、wptexturize の全面対応、ほかのテンプレート(page・archive・home・search・404)、E 段階(theme.json→CSS)、実ブラウザ動作。

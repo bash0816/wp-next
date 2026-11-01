@@ -18,6 +18,8 @@ const BORDER_SIDES = ['top', 'bottom'] as const;
 const BORDER_COLOR_RE = /^var:preset\|color\|([a-z0-9-]+)$/;
 const BORDER_WIDTH_RE = /^\d+px$/;
 
+const GROUP_ATTR_KEYS: readonly string[] = ['align', 'layout', 'style', 'tagName', 'ariaLabel', 'fontSize'];
+
 type Obj = Record<string, unknown>;
 
 const isObject = (v: unknown): v is Obj =>
@@ -101,6 +103,12 @@ type GroupAttrs = {
 
 // attrs を検証し、描画に必要な値へ正規化する。validateAttrs と render の両方から呼ぶ。
 const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
+  // 未知の属性(anchor, className, metadata 等)は出力に反映できないため、黙って捨てず拒否する(fail-closed)。
+  for (const key of Object.keys(rawAttrs)) {
+    if (!GROUP_ATTR_KEYS.includes(key)) {
+      throw rangeError(`未対応の属性です: ${key}`);
+    }
+  }
   const align = optionalEnum(rawAttrs.align, ['full', 'wide'] as const, 'align');
 
   // fontSize はスラッグのみ許可する。クラス名 has-<slug>-font-size に埋め込むため、それ以外は拒否する。
