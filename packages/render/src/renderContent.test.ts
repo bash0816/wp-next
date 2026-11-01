@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
+import { makeQueriesPort } from '@wpn/db';
 import { extractEntryContent, htmlEquals, normalizeHtml } from './normalizeDom.js';
 import { renderBlocks, UnsupportedBlockError } from './renderBlocks.js';
 import { renderContent } from './renderContent.js';
@@ -75,7 +76,7 @@ function openDb(onlyIds?: number[]): DatabaseSync {
 describe('renderContent: core/latest-posts', () => {
   it('既定属性(postsToShow 5, desc)の出力が default.html と一致する', () => {
     const db = openDb();
-    const actual = renderContent('<!-- wp:latest-posts /-->', { db, siteUrl: SITE_URL });
+    const actual = renderContent('<!-- wp:latest-posts /-->', { queries: makeQueriesPort(db), siteUrl: SITE_URL });
     expect(normalizeHtml(actual)).toBe(normalizeHtml(readFixture('latest-posts/default.html')));
     db.close();
   });
@@ -83,7 +84,7 @@ describe('renderContent: core/latest-posts', () => {
   it('postsToShow:1 の出力が one.html と一致する', () => {
     const db = openDb();
     const actual = renderContent('<!-- wp:latest-posts {"postsToShow":1} /-->', {
-      db,
+      queries: makeQueriesPort(db),
       siteUrl: SITE_URL,
     });
     expect(normalizeHtml(actual)).toBe(normalizeHtml(readFixture('latest-posts/one.html')));
@@ -93,7 +94,7 @@ describe('renderContent: core/latest-posts', () => {
   it('order:asc, postsToShow:2 の出力が asc.html と一致する', () => {
     const db = openDb();
     const actual = renderContent('<!-- wp:latest-posts {"postsToShow":2,"order":"asc"} /-->', {
-      db,
+      queries: makeQueriesPort(db),
       siteUrl: SITE_URL,
     });
     expect(normalizeHtml(actual)).toBe(normalizeHtml(readFixture('latest-posts/asc.html')));
@@ -108,21 +109,29 @@ describe('renderContent: 既存ブロックの回帰', () => {
       .split('\n')
       .filter((line) => !line.includes('wp:latest-posts'))
       .join('\n');
-    expect(renderContent(staticOnly, { db, siteUrl: SITE_URL })).toBe(renderBlocks(staticOnly));
+    // 子ブロック(list-item・quote 内の段落)は renderChildren 経由で描画されるため、
+    // 子の間の空白だけが renderBlocks と変わり得る。よって文字列完全一致ではなく
+    // 空白を正規化する htmlEquals で比較する。
+    expect(
+      htmlEquals(
+        renderContent(staticOnly, { queries: makeQueriesPort(db), siteUrl: SITE_URL }),
+        renderBlocks(staticOnly),
+      ),
+    ).toBe(true);
     db.close();
   });
 
   it('spike-blocks の全 post_content(latest-posts 含む)が基準 WP の entry-content と一致する', () => {
     // 基準取得時の DB は ID 1,5,7 のみ(postsToShow:3 → 7,5,1)
     const db = openDb([1, 5, 7]);
-    const actual = renderContent(readFixture('spike-blocks.post_content.html'), { db, siteUrl: SITE_URL });
+    const actual = renderContent(readFixture('spike-blocks.post_content.html'), { queries: makeQueriesPort(db), siteUrl: SITE_URL });
     expect(htmlEquals(actual, extractEntryContent(readFixture('spike-blocks.html')))).toBe(true);
     db.close();
   });
 
   it('許可リストにない動的ブロックは UnsupportedBlockError を投げる', () => {
     const db = openDb();
-    expect(() => renderContent('<!-- wp:archives /-->', { db, siteUrl: SITE_URL })).toThrow(
+    expect(() => renderContent('<!-- wp:archives /-->', { queries: makeQueriesPort(db), siteUrl: SITE_URL })).toThrow(
       UnsupportedBlockError,
     );
     db.close();
@@ -132,7 +141,7 @@ describe('renderContent: 既存ブロックの回帰', () => {
 describe('renderContent: latest-posts の堅牢性', () => {
   it('postsToShow が範囲外でも例外にせず 1〜100 に丸める', () => {
     const db = openDb();
-    const ctx = { db, siteUrl: SITE_URL };
+    const ctx = { queries: makeQueriesPort(db), siteUrl: SITE_URL };
     expect(() => renderContent('<!-- wp:latest-posts {"postsToShow":0} /-->', ctx)).not.toThrow();
     expect(() => renderContent('<!-- wp:latest-posts {"postsToShow":9999} /-->', ctx)).not.toThrow();
     const one = renderContent('<!-- wp:latest-posts {"postsToShow":0} /-->', ctx);
@@ -145,7 +154,7 @@ describe('renderContent: latest-posts の堅牢性', () => {
     db.prepare("UPDATE posts SET post_title = ? WHERE ID = 7").run(
       '<script>alert(1)</script><img src=x onerror=alert(2)>悪意',
     );
-    const out = renderContent('<!-- wp:latest-posts {"postsToShow":1} /-->', { db, siteUrl: SITE_URL });
+    const out = renderContent('<!-- wp:latest-posts {"postsToShow":1} /-->', { queries: makeQueriesPort(db), siteUrl: SITE_URL });
     expect(out).not.toMatch(/<script|onerror|alert\(/i);
     expect(out).toContain('悪意');
     db.close();

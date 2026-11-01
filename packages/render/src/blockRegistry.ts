@@ -2,6 +2,7 @@
 import { type GlobalConfig } from './layoutInput.js';
 import { type ParsedBlock, UnsupportedBlockError } from './renderBlocks.js';
 import { type ContentPort, type PostCtx, type QueriesPort, type QueryCtx } from './ports.js';
+import { postBlockRenderers } from './postRegistry.js';
 
 // site / page は D-1c の core/site-title 用。既存の呼び出しを壊さないため optional。
 // site / page を必要とするレンダラは、無いときに fail-closed で RangeError を投げる。
@@ -43,7 +44,11 @@ export type BlockRenderer = {
 export type BlockRegistry = Map<string, BlockRenderer>;
 
 // renderTree が必要とするのは get のみ。Map と ThemeRegistry / PostRegistry の双方を受け取る。
-export type RegistryLike = { get(name: string): BlockRenderer | undefined };
+// freeform は投稿用のみ。null blockName の内容(フリーフォーム HTML)を素通しする。サニタイズは後段で行う。
+export type RegistryLike = {
+  get(name: string): BlockRenderer | undefined;
+  freeform?: (html: string) => string;
+};
 
 // テーマ由来の既定レジストリ。構築後は凍結され、set / delete / clear を持たない。
 export class ThemeRegistry {
@@ -87,10 +92,16 @@ export class ThemeRegistry {
 // 投稿単位のレジストリ。ThemeRegistry とは nominal に区別される(#brand が異なる)。
 export class PostRegistry {
   readonly #brand = 'post';
-  readonly #map: Map<string, BlockRenderer> = new Map();
+  readonly #map: Map<string, BlockRenderer>;
 
-  constructor() {
+  constructor(entries: Iterable<[string, BlockRenderer]>) {
+    this.#map = new Map(entries);
     Object.freeze(this);
+  }
+
+  // フリーフォーム HTML はそのまま通す(サニタイズは renderContent 側で行う)。
+  freeform(html: string): string {
+    return html;
   }
 
   static is(x: unknown): x is PostRegistry {
@@ -133,7 +144,7 @@ export function assertPostRegistry(x: unknown): asserts x is PostRegistry {
 }
 
 export function createPostRegistry(): PostRegistry {
-  return new PostRegistry();
+  return new PostRegistry(postBlockRenderers);
 }
 
 function assertOverrideKeys(override: ChildOverride): void {
@@ -157,6 +168,10 @@ export function renderTree(blocks: ParsedBlock[], ctx: RenderCtx, registry: Regi
   for (const block of blocks) {
     if (block.blockName === null) {
       if (block.innerHTML.trim() === '') {
+        continue;
+      }
+      if (registry.freeform !== undefined) {
+        out += registry.freeform(block.innerHTML);
         continue;
       }
       throw new UnsupportedBlockError('(null blockName)');

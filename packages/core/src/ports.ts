@@ -23,9 +23,13 @@ export type ContentPort = {
 
 export type QueryItem = { post: PostCtx; content: ContentPort };
 
+// core/latest-posts 用(D-3d0)。id・パスワードは含めない(ADR-027: 一覧にはタイトルだけを露出する)。
+export type LatestPostsSpec = { limit: number; order: 'asc' | 'desc' };
+export type LatestPost = { slug: string; title: string; isProtected: boolean };
+
 export type QueriesPort = {
   queryPosts(spec: unknown): QueryItem[];
-  latestPosts(spec: unknown): unknown[];
+  latestPosts(spec: LatestPostsSpec): LatestPost[];
 };
 
 // D-3b2: core/query が post-template へ渡す文脈。items は queryPosts の結果そのもの。

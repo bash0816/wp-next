@@ -64,10 +64,21 @@ describe('D3a1 registry origin', () => {
 		const themeKeys = [...createThemeRegistry().keys()].sort();
 		expect(themeKeys).toEqual([...EXPECTED_THEME_KEYS].sort());
 
-		// Red理由: createPostRegistry が blockRegistry.ts に未実装のため TypeError になる。
+		// 期待: createPostRegistry は D-3d0 の 7 キー(テーマ由来キーを含まない)を持つ。
+		// Red理由: 現行 createPostRegistry は空の PostRegistry を返すため size 0 にならず不一致になる。
 		const postReg = createPostRegistry();
-		expect([...postReg.keys()]).toEqual([]);
-		expect(postReg.size).toBe(0);
+		expect([...postReg.keys()].sort()).toEqual(
+			[
+				'core/heading',
+				'core/paragraph',
+				'core/list',
+				'core/list-item',
+				'core/quote',
+				'core/separator',
+				'core/latest-posts',
+			].sort(),
+		);
+		expect(postReg.size).toBe(7);
 	});
 
 	it('D3a1-02: ThemeRegistry / PostRegistry は凍結され、set/delete/clear で変更できない', () => {

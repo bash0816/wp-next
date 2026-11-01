@@ -65,7 +65,7 @@ const SUPPORTED_BLOCKS = new Set([
 ]);
 
 /** 要素の先頭要素にクラスを追加する (既存クラスは保持し、無いものだけ末尾に足す) */
-function addClassesToFirstElement(html: string, classes: string[]): string {
+export function addClassesToFirstElement(html: string, classes: string[]): string {
   const fragment = parseFragment(html) as unknown as TreeNode;
   const element = fragment.childNodes?.find((n) => !n.nodeName.startsWith('#'));
   if (element === undefined) {

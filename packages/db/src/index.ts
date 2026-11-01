@@ -6,3 +6,4 @@ export { selectLatestNavigationPost, selectPublishedPagesForNav } from './naviga
 export { UnsupportedDataError } from './postData.js';
 export { openCurrentPost } from './currentPost.js';
 export { queryPosts } from './queryPosts.js';
+export { makeQueriesPort } from './queriesPort.js';
