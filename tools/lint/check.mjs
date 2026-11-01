@@ -20,6 +20,9 @@ const RULES = [
         rel === 'packages/db/src/visiblePosts.ts' ||
         rel === 'packages/db/src/latestPosts.ts' ||
         rel === 'packages/db/src/navigation.ts' ||
+        rel === 'packages/db/src/currentPost.ts' ||
+        rel === 'packages/db/src/queryPosts.ts' ||
+        rel === 'packages/db/src/postData.ts' ||
         rel.startsWith('packages/db/src/schema') ||
         rel.endsWith('.test.ts')
       );
