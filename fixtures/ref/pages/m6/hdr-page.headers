@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+X-Powered-By: PHP/8.3.36
+X-Pingback: http://127.0.0.1:8080/xmlrpc.php
+Link: <http://127.0.0.1:8080/wp-json/>; rel="https://api.w.org/"
+Link: <http://127.0.0.1:8080/wp-json/wp/v2/pages/2>; rel="alternate"; title="JSON"; type="application/json"
+Link: <http://127.0.0.1:8080/?p=2>; rel=shortlink
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+

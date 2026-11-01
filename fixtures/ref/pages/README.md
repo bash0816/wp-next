@@ -1,0 +1,4 @@
+# pages: 他テンプレートの基準出力(基準WP 7.1.3 / TT25、匿名、読み取りのみ)
+取得: `curl -H 'Host: 127.0.0.1:8080'` で基準 WP(wpref)の各 URL を取得(基準の状態は変更していない)。`*.status` は HTTP ステータス、`m6/*.headers` は HTTP ヘッダ(Date・Set-Cookie・Server は除去)。
+- page-sample(/sample-page/ 200)、archive-category(/category/uncategorized/ 200)、archive-author(/author/admin/ 200)、search-hello(/?s=hello 200)、search-none(/?s=zzzqqq 200、query-no-results あり)、notfound(/no-such-page-xyz/ 404)、single-hello(/hello-world/ 200)。`/page/2/` は 404(投稿 3 件のため範囲外)。
+- m6/(§11.4 の実測): ヘッダ(hdr-home/single/404/search/page)。**404 は `Cache-Control: no-cache, must-revalidate, max-age=0, no-store, private` と `Expires: Wed, 11 Jan 1984 05:00:00 GMT`**。single/page は `Link: <…/wp-json/…>; rel="alternate"`・`Link: <…?p=N>; rel=shortlink`・`X-Pingback` を追加。検索: 空 `?s=` は 200 で題名 `Search results for: “”` かつ全投稿の一覧、`%`・`_`・`<b>` は 200 でヒット 0(query-no-results、LIKE 記号はエスケープされる)、`"hello"` は題名が `&quot;hello&quot;` でエスケープされヒット 1 件。

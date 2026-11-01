@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+X-Powered-By: PHP/8.3.36
+Link: <http://127.0.0.1:8080/wp-json/>; rel="https://api.w.org/"
+Vary: Accept-Encoding
+Transfer-Encoding: chunked
+Content-Type: text/html; charset=UTF-8
+
