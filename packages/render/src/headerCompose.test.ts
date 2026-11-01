@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { RenderCtx } from './blockRegistry.js';
-import { createDefaultRegistry, renderHeader } from './headerCompose.js';
+import { createThemeRegistry, renderHeader } from './headerCompose.js';
 import { htmlEquals, normalizeHtml } from './normalizeDom.js';
 import { type GlobalConfig, globalConfigFromThemeJson } from './layoutInput.js';
 import { UnsupportedBlockError } from './renderBlocks.js';
@@ -291,7 +291,7 @@ describe('createDefaultRegistry: 登録ブロックの契約', () => {
 		//       columns / column / paragraph) が既定レジストリに揃っているか。
 		// Red理由: 現行の createDefaultRegistry は 5 キーのみを登録しており、追加 6 種が無いため
 		//          sorted keys の比較が不一致になる (期待 11 件 vs 実 5 件)。
-		const registry = createDefaultRegistry();
+		const registry = createThemeRegistry();
 		expect([...registry.keys()].sort()).toEqual(
 			[
 				'core/group',
