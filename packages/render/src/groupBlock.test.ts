@@ -529,3 +529,67 @@ describe('D3z1-08 補強: border 1辺の構造検査', () => {
 		expect(captureError(() => renderGroup({ style: { border } }))).toBeInstanceOf(RangeError);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// D3c2: hidden-written-by の group(fontSize / style.spacing.blockGap)
+// 期待値は fixtures/ref から正規表現で抽出する。
+// ---------------------------------------------------------------------------
+
+const WRITTEN_BY_MARGIN = { bottom: 'var:preset|spacing|60' };
+const WRITTEN_BY_ATTRS = {
+	style: { spacing: { blockGap: '0.2em', margin: WRITTEN_BY_MARGIN } },
+	fontSize: 'small',
+	layout: { type: 'flex', flexWrap: 'wrap' },
+};
+const WRITTEN_BY_START = /<div class="wp-block-group has-small-font-size[^"]*" style="[^"]*">/;
+
+describe('D3c2-08: hidden-written-by group の開始タグ', () => {
+	// D3c2-08 (Red予測): fontSize 未実装のため has-small-font-size が出ず class 列が一致しない。
+	it('D3c2-08: 開始タグが main-01 の written-by div と class 順序・ハッシュ・style で一致する', async () => {
+		const html = renderGroup(WRITTEN_BY_ATTRS);
+		const expected = fixtureTag('regions/main-01.html', WRITTEN_BY_START);
+		await expectSameStartTag(html, expected);
+	});
+
+	// D3c2-08 (Red予測): blockGap が hash 入力に入らないため、blockGap の値変更・省略で hash が変わらない。
+	it('D3c2-08: blockGap を変えても省略しても container hash が変わり、基準は fd1a9a6d になる', () => {
+		const withGap = containerToken(renderGroup(WRITTEN_BY_ATTRS));
+		const otherGap = containerToken(
+			renderGroup({ ...WRITTEN_BY_ATTRS, style: { spacing: { blockGap: '0.3em', margin: WRITTEN_BY_MARGIN } } }),
+		);
+		const noGap = containerToken(renderGroup({ ...WRITTEN_BY_ATTRS, style: { spacing: { margin: WRITTEN_BY_MARGIN } } }));
+		expect(withGap).toBe('wp-container-core-group-is-layout-fd1a9a6d');
+		expect(otherGap).not.toBe(withGap);
+		expect(noGap).not.toBe(withGap);
+	});
+});
+
+describe('D3c2-09: fontSize の受理・拒否と class 順序', () => {
+	// D3c2-09 (Red予測): fontSize 未実装のため現実装は受理してしまい RangeError にならない。
+	it.each([['Small'], ['a b'], ['"'], [1], ['']])('D3c2-09: fontSize=%j は RangeError', (v) => {
+		expect(captureError(() => renderGroup({ fontSize: v }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3c2-09 (Red予測): has-small-font-size が未出力のため、align 直後の位置が一致しない。
+	it('D3c2-09: align と併用すると wp-block-group, alignwide, has-small-font-size の順になる', () => {
+		const tokens = firstClassTokens(renderGroup({ align: 'wide', fontSize: 'small' }));
+		expect(tokens.slice(0, 3)).toEqual(['wp-block-group', 'alignwide', 'has-small-font-size']);
+	});
+
+	// D3c2-09 (Red予測): blockGap 未検証のため不正値が通過し RangeError にならない。
+	it.each([['1'], ['1rem;x:y'], ['url(x)'], ['-1px'], [1]])('D3c2-09: blockGap=%j は RangeError', (v) => {
+		expect(captureError(() => renderGroup({ style: { spacing: { blockGap: v } } }))).toBeInstanceOf(RangeError);
+	});
+
+	// D3c2-09 (Red予測見込み): 許可値は受理される。現実装で通る可能性がある(Green 想定の回帰ガード)。
+	it.each([['0'], ['0.2em'], ['10px'], ['1.5rem'], ['var:preset|spacing|40']])('D3c2-09: blockGap=%j は受理される', (v) => {
+		expect(() => renderGroup({ style: { spacing: { blockGap: v } } })).not.toThrow();
+	});
+
+	// D3c2-09 (Red予測): 現実装は blockGap を style に出さないが、fontSize 未実装で開始タグ全体が一致しないため
+	// style の宣言だけを比較する。blockGap は style 属性に出ず margin のみが残ること。
+	it('D3c2-09: blockGap は style 属性に出力されず margin-bottom のみが残る', async () => {
+		const html = renderGroup(WRITTEN_BY_ATTRS);
+		expect(shape(await startTag(html)).styles).toEqual(['margin-bottom:var(--wp--preset--spacing--60)']);
+	});
+});

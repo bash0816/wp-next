@@ -15,6 +15,7 @@ import { paragraphRenderer } from './paragraphBlock.js';
 import { headingRenderer } from './headingBlock.js';
 import { postDateRenderer, postTitleRenderer } from './postTitleDate.js';
 import { postTemplateRenderer, queryRenderer } from './queryBlock.js';
+import { postAuthorNameRenderer, postFeaturedImageRenderer, postTermsRenderer } from './termsAuthor.js';
 import { expandPatterns, resolveTemplatePart, type ThemeFiles } from './templateResolve.js';
 
 export function createThemeRegistry(): ThemeRegistry {
@@ -35,6 +36,9 @@ export function createThemeRegistry(): ThemeRegistry {
     ['core/post-date', postDateRenderer],
     ['core/query', queryRenderer],
     ['core/post-template', postTemplateRenderer],
+    ['core/post-terms', postTermsRenderer],
+    ['core/post-author-name', postAuthorNameRenderer],
+    ['core/post-featured-image', postFeaturedImageRenderer],
   ]);
 }
 

@@ -17,3 +17,4 @@ export {
 } from './blockRegistry.js';
 export type { ContentPort, PostCtx, QueriesPort, QueryCtx, QueryItem } from './ports.js';
 export { postTemplateRenderer, queryRenderer } from './queryBlock.js';
+export { postAuthorNameRenderer, postFeaturedImageRenderer, postTermsRenderer } from './termsAuthor.js';

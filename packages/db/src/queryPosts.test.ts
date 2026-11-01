@@ -272,11 +272,8 @@ describe('queryPosts (D3b1-11〜17)', () => {
   });
 
   it.each([
-    ['terms', (c: ContentPort) => c.terms('category')],
     ['adjacent', (c: ContentPort) => c.adjacent('next')],
     ['commentsState', (c: ContentPort) => c.commentsState()],
-    ['hasThumbnail', (c: ContentPort) => c.hasThumbnail()],
-    ['author', (c: ContentPort) => c.author()],
   ])('D3b1-17: content.%s は UnsupportedDataError(保護・非保護の両方)', (_label, call) => {
     // 検出対象: 未対応の文脈メソッドは黙って既定値を返さず UnsupportedDataError を投げること。
     //   窓 [7,22] の非保護(7)と保護(22)の両方で確認する。

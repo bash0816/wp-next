@@ -310,6 +310,9 @@ describe('createDefaultRegistry: 登録ブロックの契約', () => {
 					'core/post-date',
 					'core/query',
 					'core/post-template',
+					'core/post-terms',
+					'core/post-author-name',
+					'core/post-featured-image',
 			].sort(),
 		);
 	});

@@ -40,7 +40,7 @@ function parseRef(ref: unknown): Ref {
 
 function findPublished(db: DatabaseSync, ref: Ref): PostRow | null {
   const base = `SELECT ID AS id, post_name AS slug, post_title AS title,
-                       post_date_gmt, post_content, post_password
+                       post_date_gmt, post_content, post_password, post_author
                   FROM posts
                  WHERE post_status = 'publish' AND post_type = 'post'`;
   const row =
@@ -64,6 +64,6 @@ export function openCurrentPost(
   if (row.post_password !== null && row.post_password !== '') return null;
   assertNoStickyOrThumbnail(db, row.id);
   const post = buildPostCtx(db, row);
-  const content = buildContentPort(row);
+  const content = buildContentPort(db, row);
   return { post, content };
 }

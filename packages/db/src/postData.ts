@@ -107,6 +107,7 @@ export interface PostRowForCtx {
   post_date_gmt: string;
   post_content: string;
   post_password: string | null;
+  post_author: number;
 }
 
 const SLUG_RE = /^[a-z0-9-]+$/;
@@ -126,7 +127,7 @@ function termsOf(db: Pick<DatabaseSync, 'prepare'>, postId: number): TermRow[] {
          JOIN term_taxonomy tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
          JOIN terms t ON t.term_id = tt.term_id
         WHERE tr.object_id = ?
-        ORDER BY t.name, t.slug`,
+        ORDER BY t.name COLLATE NOCASE, t.slug`,
     )
     .all(postId) as unknown as TermRow[];
 }
@@ -211,14 +212,79 @@ function unsupported(what: string): never {
   throw new UnsupportedDataError(`${what} は未対応です`);
 }
 
-/** 本文のみ対応する ContentPort。他のメソッドは UnsupportedDataError を投げる。 */
-export function buildContentPort(row: PostRowForCtx): ContentPort {
+interface ContentTermRow {
+  name: string;
+  slug: string;
+  parent: number;
+}
+
+/** 投稿に付いた category / post_tag を name 昇順・同名は slug 昇順で返す。 */
+function contentTermsOf(
+  db: Pick<DatabaseSync, 'prepare'>,
+  postId: number,
+  taxonomy: 'category' | 'post_tag',
+): Array<{ name: string; slug: string; url: string }> {
+  const home = readHome(db);
+  const rows = db
+    .prepare(
+      `SELECT t.name AS name, t.slug AS slug, tt.parent AS parent
+         FROM term_relationships tr
+         JOIN term_taxonomy tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+         JOIN terms t ON t.term_id = tt.term_id
+        WHERE tr.object_id = ? AND tt.taxonomy = ?
+        ORDER BY t.name COLLATE NOCASE, t.slug`,
+    )
+    .all(postId, taxonomy) as unknown as ContentTermRow[];
+  const segment = taxonomy === 'category' ? 'category' : 'tag';
+  return rows.map((r) => {
+    if (!SLUG_RE.test(r.slug)) {
+      throw new UnsupportedDataError(`${taxonomy} の slug が非対応です: ${JSON.stringify(r.slug)}`);
+    }
+    if (r.parent !== 0) {
+      throw new UnsupportedDataError(`${taxonomy} ${r.slug} に親があります(未対応)`);
+    }
+    return { name: r.name, slug: r.slug, url: `${home}/${segment}/${r.slug}/` };
+  });
+}
+
+/** post_author が 0 または存在しないユーザーなら null。 */
+function authorOf(
+  db: Pick<DatabaseSync, 'prepare'>,
+  authorId: number,
+): { name: string; url: string } | null {
+  if (authorId === 0) return null;
+  const u = db
+    .prepare('SELECT user_nicename AS nicename, display_name AS name FROM users WHERE ID = ?')
+    .get(authorId) as { nicename: string; name: string } | undefined;
+  if (!u) return null;
+  if (u.name === '') throw new UnsupportedDataError(`著者 ${authorId} の display_name が空です`);
+  if (!SLUG_RE.test(u.nicename)) {
+    throw new UnsupportedDataError(`著者 ${authorId} の user_nicename が非対応です: ${JSON.stringify(u.nicename)}`);
+  }
+  return { name: u.name, url: `${readHome(db)}/author/${u.nicename}/` };
+}
+
+/**
+ * 投稿 row に束縛された ContentPort。terms / author / hasThumbnail を対応し、
+ * adjacent / commentsState は未対応として UnsupportedDataError を投げる。
+ */
+export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRowForCtx): ContentPort {
   return {
     contentOf: () => row.post_content,
-    terms: () => unsupported('terms()'),
+    terms: (taxonomy) => {
+      if (taxonomy !== 'category' && taxonomy !== 'post_tag') {
+        throw new RangeError('taxonomy は "category" か "post_tag" で指定してください');
+      }
+      return contentTermsOf(db, row.id, taxonomy);
+    },
     adjacent: () => unsupported('adjacent()'),
     commentsState: () => unsupported('commentsState()'),
-    hasThumbnail: () => unsupported('hasThumbnail()'),
-    author: () => unsupported('author()'),
+    hasThumbnail: () => {
+      const thumb = db
+        .prepare("SELECT 1 AS x FROM postmeta WHERE post_id = ? AND meta_key = '_thumbnail_id'")
+        .get(row.id);
+      return thumb !== undefined;
+    },
+    author: () => authorOf(db, row.post_author),
   };
 }

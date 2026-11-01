@@ -83,7 +83,7 @@ export function queryPosts(db: DatabaseSync, spec: unknown): QueryItem[] {
   const rows = db
     .prepare(
       `SELECT ID AS id, post_name AS slug, post_title AS title,
-              post_date_gmt, post_content, post_password
+              post_date_gmt, post_content, post_password, post_author
          FROM posts
         WHERE post_type = 'post' AND post_status = 'publish'
         ORDER BY post_date_gmt DESC, ID DESC
@@ -107,7 +107,7 @@ export function queryPosts(db: DatabaseSync, spec: unknown): QueryItem[] {
     }
     assertNoStickyOrThumbnail(db, row.id);
     const post = buildPostCtx(db, row);
-    const content = buildContentPort(row);
+    const content = buildContentPort(db, row);
     if (post.protected) {
       delete content.contentOf;
     }

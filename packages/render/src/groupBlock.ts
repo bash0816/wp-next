@@ -10,6 +10,8 @@ const JUSTIFY_VALUES = ['left', 'right', 'center', 'space-between'] as const;
 const SPACING_SIDES = ['top', 'right', 'bottom', 'left'] as const;
 const LENGTH_RE = /^-?\d+(\.\d+)?(px|em|rem|%|vh|vw)$/;
 const PRESET_RE = /^var:preset\|spacing\|([a-z0-9-]+)$/;
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const BLOCK_GAP_LENGTH_RE = /^\d+(\.\d+)?(px|em|rem)$/;
 const TAG_NAMES = ['div', 'main', 'nav', 'header', 'footer', 'section'] as const;
 const VERTICAL_ALIGN_VALUES = ['top', 'center', 'bottom'] as const;
 const BORDER_SIDES = ['top', 'bottom'] as const;
@@ -88,6 +90,7 @@ type GroupAttrs = {
   tagName: (typeof TAG_NAMES)[number];
   ariaLabel: string | undefined;
   align: 'full' | 'wide' | undefined;
+  fontSize: string | undefined;
   layoutType: 'flow' | 'constrained' | 'flex';
   layout: Obj;
   justifyContent: (typeof JUSTIFY_VALUES)[number] | undefined;
@@ -99,6 +102,15 @@ type GroupAttrs = {
 // attrs を検証し、描画に必要な値へ正規化する。validateAttrs と render の両方から呼ぶ。
 const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
   const align = optionalEnum(rawAttrs.align, ['full', 'wide'] as const, 'align');
+
+  // fontSize はスラッグのみ許可する。クラス名 has-<slug>-font-size に埋め込むため、それ以外は拒否する。
+  let fontSize: string | undefined;
+  if (rawAttrs.fontSize !== undefined) {
+    if (typeof rawAttrs.fontSize !== 'string' || !SLUG_RE.test(rawAttrs.fontSize)) {
+      throw rangeError('fontSize はスラッグ形式の文字列である必要があります');
+    }
+    fontSize = rawAttrs.fontSize;
+  }
 
   let layout: Obj = {};
   if (rawAttrs.layout !== undefined) {
@@ -158,6 +170,16 @@ const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
       if (!isObject(spacing)) {
         throw rangeError('style.spacing はオブジェクトである必要があります');
       }
+      // blockGap は layoutHashInput が読んでハッシュに含めるため、ここでは検証のみ行い style へは出力しない。
+      if (spacing.blockGap !== undefined) {
+        const gap = spacing.blockGap;
+        const ok =
+          gap === '0' ||
+          (typeof gap === 'string' && (BLOCK_GAP_LENGTH_RE.test(gap) || PRESET_RE.test(gap)));
+        if (!ok) {
+          throw rangeError('style.spacing.blockGap の値が不正です');
+        }
+      }
       for (const prop of ['padding', 'margin'] as const) {
         const box = spacing[prop];
         if (box === undefined) {
@@ -179,6 +201,7 @@ const parseGroupAttrs = (rawAttrs: Obj): GroupAttrs => {
     tagName,
     ariaLabel,
     align,
+    fontSize,
     layoutType,
     layout,
     justifyContent,
@@ -195,6 +218,9 @@ const buildClasses = (parsed: GroupAttrs, attrs: Obj, ctx: RenderCtx): string[] 
   const classes: string[] = ['wp-block-group'];
   if (parsed.align !== undefined) {
     classes.push(parsed.align === 'full' ? 'alignfull' : 'alignwide');
+  }
+  if (parsed.fontSize !== undefined) {
+    classes.push(`has-${parsed.fontSize}-font-size`);
   }
   if (parsed.layoutType === 'constrained') {
     classes.push('has-global-padding');
