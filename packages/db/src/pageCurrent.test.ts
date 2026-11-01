@@ -172,3 +172,71 @@ describe('T2a: openCurrentPost(db, ref, kind="page")', () => {
     }
   });
 });
+
+// 例外を捕捉して返す(投げなければ undefined)。RangeError の種別とメッセージを個別に固定するため。
+function captureError(fn: () => unknown): unknown {
+  try {
+    fn();
+  } catch (e) {
+    return e;
+  }
+  return undefined;
+}
+
+describe('T2a: openCurrentPost の kind 検証(T2a-10〜12)', () => {
+  it('T2a-10: kind が "post"/"page" 以外(attachment/revision/nav_menu_item/空文字/null/大文字/数値/オブジェクト)は kind 検証の RangeError', () => {
+    const db = openDumpDb();
+    try {
+      // kind 検証は ref の解決より前に走るため、有効な ref(id=2 の page)を渡す。
+      // メッセージを固定して、ref 由来の RangeError と区別する。
+      const badKinds: unknown[] = ['attachment', 'revision', 'nav_menu_item', '', null, 'PAGE', 'Post', 1, {}];
+      for (const bad of badKinds) {
+        const e = captureError(() => open(db, { id: 2 }, bad as string));
+        expect(e, `kind=${JSON.stringify(bad)}`).toBeInstanceOf(RangeError);
+        expect((e as Error).message, `kind=${JSON.stringify(bad)}`).toMatch(/kind は "post" か "page"/);
+      }
+    } finally {
+      db.close();
+    }
+  });
+
+  it('T2a-11: kind を undefined にした場合(明示・省略とも)は既定の "post" として動く(仕様を固定)', () => {
+    // JS の既定引数は undefined のときだけ適用されるため、明示 undefined は 'post' 扱いになる。
+    // null は既定にならず T2a-10 のとおり RangeError。
+    const db = openDumpDb();
+    try {
+      addPost(db, { id: 960, title: 'pp-ok', name: 'pp-ok', date: '2026-10-27 23:10:00', status: 'publish', type: 'post' });
+      addPost(db, { id: 961, title: 'pg-ok', name: 'pg-ok', date: '2026-10-27 23:10:01', status: 'publish', type: 'page' });
+
+      const explicitUndef = open(db, { slug: 'pp-ok' }, undefined);
+      const omitted = open(db, { slug: 'pp-ok' });
+      const explicitPost = open(db, { slug: 'pp-ok' }, 'post');
+      expect(explicitUndef).not.toBeNull();
+      expect(explicitUndef!.post.id).toBe(960);
+      expect(omitted!.post).toEqual(explicitPost!.post);
+      expect(explicitUndef!.post).toEqual(explicitPost!.post);
+
+      // 既定が 'post' なので、公開 page は undefined 指定でも null
+      expect(open(db, { slug: 'pg-ok' }, undefined)).toBeNull();
+    } finally {
+      db.close();
+    }
+  });
+
+  it('T2a-12: post_type=attachment の公開行は kind="attachment" で null ではなく RangeError、kind 省略/page でも開かれない', () => {
+    const db = openDumpDb();
+    try {
+      addPost(db, { id: 962, title: 'att-pub', name: 'att-pub', date: '2026-10-27 23:20:00', status: 'publish', type: 'attachment' });
+
+      const e = captureError(() => open(db, { slug: 'att-pub' }, 'attachment'));
+      expect(e).toBeInstanceOf(RangeError);
+      expect((e as Error).message).toMatch(/kind は "post" か "page"/);
+
+      // 行の post_type が attachment なので、post/page として開くと null(例外ではない)
+      expect(open(db, { id: 962 })).toBeNull();
+      expect(open(db, { id: 962 }, 'page')).toBeNull();
+    } finally {
+      db.close();
+    }
+  });
+});
