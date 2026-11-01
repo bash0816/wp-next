@@ -367,33 +367,59 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 9. **単位間の依存(Minor)**: D-3a=型・共通 dispatch(ブランド型、`renderChildren` 契約、凍結)、D-3d=実入口〔post-content〕での出自拒否と入れ子混入、D-3d0=既存 HTML 不変と入力移行(別々に確認)。依存順は D-3z1→z2→z3→a→b→c→d0→d→e→f→g。
 11. **タイトルのエスケープと fixture の DOM(Major)**: 基準の出力は `入れ子 &#038; <特殊> &#8220;文字&#8221;` と `<特殊>` を**生の文字**で含む。HTML のトークナイザは、`<` の直後が ASCII 英字でも `!`・`/`・`?` でもない場合(`<特殊>` の `特` など)はタグ開始とせず**テキスト**として扱う(`<!--`・`</` 等は別規則)ため、DOM 上は text ノード `<特殊>` で、安全にエスケープした `&lt;特殊&gt;` と**同じ DOM** になる。よって (a) 出力は常にエスケープし(`<` → `&lt;` 等)、(b) fixture との比較は `htmlEquals`(正規化 DOM)で行い、(c) テストで『fixture の該当箇所をパースすると text ノードが `入れ子 & <特殊> “文字”` であり、生成物も同じ text ノードで、かつ要素ノード `特殊` が存在しない』を明示的に検査する(既存 `latest-posts` の同題でも同じ扱い)。ASCII 英字で始まる `<script>` 等は要素にならないよう必ずエスケープされることを別の負例で検査する。テキストの正規化(数値文字参照 `&#038;`・`&#8220;` はパース後に同じ文字になる)も同様に DOM で比較する。
 
-## 11. 他テンプレート(設計 v0.1、STEP1。基準 fixture: fixtures/ref/pages/*)
+## 11. 他テンプレート(設計 v0.2、STEP1。STEP2 v0.1 No-Go〔Blocker1/Major4/Minor2〕を反映)
 
-取得済み(匿名・読み取りのみ、基準 WP を変更していない): page-sample(200)、archive-category(200)、archive-author(200)、search-hello(200)、search-none(200)、notfound(404)、single-hello(200)、既存の home.html。`*.status` に HTTP ステータス。TT25 のテンプレートが使うブロックと新規に要るもの:
+取得済み(匿名・読み取りのみ、基準 WP を変更していない): fixtures/ref/pages/{page-sample, archive-category, archive-author, search-hello, search-none, notfound, single-hello}.html と `*.status`(HTTP ステータス)、既存の home.html。本文のみで **HTTP ヘッダは未取得**(追加実測 M6)。
 
-| 単位 | テンプレート | 新規に必要なもの |
+### 11.1 単位(依存順)
+| 単位 | 内容 | 依存 |
 |---|---|---|
-| T2a | page | **既存ブロックのみ**(group・post-title・post-featured-image・post-content)。`openCurrentPost` を page に対応(`post_type='page'`、comment_status は closed)、`renderMain(theme, ctx, 'page')` の全体比較。コメントなし |
-| T2b | 404 | `hidden-404` パターン: heading・paragraph・columns/column・image・search(フォーム)。ステータス 404 を描画側が持てるか(戻り値に status を含める設計が要る) |
-| T2c | archive(category/author)・search | `query` の `inherit:true`(現在のアーカイブ/検索条件を引き継ぐ)=`queryPosts` に『文脈条件』を渡す設計(category・author・検索語。SQL 側で認可)。query-title、term-description、search、query-no-results、`post-excerpt`/`post-date` の変種 |
-| T2d | home・index | blog 見出し(hidden-blog-heading)、template-query-loop パターン(post-featured-image・post-excerpt・pagination)。`query-pagination` 系と page/N の URL(404 の境界) |
+| T2a | **page**(完了・a35db72): `openCurrentPost(kind)`、`pages/page-sample.html` の `<main>` 一致 | - |
+| R1 | **ルート解決の契約**(HTTP 境界): `resolveRoute(url, db) → { template, status, context } | { error }` を composition root 側の関数として設計(描画層は本文を返すだけ)。404(未知・非公開・保護対象・範囲外ページ)、200、検索 0 件(200)を区別。**未対応データ例外(UnsupportedDataError)を無条件に 404 へ変換しない**(500 相当の『未対応』として区別)。`.status` と本文を実 HTTP 応答で検証 | T2a |
+| T2b | **404**: `hidden-404` パターン〔heading・paragraph・columns/column・image・search フォーム〕。既存の columns/paragraph/heading を再確認し、`core/image`・`core/search` を追加 | R1 |
+| T2c1 | **文脈型と認可付き query**(下記 11.2) | R1 |
+| T2c2 | **archive**(category/author): query-title、term-description、`inherit:true` の query | T2c1 |
+| T2c3 | **search**: `core/search` の結果ページ、query-no-results(0 件)、検索語の扱い(11.3) | T2c1 |
+| T2d1 | **home/index** の合成(blog 見出し、template-query-loop パターン、`post-excerpt`、`post-featured-image`) | T2c1 |
+| T2d2 | **pagination**(`query-pagination` 系、`/page/N/`)と範囲外ページの 404 | T2d1, R1 |
 
-**順序と規律**: T2a → T2b → T2c → T2d。各単位は STEP1〜7(設計・テスト計画のレビューは単位ごとではなく、§11 全体 → T2a の STEP3、のようにまとめて codex に出す。codex は同時 1 本)。実装・テスト作成は Haiku に委任、私は設計・検証・コミット。
-**認可の原則(§9 を継承)**: render は SQL・`post_status` を持たない。`inherit:true` の文脈条件は、composition root が検証済みの値(category の term_id、author の user ID、検索語の文字列)として `QueriesPort.queryPosts(spec, context)` に渡し、可視性判定は SQL 側。保護投稿は ADR-027/§9 と同じくタイトルとリンクだけ。
-**未実測(基準で取得が要る)**: 検索語のハイライトや 0 件時の出力、`page/2` の URL、archive の見出し文言、404 の HTTP ヘッダ(取得済みは本文のみ)。
+### 11.2 継承文脈(`inherit:true`)の型と認可(Blocker 対応)
+- 文脈は**判別可能な閉じた型**: `type QueryContext = { kind: 'home' } | { kind: 'category'; termId: number } | { kind: 'author'; userId: number } | { kind: 'search'; term: string }`。ルート解決層(R1)が URL から作る。`QueriesPort.queryPosts(spec, context)`。**未知の kind・spec と文脈の不一致〔`inherit:false` なのに文脈あり、`inherit:true` なのに文脈なし〕は RangeError**。
+- DB 側でも検証: category は `term_taxonomy.taxonomy='category'` かつ term が存在し公開投稿に使われている(存在しない・空は R1 が 404 にする。DB は『存在しなければ空配列』ではなく **UnsupportedDataError ではなく null 文脈を拒否**)。author は `users` に存在し、**公開投稿を 1 件以上持つ**(WP の author アーカイブは投稿ゼロのユーザーで 404)。
+- 保護投稿・非公開は §9 のまま(SQL で publish のみ、保護はタイトルとリンクだけのポート)。抜粋・日付・本文は保護投稿では出さない。アーカイブの見出し・説明が非公開データの存在を示さない(カテゴリの `count` は公開投稿のみで数える)。
 
-## 12. 段階 E: `<head>` のスタイル生成(設計 v0.1、STEP1)
+### 11.3 検索語(Major 対応)
+- SQL は常にパラメータ化。`LIKE` は `%`・`_`・エスケープ文字を `ESCAPE` 句でエスケープ。空文字・空白のみは 'search' 文脈にせず R1 が home 相当へ(WP の `?s=` 空の挙動は M6 で実測)。長さ上限(例 200 文字)超は RangeError。表示時は題名/見出しの検索語をテキストとしてエスケープ。
+- 検索対象は**公開かつ非保護の投稿の題名・抜粋・本文**に限る。保護投稿に一致があった場合の WP の出力(タイトルを出すか)は未実測 → M6 で実測してから決める(それまで保護投稿は検索結果から**除外**し、結果の有無から内容を推測できないようにする。差は PX に記録)。
 
-基準ページの `<head>` にあるインライン `<style>`(31 個)の分解: `global-styles-inline-css`(約 21.7KB、theme.json → CSS)、`core-block-supports-inline-css`(約 1.3KB、`.wp-container-core-*-is-layout-<hash>` ルール)、`wp-block-library-inline-css`(約 4.3KB)、描画されたブロックごとの `wp-block-<name>-inline-css`(ブロック CSS)、`twentytwentyfive-style-inline-css`、`wp-emoji-styles-inline-css` など。
+### 11.4 追加実測(基準 WP、一時変更は復元)
+M6: 空検索 `?s=`、検索語に `%`/`_`/`"`/長い語、保護投稿を本文で一致させた場合、`/page/2/`・`?paged=2`、author アーカイブ(投稿ゼロのユーザー)、HTTP ヘッダ(Status・Content-Type・Link・X-Robots-Tag など)。
 
-| 単位 | 内容 | 方針 |
+### 11.5 規律
+各単位は STEP1〜7。レビューは単位ごとではなく、§11 の改訂版全体(STEP2)→ R1・T2c1 の STEP3 のようにまとめて codex(同時 1 本)。実装・テスト作成は Haiku、私は設計・検証・コミット。
+
+## 12. 段階 E: `<head>` のスタイル生成(設計 v0.2、STEP1)
+
+基準ページの `<head>` にあるインライン `<style>`(31 個)の分解: `global-styles-inline-css`(約 21.7KB、theme.json → CSS)、`core-block-supports-inline-css`(約 1.3KB、`.wp-container-core-*-is-layout-<hash>` ルール)、`wp-block-library-inline-css`(約 4.3KB)、描画されたブロックごとの `wp-block-<name>-inline-css`、`twentytwentyfive-style-inline-css`、`wp-emoji-styles-inline-css` など。
+
+### 12.1 単位と依存
+| 単位 | 内容 | 依存・受入 |
 |---|---|---|
-| E1 | `core-block-supports-inline-css` | 描画中に使われたコンテナクラスと layout 入力から**同じハッシュ**でルールを生成(既に `layoutHashInput`・`containerClassName` がある)。順序は WP の出現順。基準 1.3KB と一致を検査 |
-| E2 | `wp-block-<name>-inline-css`(ブロック CSS) | WP 本体(GPL)のブロック CSS を**ファイル資産として vendoring**し(出典・版を明記)、描画に使われたブロックの分だけを WP と同じ順序で出力。コピーの範囲はユーザー確認の上で(ライセンス表記を NOTICE に追記) |
-| E3 | `global-styles-inline-css` | theme.json(+ WP 既定)から CSS を生成する `WP_Theme_JSON::get_stylesheet` の移植。最大の単位。preset(色・フォント・スペーシング)の変数、`:root`、要素/ブロック別スタイル、`.has-*` ユーティリティ。段階的に(E3a presets 変数 → E3b styles → E3c ブロック別) |
-| E4 | head の組み立て | 上を `<head>` の正しい位置・順序に並べ、メタ/リンク/importmap/speculationrules を定数+設定から生成。全体ページの正規化 DOM 比較(head と body) |
+| E1 | `core-block-supports-inline-css` | 描画時の使用記録(renderState)。**生成規則は WP のソース `wp-includes/block-supports/layout.php` の `wp_get_layout_style` に従う**(読み取りで取得・解析済み。flex の宣言順は `flex-wrap` → `gap` → `justify-content` → `align-items`、**縦(orientation:vertical)は `flex-direction:column` の後に `align-items`**。post-template の blockGap は `> *` と `> * + *` の 2 ルール)。受入: 基準 `spike-blocks.html` の全ルール〔13 ルール〕と出現順、かつ他ページ fixture(page-sample・archive-category・notfound)でも一致 |
+| E2 | `wp-block-<name>-inline-css` と `wp-block-library-inline-css` | 描画時の使用記録 + 資産。WP と同じロード条件・順序を fixture で検証 |
+| E3a | theme.json の設定マージと preset 変数(`:root{--wp--preset--…}`) | 設定解決。受入: `global-styles-inline-css` の先頭〜preset 部分の一致 |
+| E3b | root/要素の styles(body・a・heading・button 等) | E3a。未対応キーは拒否 |
+| E3c | ブロック別スタイルと `.has-*` ユーティリティ | E3b |
+| E4 | head の組み立て(メタ・リンク・importmap・speculationrules・上記 style の順) | E1〜E3、R1(ページ文脈)。ページごとの CSS と順序を確認してから head 全体の比較へ |
 
-**判断が要る点(ユーザー確認事項)**: E2 の vendoring 範囲(WP のブロック CSS を同梱してよいか。GPL-2.0-or-later 互換のため可と見ているが、同梱の可否はユーザー判断)、E3 を移植にするか theme.json の `settings`/`styles` をテーブル駆動で再実装するか。確認が取れるまで E1 から着手する。
+### 12.2 E1 の登録順(Major 対応)
+基準の順(spike-blocks.html)は、header の内側 navigation(`6e943505`)→その親 group(`fbffc046`)→さらに親(`ec1e7a1e`)… と**描画完了順**。実装は各レンダラが**子の描画後**に `renderState.containerRules`(出現順を保つ Map、キー=クラス名)へ登録し、同一クラスは初出の位置のみ(重複登録は無視)。ハッシュ衝突(同じクラスで宣言が異なる)は RangeError。一般則は複数ページ fixture で検証し、検証できていない組合せ(未対応の layout 種別)は拒否。
+
+### 12.3 E2 の同梱(具体化)
+**広い再確認(ユーザー判断)**: WP 本体(GPL-2.0-or-later)のブロック CSS を資産として同梱してよいか。可なら: 取得元=基準コンテナの `wp-includes/blocks/<name>/style.min.css`(および `wp-includes/css/dist/block-library/style.min.css`)、版=7.1.3、対象=描画されるブロックのみ(段階的に追加)、`NOTICE` に出典・版・ライセンス(GPL-2.0-or-later、本プロジェクトは GPL-3.0-only で互換)・変更の有無を記載、更新方法=基準コンテナからのスクリプト取得(`tools/`)。**同梱前にユーザー確認**(確認が取れるまで E2 は着手しない)。
+
+### 12.4 E3 の方式
+全面移植ではなく**対象限定のテーブル駆動**。まず基準版の生成規則(WP の `WP_Theme_JSON` の該当処理)を調査してから、E3a〜c を上記の入力範囲・順序・未対応値の拒否・基準 CSS との比較で受入。移植する場合の出典・ライセンスは E2 と同様に扱う。
 
 ## 13. STEP8 レビュー(2026-11-01、段階 B〜D)と修正の記録
 GPT-6.1-terra の STEP8 は No-Go(Blocker 1 / Major 3 / Minor 2)。対応: ①保護投稿のポートと DTO を制限(日付は空、terms/author/adjacent/commentsState/hasThumbnail は UnsupportedDataError、メッセージに題名・slug・日時を含めない)=Blocker 解消、②latest-posts の題名: 当初『全エスケープ』にしたが基準 WP は許可タグを要素で出すため、WP の題名 kses 相当の `sanitizeTitleHtml`(許可リスト、`img` なし)に変更〔PX-011〕、③`renderTree` の子の検査を描画開始時のスナップショットに基づかせた〔`pop`/`splice`/代入での迂回を拒否〕、④navigation・site-title の未知属性を拒否〔PX-014〕、⑤同日時の例外メッセージから日時を除去、⑥空の query の拒否は意図的〔PX-004〕。
