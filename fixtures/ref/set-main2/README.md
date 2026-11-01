@@ -5,8 +5,10 @@
 - main.author-real.html: 投稿 ID 5 の post_author を 1(admin)にした場合の post-author-name(`<div class="wp-block-post-author-name"><a href=".../author/admin/" target="_self" class="wp-block-post-author-name__link">admin</a></div>`)。post_author=0 では出力なし(regions/main-01.html)。
 - main.comment-approved-hello-world.html: 承認済みコメント 1 件の投稿の comments 領域(D-4 の入力。D-3 では拒否)。
 
-## 再現入力(テストが DB を組み立てる際の根拠。基準 DB〔dump.sql〕への追加分)
-- mixed-status-protected-adjacent: 投稿 ID 22 `M-prot`(publish、`post_password` 非空、2026-10-27 23:27:00、slug m-prot)、ID 23 `m-draft`(draft、23:26:15)、ID 24 `m-priv`(private、23:26:20)、ID 25 `m-fut`(post_status を future に変更、23:26:25)。すべて post、カテゴリ Uncategorized。現在投稿は ID 5。
-- classes-tiebreak-format-tag: 上の 22〜25 は含めない(別取得)。カテゴリ Zeta(term 2)・Alpha(term 3)を新規作成。ID 26 `tieA1`・27 `tieA2`(publish、同じ 2026-10-27 23:40:00、カテゴリは既定の Uncategorized)、ID 28 `classC1`(2026-10-28 01:00:00、カテゴリ Zeta と Alpha)、ID 29 `classC2`(02:00:00、タグ `t-one`〔slug t-one〕、format aside)。現在投稿は ID 5。
-- author-real: 投稿 ID 5 の `post_author` を 1(admin、nicename admin)に変更。
-- comment-approved-hello-world: dump のまま。現在投稿は ID 1(承認済みコメント 1 件)。
+## 再現入力(取得時の DB 状態。**累積**であり、各 fixture は下記の状態の DB から取得した)
+基準 dump.sql(投稿 ID 1/2/3/5/7、カテゴリ Uncategorized のみ、コメント 1 件〔ID 1〕)に、次を順に追加した。
+- 状態 S1(mixed-status-protected-adjacent の取得時): dump + ID 22 `M-prot`(publish、`post_password` 非空、2026-10-27 23:27:00、slug m-prot)、ID 23 `m-draft`(draft、23:26:15)、ID 24 `m-priv`(private、23:26:20)、ID 25 `m-fut`(post_status を future に変更、23:26:25)。すべて post、カテゴリ Uncategorized。現在投稿は ID 5。(ID 8〜21 は未使用〔自動採番の欠番〕。)
+- 状態 S2(classes-tiebreak-format-tag の取得時): S1 + カテゴリ Zeta(term 2)・Alpha(term 3)を新規作成 + ID 26 `tieA1`・27 `tieA2`(publish、同じ 2026-10-27 23:40:00、既定カテゴリ Uncategorized)、ID 28 `classC1`(2026-10-28 01:00:00、カテゴリ Zeta と Alpha のみ)、ID 29 `classC2`(02:00:00、タグ `t-one`、format aside、カテゴリ Uncategorized)。現在投稿は ID 5。**S1 の保護・draft・private・future 投稿も DB に残っている**(ID 5 の next は保護投稿 `M-prot`)。
+- 状態 S3(author-real の取得時): S2 + 投稿 ID 5 の `post_author` を 1(admin、nicename admin)に変更。現在投稿は ID 5。
+- 状態 S3(comment-approved-hello-world の取得時): 同じ S3 のまま、現在投稿は ID 1(承認済みコメント 1 件)。この HTML には S2 で追加した ID 26〜29 が query と前後ナビに現れる。
+テストはこの累積状態を段階的に組み立てる(S1→S2→S3)。基準 regions/main-01,02 の取得状態は dump のみ(S0)。
