@@ -315,6 +315,13 @@ describe('createDefaultRegistry: 登録ブロックの契約', () => {
 					'core/post-featured-image',
 					'core/post-content',
 					'core/post-navigation-link',
+					'core/comments',
+					'core/comments-title',
+					'core/comment-template',
+					'core/comments-pagination',
+					'core/comments-pagination-previous',
+					'core/comments-pagination-next',
+					'core/post-comments-form',
 			].sort(),
 		);
 	});

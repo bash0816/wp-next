@@ -347,16 +347,8 @@ describe('D3c1-06 queryPosts: 各 item の terms / author が自分の投稿に�
   });
 });
 
-describe('D3c1-07 commentsState は引き続き(adjacent は D-3e で実装) UnsupportedDataError', () => {
-  // Green-now(回帰ガード): stub が UnsupportedDataError を投げるため通る。
-  // 実装で誤って解放されないことを保証する目的。識別力は弱い(正の対照なし)。
-  it.each([
-    ['commentsState', (c: ContentPort) => c.commentsState()],
-  ])('%s は UnsupportedDataError', (_label, call) => {
-    const c = contentOf(openDumpDb(), 5);
-    expect(() => call(c)).toThrow(UnsupportedDataError);
-  });
-});
+// D3c1-07(commentsState は UnsupportedDataError)は D-3f で実装済みのため削除。
+// 代わりに commentsState の仕様テストは ./commentsState.test.ts(D3f-01..07)で扱う。
 
 // D3c1 補強(STEP6): 名前順は大文字小文字を区別しない(MySQL の ci collation に合わせた仮定。実測は 2 件の異名のみ)。
 import { openDumpDb as _open } from './dumpDb.js';

@@ -330,9 +330,9 @@ describe('D3e-14: タイトル・URL のエスケープと fail-closed', () => {
 
 describe('D3e-15: テーマ登録とポスト登録の内容', () => {
 	// D3e-15 (Red予測): 実装前はテーマ登録が 20 件で has が false のため失敗する。
-	it('D3e-15: createThemeRegistry は 21 件で core/post-navigation-link を含み、PostRegistry は含まない', () => {
+	it('D3e-15: createThemeRegistry は 28 件で core/post-navigation-link を含み、PostRegistry は含まない', () => {
 		const theme = createThemeRegistry();
-		expect(theme.size).toBe(21);
+		expect(theme.size).toBe(28);
 		expect(theme.has('core/post-navigation-link')).toBe(true);
 		expect(createPostRegistry().has('core/post-navigation-link')).toBe(false);
 	});

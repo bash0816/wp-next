@@ -101,9 +101,9 @@ describe('D3c2-11: hidden-written-by を S3 で描画すると author-real の w
 	});
 });
 
-describe('D3c2-12: createThemeRegistry の登録キー(D-3e で 21 件に更新)', () => {
+describe('D3c2-12: createThemeRegistry の登録キー(D-3f で 28 件に更新)', () => {
 	// D3c2-12 (Red予測): 現状 16 件のため、新規 3 キーが無く集合が一致しない。
-	it('D3c2-12: keys() が 20 既存 + core/post-navigation-link の 21 キーと集合として一致する', () => {
+	it('D3c2-12: keys() が 21 既存 + コメント系 7 の 28 キーと集合として一致する', () => {
 		const expected = [
 			'core/group',
 			'core/site-title',
@@ -126,9 +126,16 @@ describe('D3c2-12: createThemeRegistry の登録キー(D-3e で 21 件に更新)
 			'core/post-featured-image',
 			'core/post-content',
 			'core/post-navigation-link',
+			'core/comments',
+			'core/comments-title',
+			'core/comment-template',
+			'core/comments-pagination',
+			'core/comments-pagination-previous',
+			'core/comments-pagination-next',
+			'core/post-comments-form',
 		].sort();
 		const actual = [...createThemeRegistry().keys()].sort();
-		expect(actual).toHaveLength(21);
+		expect(actual).toHaveLength(28);
 		expect(actual).toEqual(expected);
 	});
 });

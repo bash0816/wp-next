@@ -271,20 +271,7 @@ describe('queryPosts (D3b1-11〜17)', () => {
     expect(json).not.toContain('SECRET-BODY-S1');
   });
 
-  it.each([
-    ['commentsState', (c: ContentPort) => c.commentsState()],
-  ])('D3b1-17: content.%s は UnsupportedDataError(保護・非保護の両方)', (_label, call) => {
-    // 検出対象: 未対応の文脈メソッドは黙って既定値を返さず UnsupportedDataError を投げること。
-    //   窓 [7,22] の非保護(7)と保護(22)の両方で確認する。
-    // Red 理由: queryPosts.ts / postData.ts 未実装のため収集失敗する。
-    const db = openDumpDb();
-    applyS1(db);
-    const items = queryPosts(db, spec({ perPage: 2 }));
-    expect(idsOf(items)).toEqual([7, 22]);
-    for (const it of items) {
-      expect(() => call(it.content)).toThrow(UnsupportedDataError);
-    }
-  });
+  // D3b1-17: 未実装ポートの契約テストは、全メソッドが実装されたため不要になった(削除)。検証は commentsState.test.ts 等にある。
 });
 
 // D3b1 補強(STEP6): 保護クラス・名前順・sticky 判定・URL エンコード。

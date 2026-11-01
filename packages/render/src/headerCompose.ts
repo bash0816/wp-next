@@ -19,6 +19,15 @@ import { postTemplateRenderer, queryRenderer } from './queryBlock.js';
 import { postAuthorNameRenderer, postFeaturedImageRenderer, postTermsRenderer } from './termsAuthor.js';
 import { postContentRenderer } from './postContent.js';
 import { expandPatterns, resolveTemplatePart, type ThemeFiles } from './templateResolve.js';
+import {
+  commentsRenderer,
+  commentsTitleRenderer,
+  commentTemplateRenderer,
+  commentsPaginationRenderer,
+  commentsPaginationPreviousRenderer,
+  commentsPaginationNextRenderer,
+  postCommentsFormRenderer,
+} from './comments.js';
 
 export function createThemeRegistry(): ThemeRegistry {
   return new ThemeRegistry([
@@ -43,6 +52,13 @@ export function createThemeRegistry(): ThemeRegistry {
     ['core/post-featured-image', postFeaturedImageRenderer],
     ['core/post-content', postContentRenderer],
     ['core/post-navigation-link', postNavigationLinkRenderer],
+    ['core/comments', commentsRenderer],
+    ['core/comments-title', commentsTitleRenderer],
+    ['core/comment-template', commentTemplateRenderer],
+    ['core/comments-pagination', commentsPaginationRenderer],
+    ['core/comments-pagination-previous', commentsPaginationPreviousRenderer],
+    ['core/comments-pagination-next', commentsPaginationNextRenderer],
+    ['core/post-comments-form', postCommentsFormRenderer],
   ]);
 }
 

@@ -208,8 +208,33 @@ export function assertNoStickyOrThumbnail(db: DatabaseSync, postId: number): voi
   }
 }
 
-function unsupported(what: string): never {
-  throw new UnsupportedDataError(`${what} は未対応です`);
+// コメント状態の判定。件数・コメント内容は返さず、'anon-open-empty' | 'unsupported' のみ返す。
+const ANON_OPEN_EMPTY_OPTIONS: ReadonlyArray<[string, string]> = [
+  ['comment_registration', '0'],
+  ['require_name_email', '1'],
+  ['show_comments_cookies_opt_in', '1'],
+  ['close_comments_for_old_posts', '0'],
+  ['thread_comments', '1'],
+];
+
+export type CommentsState = 'anon-open-empty' | 'unsupported';
+
+function commentsStateOf(db: Pick<DatabaseSync, 'prepare'>, postId: number): CommentsState {
+  const post = db
+    .prepare('SELECT comment_status AS s FROM posts WHERE ID = ?')
+    .get(postId) as { s: string | null } | undefined;
+  if (!post || post.s !== 'open') return 'unsupported';
+
+  for (const [name, expected] of ANON_OPEN_EMPTY_OPTIONS) {
+    if (readOption(db, name) !== expected) return 'unsupported';
+  }
+
+  const approved = db
+    .prepare("SELECT COUNT(*) AS n FROM comments WHERE comment_post_ID = ? AND comment_approved = '1'")
+    .get(postId) as { n: number } | undefined;
+  if (!approved || Number(approved.n) !== 0) return 'unsupported';
+
+  return 'anon-open-empty';
 }
 
 interface ContentTermRow {
@@ -302,7 +327,7 @@ function adjacentOf(
 
 /**
  * 投稿 row に束縛された ContentPort。terms / author / hasThumbnail / adjacent を対応し、
- * commentsState は未対応として UnsupportedDataError を投げる。
+ * commentsState は 'anon-open-empty' | 'unsupported' を返す(例外にしない)。
  */
 export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRowForCtx): ContentPort {
   return {
@@ -314,7 +339,7 @@ export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRow
       return contentTermsOf(db, row.id, taxonomy);
     },
     adjacent: (dir) => adjacentOf(db, row, dir),
-    commentsState: () => unsupported('commentsState()'),
+    commentsState: () => commentsStateOf(db, row.id),
     hasThumbnail: () => {
       const thumb = db
         .prepare("SELECT 1 AS x FROM postmeta WHERE post_id = ? AND meta_key = '_thumbnail_id'")

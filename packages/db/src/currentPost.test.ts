@@ -304,20 +304,8 @@ describe('D3b1-08 openCurrentPost: 未対応データは UnsupportedDataError', 
   });
 });
 
-// ---------------------------------------------------------------------------
-// D3b1-09: content の未対応メソッドは UnsupportedDataError を投げる
-// (D-3c1 で terms / author / hasThumbnail は実装済みのため除外。残りは後続ユニットまで未対応)
-// ---------------------------------------------------------------------------
-describe('D3b1-09 content の未対応メソッドは UnsupportedDataError', () => {
-  const methods = ['commentsState'] as const;
-
-  it.each(methods)('content.%s() は UnsupportedDataError を投げる', (name) => {
-    const r = mustOpen(openDumpDb(), { id: 5 });
-    const fn = (r.content as unknown as Record<string, () => unknown>)[name];
-    expect(fn).toBeTypeOf('function');
-    expect(() => fn!()).toThrow(UnsupportedDataError);
-  });
-});
+// D3b1-09: content の未実装メソッドの契約テストは、全メソッドが D-3c1/D-3e/D-3f で実装されたため不要になった(削除)。
+// 各ポートの検証は contentPorts.test.ts / adjacent.test.ts / commentsState.test.ts にある。
 
 // ---------------------------------------------------------------------------
 // D3b1-10: 基準と違う date 系 options では null ではなく UnsupportedDataError

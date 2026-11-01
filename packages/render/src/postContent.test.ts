@@ -320,9 +320,9 @@ describe('D3d-05: 出力は DB の本文に依存する(本文を差し替える
 
 describe('D3d-06: 登録(theme 側には入り、post 側には入らない)', () => {
 	// D3d-06 (Red予測): core/post-content が未登録のため、theme キー数 20 と包含の 2 件が失敗する。
-	it('D3d-06: createThemeRegistry は 21 キーで core/post-content を含む', () => {
+	it('D3d-06: createThemeRegistry は 28 キーで core/post-content を含む', () => {
 		const keys = [...createThemeRegistry().keys()];
-		expect(keys).toHaveLength(21);
+		expect(keys).toHaveLength(28);
 		expect(keys).toContain('core/post-content');
 	});
 
