@@ -265,8 +265,44 @@ function authorOf(
 }
 
 /**
- * 投稿 row に束縛された ContentPort。terms / author / hasThumbnail を対応し、
- * adjacent / commentsState は未対応として UnsupportedDataError を投げる。
+ * (post_date_gmt, ID) の辞書順で直前(previous)/ 直後(next)の公開 post を返す。
+ * 候補は post_type='post' かつ post_status='publish'(保護投稿を含む)。該当なしは null。
+ * 同じ post_date_gmt を持つ別の公開投稿が基準にあると、方向によらず UnsupportedDataError。
+ */
+function adjacentOf(
+  db: Pick<DatabaseSync, 'prepare'>,
+  row: PostRowForCtx,
+  dir: 'previous' | 'next',
+): { title: string; url: string } | null {
+  if (dir !== 'previous' && dir !== 'next') {
+    throw new RangeError('dir は "previous" か "next" で指定してください');
+  }
+  const tie = db
+    .prepare(
+      "SELECT 1 AS x FROM posts WHERE post_type = 'post' AND post_status = 'publish' AND post_date_gmt = ? AND ID <> ? LIMIT 1",
+    )
+    .get(row.post_date_gmt, row.id);
+  if (tie) {
+    throw new UnsupportedDataError(`post_date_gmt が同一の別の公開投稿があります(未対応): ${row.post_date_gmt}`);
+  }
+  const cmp = dir === 'previous' ? '<' : '>';
+  const order = dir === 'previous' ? 'DESC' : 'ASC';
+  const found = db
+    .prepare(
+      `SELECT post_title AS title, post_name AS name FROM posts
+        WHERE post_type = 'post' AND post_status = 'publish'
+          AND ((post_date_gmt ${cmp} ?) OR (post_date_gmt = ? AND ID ${cmp} ?))
+        ORDER BY post_date_gmt ${order}, ID ${order}
+        LIMIT 1`,
+    )
+    .get(row.post_date_gmt, row.post_date_gmt, row.id) as { title: string; name: string } | undefined;
+  if (!found) return null;
+  return { title: found.title, url: `${readHome(db)}/${encodeURIComponent(found.name)}/` };
+}
+
+/**
+ * 投稿 row に束縛された ContentPort。terms / author / hasThumbnail / adjacent を対応し、
+ * commentsState は未対応として UnsupportedDataError を投げる。
  */
 export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRowForCtx): ContentPort {
   return {
@@ -277,7 +313,7 @@ export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRow
       }
       return contentTermsOf(db, row.id, taxonomy);
     },
-    adjacent: () => unsupported('adjacent()'),
+    adjacent: (dir) => adjacentOf(db, row, dir),
     commentsState: () => unsupported('commentsState()'),
     hasThumbnail: () => {
       const thumb = db

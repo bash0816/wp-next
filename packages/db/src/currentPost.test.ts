@@ -309,7 +309,7 @@ describe('D3b1-08 openCurrentPost: 未対応データは UnsupportedDataError', 
 // (D-3c1 で terms / author / hasThumbnail は実装済みのため除外。残りは後続ユニットまで未対応)
 // ---------------------------------------------------------------------------
 describe('D3b1-09 content の未対応メソッドは UnsupportedDataError', () => {
-  const methods = ['adjacent', 'commentsState'] as const;
+  const methods = ['commentsState'] as const;
 
   it.each(methods)('content.%s() は UnsupportedDataError を投げる', (name) => {
     const r = mustOpen(openDumpDb(), { id: 5 });

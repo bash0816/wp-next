@@ -14,6 +14,7 @@ import { columnRenderer, columnsRenderer } from './columnsBlock.js';
 import { paragraphRenderer } from './paragraphBlock.js';
 import { headingRenderer } from './headingBlock.js';
 import { postDateRenderer, postTitleRenderer } from './postTitleDate.js';
+import { postNavigationLinkRenderer } from './postNavigation.js';
 import { postTemplateRenderer, queryRenderer } from './queryBlock.js';
 import { postAuthorNameRenderer, postFeaturedImageRenderer, postTermsRenderer } from './termsAuthor.js';
 import { postContentRenderer } from './postContent.js';
@@ -41,6 +42,7 @@ export function createThemeRegistry(): ThemeRegistry {
     ['core/post-author-name', postAuthorNameRenderer],
     ['core/post-featured-image', postFeaturedImageRenderer],
     ['core/post-content', postContentRenderer],
+    ['core/post-navigation-link', postNavigationLinkRenderer],
   ]);
 }
 

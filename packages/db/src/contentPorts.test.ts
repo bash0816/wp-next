@@ -347,11 +347,10 @@ describe('D3c1-06 queryPosts: 各 item の terms / author が自分の投稿に�
   });
 });
 
-describe('D3c1-07 adjacent / commentsState は引き続き UnsupportedDataError', () => {
+describe('D3c1-07 commentsState は引き続き(adjacent は D-3e で実装) UnsupportedDataError', () => {
   // Green-now(回帰ガード): stub が UnsupportedDataError を投げるため通る。
   // 実装で誤って解放されないことを保証する目的。識別力は弱い(正の対照なし)。
   it.each([
-    ['adjacent', (c: ContentPort) => c.adjacent('next')],
     ['commentsState', (c: ContentPort) => c.commentsState()],
   ])('%s は UnsupportedDataError', (_label, call) => {
     const c = contentOf(openDumpDb(), 5);

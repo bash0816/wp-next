@@ -3,6 +3,7 @@ export * from './renderBlocks.js';
 export * from './sanitizeHtml.js';
 export { renderContent, renderPostBody } from './renderContent.js';
 export { postContentRenderer } from './postContent.js';
+export { postNavigationLinkRenderer } from './postNavigation.js';
 export { createThemeRegistry, renderHeader } from './headerCompose.js';
 export {
   ThemeRegistry,

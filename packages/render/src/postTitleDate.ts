@@ -17,10 +17,10 @@ const DATE_KEYS = ['isLink', 'textAlign'] as const;
 const rangeError = (blockName: string, msg: string): RangeError =>
   new RangeError(`${blockName}: ${msg}`);
 
-const escapeText = (s: string): string =>
+export const escapeText = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-const escapeAttr = (s: string): string => escapeText(s).replace(/"/g, '&quot;');
+export const escapeAttr = (s: string): string => escapeText(s).replace(/"/g, '&quot;');
 
 const assertKeys = (blockName: string, attrs: Obj, allowed: readonly string[]): void => {
   for (const key of Object.keys(attrs)) {
@@ -44,7 +44,7 @@ const requirePost = (blockName: string, ctx: RenderCtx): PostCtx => {
 };
 
 // URL は絶対 http(s) のみ許可する。出力は生の文字列を属性用に escape する。
-const safeHref = (blockName: string, url: string): string => {
+export const safeHref = (blockName: string, url: string): string => {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -67,15 +67,15 @@ const UNSUPPORTED_TITLE_PATTERNS: readonly RegExp[] = [
 ];
 
 // 偶数個の " を “ ” に置換する。奇数個は対応の取れない引用符として拒否する。
-const typographyTitle = (title: string): string => {
+export const typographyTitle = (title: string, blockName: string): string => {
   for (const re of UNSUPPORTED_TITLE_PATTERNS) {
     if (re.test(title)) {
-      throw rangeError(TITLE_BLOCK, 'タイトルに未対応の文字列が含まれています');
+      throw rangeError(blockName, 'タイトルに未対応の文字列が含まれています');
     }
   }
   const quoteCount = (title.match(/"/g) ?? []).length;
   if (quoteCount % 2 !== 0) {
-    throw rangeError(TITLE_BLOCK, 'タイトルの引用符が対応していません');
+    throw rangeError(blockName, 'タイトルの引用符が対応していません');
   }
   return title.replace(/"([^"]*)"/g, '“$1”');
 };
@@ -125,7 +125,7 @@ export const postTitleRenderer: BlockRenderer = {
     assertNoChildren(TITLE_BLOCK, block);
     const post = requirePost(TITLE_BLOCK, ctx);
 
-    const titleText = typographyTitle(post.title);
+    const titleText = typographyTitle(post.title, TITLE_BLOCK);
     const displayTitle = post.protected ? `Protected: ${titleText}` : titleText;
     const text = escapeText(displayTitle);
     const inner = isLink
