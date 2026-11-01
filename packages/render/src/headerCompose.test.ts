@@ -286,11 +286,11 @@ describe('拒否ケース', () => {
 });
 
 describe('createDefaultRegistry: 登録ブロックの契約', () => {
-	it('D2e-07: core/group, core/site-title, core/navigation, core/page-list, core/navigation-link, core/site-logo, core/site-tagline, core/spacer, core/columns, core/column, core/paragraph の 11 種を登録する', () => {
+	it('D2e-07: core/group, core/site-title, core/navigation, core/page-list, core/navigation-link, core/site-logo, core/site-tagline, core/spacer, core/columns, core/column, core/paragraph, core/heading, core/post-title, core/post-date, core/query, core/post-template の 16 種を登録する', () => {
 		// 検出: header 合成 5 種に加え、footer 合成に必要な 6 種 (site-logo / site-tagline / spacer /
 		//       columns / column / paragraph) が既定レジストリに揃っているか。
 		// Red理由: 現行の createDefaultRegistry は 5 キーのみを登録しており、追加 6 種が無いため
-		//          sorted keys の比較が不一致になる (期待 11 件 vs 実 5 件)。
+		//          sorted keys の比較が不一致になる (期待 16 件 vs 実 11 件)。
 		const registry = createThemeRegistry();
 		expect([...registry.keys()].sort()).toEqual(
 			[
@@ -305,6 +305,11 @@ describe('createDefaultRegistry: 登録ブロックの契約', () => {
 				'core/columns',
 				'core/column',
 				'core/paragraph',
+					'core/heading',
+					'core/post-title',
+					'core/post-date',
+					'core/query',
+					'core/post-template',
 			].sort(),
 		);
 	});

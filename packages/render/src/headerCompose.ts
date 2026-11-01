@@ -12,6 +12,9 @@ import { siteTaglineRenderer } from './siteTaglineBlock.js';
 import { spacerRenderer } from './spacerBlock.js';
 import { columnRenderer, columnsRenderer } from './columnsBlock.js';
 import { paragraphRenderer } from './paragraphBlock.js';
+import { headingRenderer } from './headingBlock.js';
+import { postDateRenderer, postTitleRenderer } from './postTitleDate.js';
+import { postTemplateRenderer, queryRenderer } from './queryBlock.js';
 import { expandPatterns, resolveTemplatePart, type ThemeFiles } from './templateResolve.js';
 
 export function createThemeRegistry(): ThemeRegistry {
@@ -27,6 +30,11 @@ export function createThemeRegistry(): ThemeRegistry {
     ['core/columns', columnsRenderer],
     ['core/column', columnRenderer],
     ['core/paragraph', paragraphRenderer],
+    ['core/heading', headingRenderer],
+    ['core/post-title', postTitleRenderer],
+    ['core/post-date', postDateRenderer],
+    ['core/query', queryRenderer],
+    ['core/post-template', postTemplateRenderer],
   ]);
 }
 

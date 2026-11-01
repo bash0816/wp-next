@@ -27,3 +27,6 @@ export type QueriesPort = {
   queryPosts(spec: unknown): QueryItem[];
   latestPosts(spec: unknown): unknown[];
 };
+
+// D-3b2: core/query が post-template へ渡す文脈。items は queryPosts の結果そのもの。
+export type QueryCtx = { items: QueryItem[] };

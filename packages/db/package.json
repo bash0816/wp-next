@@ -7,5 +7,10 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@wpn/core": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.ts",
+    "./src/*": "./src/*"
   }
 }

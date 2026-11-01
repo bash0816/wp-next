@@ -24,7 +24,7 @@ type PostCtx = {
   dateText: string;
 };
 type ContentPort = object;
-type Override = { post?: PostCtx; content?: ContentPort };
+type Override = { post?: PostCtx; content?: ContentPort; query?: { items: unknown[] } };
 type Ctx = RenderCtx & { post?: PostCtx; content?: ContentPort };
 type ChildrenFn = (blocks: ParsedBlock[], override?: Override) => string;
 
@@ -310,5 +310,42 @@ describe('D3a1-09 補強: childrenOptional の厳密性', () => {
     const err = captureError(() => renderTree([blk('none', { inner })], makeCtx(), reg({ none, leaf })));
     expect(err).toBeInstanceOf(RangeError);
     expect(String((err as Error).message)).toContain('innerBlocks');
+  });
+});
+
+// D3b2-C1: renderChildren の override 許可キーに query を加える(post / content に加えて)。
+// 許可外のキー(site / renderState / global / navigation)は引き続き RangeError。
+describe('D3b2-C1 renderChildren override の query 許可', () => {
+  it('D3b2-C1 override { query } は成功し、子の ctx.query がその値そのものになる', () => {
+    const override = { query: { items: [] } } as unknown as Override;
+    let seen: unknown = 'unset';
+    const probe = mk((_block, ctx) => {
+      seen = (ctx as { query?: unknown }).query;
+      return '<probe>';
+    });
+    // Red理由: 現行 assertOverrideKeys は query を許可しないため RangeError になり、この expect が失敗する。
+    const kids = [blk('probe', {})];
+    const wrapQ = mk((_block, _ctx, rc) => rc(kids, override));
+    const out = renderTree([blk('wrapq', { inner: kids })], makeCtx(), reg({ wrapq: wrapQ, probe }));
+    expect(out).toBe('<probe>');
+    expect(seen).toBe(override.query);
+  });
+
+  it.each([
+    ['site', { site: { name: 'x', url: 'y' } }],
+    ['renderState', { renderState: { modalCounter: 0 } }],
+    ['global', { global: {} }],
+    ['navigation', { navigation: { post: null, pages: [] } }],
+  ])('D3b2-C1 override に %s を含むと RangeError のまま', (_key, extra) => {
+    // Red理由: 現行は許可外キーで RangeError を投げるため本テストは通る(回帰ガード)。
+    // 変更後も許可外キーが弾かれることを保証する。
+    const override = extra as unknown as Override;
+    const kids = [blk('probe', {})];
+    const probe = mk(() => '<probe>');
+    const wrapX = mk((_block, _ctx, rc) => rc(kids, override));
+    const err = captureError(() =>
+      renderTree([blk('wrapx', { inner: kids })], makeCtx(), reg({ wrapx: wrapX, probe })),
+    );
+    expect(err).toBeInstanceOf(RangeError);
   });
 });

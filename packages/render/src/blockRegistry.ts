@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { type GlobalConfig } from './layoutInput.js';
 import { type ParsedBlock, UnsupportedBlockError } from './renderBlocks.js';
-import { type ContentPort, type PostCtx, type QueriesPort } from './ports.js';
+import { type ContentPort, type PostCtx, type QueriesPort, type QueryCtx } from './ports.js';
 
 // site / page は D-1c の core/site-title 用。既存の呼び出しを壊さないため optional。
 // site / page を必要とするレンダラは、無いときに fail-closed で RangeError を投げる。
@@ -22,10 +22,12 @@ export type RenderCtx = {
   post?: PostCtx;
   content?: ContentPort;
   queries?: QueriesPort;
+  // D-3b2: core/post-template 用。core/query が renderChildren の override で渡す。
+  query?: QueryCtx;
 };
 
-// renderChildren で子の文脈を一時的に差し替える。許可されるキーは post と content のみ。
-export type ChildOverride = { post?: PostCtx; content?: ContentPort };
+// renderChildren で子の文脈を一時的に差し替える。許可されるキーは post / content / query のみ。
+export type ChildOverride = { post?: PostCtx; content?: ContentPort; query?: QueryCtx };
 
 export type BlockRenderer = {
   validateAttrs: (attrs: Record<string, unknown>) => void;
@@ -136,7 +138,7 @@ export function createPostRegistry(): PostRegistry {
 
 function assertOverrideKeys(override: ChildOverride): void {
   for (const key of Object.keys(override)) {
-    if (key !== 'post' && key !== 'content') {
+    if (key !== 'post' && key !== 'content' && key !== 'query') {
       throw new RangeError(`renderChildren override key not allowed: ${key}`);
     }
   }

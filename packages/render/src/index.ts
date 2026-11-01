@@ -15,4 +15,5 @@ export {
   type RegistryLike,
   type RenderCtx,
 } from './blockRegistry.js';
-export type { ContentPort, PostCtx, QueriesPort, QueryItem } from './ports.js';
+export type { ContentPort, PostCtx, QueriesPort, QueryCtx, QueryItem } from './ports.js';
+export { postTemplateRenderer, queryRenderer } from './queryBlock.js';

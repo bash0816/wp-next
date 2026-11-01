@@ -82,3 +82,10 @@
 - 設計 v5(stage-d-plan.md §9)は GPT-6.1-terra の STEP2 で 5 回目に Go、テスト計画(§10・§10.9)は STEP3 で 5 回目に Go。基準 WP で M1〜M5 を実測してから設計を確定(DB は丸ごとバックアップから復元・検証済み。fixtures/ref/set-main2)。
 - 主な決定: ポートは現在投稿/項目に束縛(直接 ID 禁止、`QueryItem` ごとのポート)、保護投稿は query・前後ナビに出る(実測。ADR-027 の延長で『一覧のタイトル露出のみ』、本文・日付・パスワードは出さない)、レジストリはブランド型でテーマ/投稿を分離、`renderChildren` に文脈上書きと子の同一性検査、`renderContent` はポート化(入力の与え方のみ移行)、コメントは『匿名・open・承認済み0件』のみ(D-4 で一覧)、未実測は fail-closed(UnsupportedDataError)。
 - 実装単位: D-3z1/z2/z3(group 属性・template-part・属性内 esc_attr_e)→ D-3a → D-3b → D-3c → D-3d0 → D-3d → D-3e → D-3f → D-3g。
+
+## ADR-044: D-3a〜D-3b の実装での設計変更点(2026-11-01)
+- `renderChildren` の override 許可キーに `query` を追加(設計 v5 §9.5-7 の追補)。`query` ブロックが SQL 認可済みの結果を `post-template` へ渡す唯一の経路で、`site`/`renderState`/`global`/`navigation` などは従来どおり拒否する。
+- port 型(`PostCtx`/`ContentPort`/`QueryItem`/`QueriesPort`/`QueryCtx`)は `@wpn/core/ports` に置き、render と db の双方が参照する(db → render の依存を作らない)。
+- テーマ由来 heading、post-title、post-date を登録表に追加。post-title は基準の保存形式(直引用符)に合わせて `"x"` の対を曲げ、未実測の wptexturize 分岐は拒否する。**wptexturize の全面対応は未実装(parity exception)**。
+- 実測 M1〜M5 に基づく db 側の規則: 保護投稿は query・前後ナビに含まれる(本文・日付なし、`post-password-required`)、draft/private/future は匿名では出ない、同日時は ID 降順、カテゴリは名前順。`sticky_posts` の判定は値のみを見る。
+- 実装中に見つかり修正した不備: 保護クラスの欠落、カテゴリ順(slug 順→名前順)、sticky の添字/値の取り違え、URL の `encodeURIComponent` 欠落、`@wpn/db` の `exports` が deep import を塞いだ件(`./src/*` を許可)。
