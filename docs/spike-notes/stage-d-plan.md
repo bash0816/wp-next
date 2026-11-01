@@ -197,52 +197,48 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 **F. 手書き期待値の出典**
 - 手書き期待値のコメントに『WP 7.1.3 wp-includes/blocks/<file>.php:<関数> の規則』と test_id(`D2x-NN`)を付す。期待値生成に被検査側の helper を使わない。
 
-## 9. D-3 main 領域(設計 v2、2026-11-01、STEP1。STEP2 v1 No-Go〔Blocker2/Major5/Minor2〕を反映)
+## 9. D-3 main 領域(設計 v3、2026-11-01、STEP1。STEP2 は v1・v2 とも No-Go。v3 は実測 M1〜M5 と v2 指摘を反映)
 
-対象: 基準 WP の single(`/spike-blocks/`、投稿 ID 5)の `<main>`。入力は `templates/single.html` + patterns(hidden-written-by / post-navigation / comments / more-posts)。比較対象は `regions/main-01.html`・`main-02.html` と、全体ページ `spike-blocks.html` の `<main id="wp--skip-link--target" …>`。
+対象: 基準 WP の single(`/spike-blocks/`、投稿 ID 5)の `<main>`。入力は `templates/single.html` + patterns(hidden-written-by / post-navigation / comments / more-posts)。比較対象は `regions/main-01.html`・`main-02.html`、全体ページ `spike-blocks.html` の `<main id="wp--skip-link--target" …>`、追加基準 `fixtures/ref/set-main2/`(README に取得条件)。
 
-### 9.0 実測済みの事実(dump.sql / fixtures)
-- 投稿 ID 5 は `post_author = 0`(ユーザー無し)。→ post-author-name が空出力なのは『著者が解決できない』ため。`post_author` が実在ユーザーの場合の出力は**未実測**(拒否)。
-- options: timezone_string=''、gmt_offset=0、date_format='F j, Y'、comment_registration=0、require_name_email=1、show_comments_cookies_opt_in=1、thread_comments=1、page_comments=0。コメントは承認済み 1 件のみ(投稿 ID 5 には 0 件)。
-- 投稿は ID 1/5/7 が publish・post・保護なし。page(2 publish、3 draft)。公開・保護・draft・private・future が混在する query/前後投稿の挙動は**未実測**(§9.4 M1〜M3)。
+### 9.0 実測した事実(STEP2 前に基準 WP で実施済み。DB は丸ごとバックアップから復元・検証済み)
+- M1/M2(匿名): **保護投稿(publish+password)は query にも前後ナビにも出る**。query ではタイトルが `Protected: <題>`、li のクラスに `post-password-required`。前後ナビでは接頭辞なしのタイトル(`M-prot`)とリンク。draft・private・future(状態)は匿名では出ない。同日時の query は **ID 降順**。ADR-027(latest-posts)と同じく『一覧にタイトルだけ露出』の例外に当たる。
+- M3(post クラス): `post-<ID> post type-post status-publish format-<f> [post-password-required] hentry category-<slug>… tag-<slug>… [post_format-post-format-<f>]`。複数カテゴリはスラッグではなく**名前順**と見られる(Zeta=term2,Alpha=term3 → `category-alpha category-zeta`)。カテゴリを明示すると `category-uncategorized` は付かない。format-aside で `format-aside` と `post_format-post-format-aside`。
+- M4: `post_author` が実在ユーザー(admin)なら `<div class="wp-block-post-author-name"><a href="<site>/author/<nicename>/" target="_self" class="wp-block-post-author-name__link">admin</a></div>`、`post_author=0` なら出力なし。
+- M5: 承認済みコメント 1 件の投稿では comments-title(`One response to “題”`)、`<ol class="wp-block-comment-template">`(avatar・日付・著者・本文・Reply)が出る。D-3 では拒否、D-4 の入力。
+- dump の options: timezone_string=''、gmt_offset=0、date_format='F j, Y'、comment_registration=0、require_name_email=1、show_comments_cookies_opt_in=1、thread_comments=1、page_comments=0。投稿 ID 5 の承認済みコメントは 0 件。
 
 ### 9.1 設計決定
-1. **ポートは『現在の投稿に束縛された関数』にする**(Blocker-1)。render は postId を渡さない。型は `packages/render/src/ports.ts`(純粋な型。`node:sqlite` を import しない。同期は SQLite スパイク限定で、将来の非同期化は別設計=ADR に記録)。
-   - `ctx.post?: PostCtx` と `ctx.content?: ContentPort` は、composition root(後に作る)が `packages/db` の `openCurrentPost(slug|id)` で作る。`openCurrentPost` は**匿名で閲覧可能・非保護・存在する投稿のみ** PostCtx を返し、それ以外は null(呼び出し側が 404/パスワード画面へ)。保護投稿のパスワード画面は D-3 範囲外(ADR-027)。
-   - ContentPort は現在投稿に束縛: `contentOf()`(本文)、`terms('category'|'post_tag')`、`adjacent('previous'|'next')`、`commentsState()`、`hasThumbnail()`、`authorName()`。さらに現在投稿に依存しない `queryPosts(spec)`(query 用)と `latestPosts(spec)`(latest-posts 用)。**直接 ID を渡す API を作らない**。db 側テストに『存在しない ID・draft・private・future・保護の ID から ContentPort を作ろうとしても何も返らない』負例を置く。
-   - `commentsState()` は件数を返さず、列挙値 `'anon-open-empty' | 'unsupported'` のみ(非公開コメントの存在を DTO/エラーに出さない)。
-   - ポート未提供=情報未取得=RangeError。
-2. **query の spec は閉じた型**: postType:'post'、perPage 1〜100、pages:0(基準の `pages":0`)、offset:0、order:'desc'、orderBy:'date'、author:''、search:''、exclude:[]、sticky:''、inherit:false、taxQuery:null、parents:[]。他は RangeError。並びは post_date_gmt 降順→ID 降順を仮定(**同日時の挙動は M2 で実測するまで未確認**)。
-3. **post クラス**(`post-7 post type-post status-publish format-standard hentry category-uncategorized`)は db 側で算出し DTO の `className` で返す。対応は『format=standard、カテゴリ 1 件(スラッグ `^[a-z0-9-]+$`)、タグ 0 件』のみ。複数カテゴリ・タグあり・他 format は db が `UnsupportedDataError`。render は `className` を**属性値として再検証**(`^[A-Za-z0-9_ -]+$`)しエスケープして出す。
-4. **日付**: db が options を読み、`timezone_string=''`・`gmt_offset=0`・`date_format='F j, Y'` のときだけ `dateIso`(`+00:00` 付き)と `dateText` を返す。それ以外は `UnsupportedDataError`(未取得も拒否)。
-5. **コメント**(Major): 0 件判定は**承認済み件数のみ**(未承認は匿名には出ないが件数も返さない)。`commentsState()` が `'anon-open-empty'` になる条件: 投稿 comment_status='open' かつ comment_registration=0 かつ require_name_email=1 かつ show_comments_cookies_opt_in=1 かつ承認済み 0 件。設定が取れない/他の値は `'unsupported'`→RangeError。コメント者 Cookie が有る(既存コメント者)リクエストは composition root が拒否(D-4)。フォーム定数(maxlength 65525/245/100/200、`Post Comment`、`Leave a Reply`)は基準の固定値。`comment_post_ID` は PostCtx.id。action は `site.url + '/wp-comments-post.php'`(site.url は http/https 検証)。
-6. **未実測は拒否**: `authorName()` は post_author が解決できず空のときだけ空出力、実在ユーザーなら RangeError。`hasThumbnail()` が false なら featured-image は空出力、true なら RangeError。post-terms の tag は 0 件=空、1 件以上は RangeError。ページ(type=page)の single は範囲外。
-7. **保護投稿・非公開の扱い(Major)**: 現在投稿は 1 のとおり保護なしのみ。`queryPosts`/`adjacent`/`latestPosts` は**SQL で publish かつ非保護かつ非 future のみ**を候補にし、WP の実挙動(保護投稿をタイトル付きで出す等、ADR-027 の latest-posts 例外相当)との差は **M1〜M3 の実測結果で ADR に記録**する。実測前は『保護投稿が候補に含まれる DB』では `queryPosts`/`adjacent` が `UnsupportedDataError`(黙って除外して WP とずらさない。サイト全体の DoS にならないよう、D-3 は spike 範囲の partial とし ADR に明記)。
-8. **信頼境界(Major)**: レジストリを**2つに分け、出自を型で固定**する。`createThemeRegistry()`(テンプレート/パターン由来。D-2 の 11 キー + D-3 追加)と `createPostRegistry()`(投稿本文由来。heading・paragraph・list・list-item・quote・separator・latest-posts のみ、全て sanitize 経由)。`post-content` は `renderTree(parse(contentOf()), ctx, postRegistry)` だけを使い、themeRegistry は使わない(投稿本文に `<!-- wp:query -->`・`<!-- wp:post-content -->`・`<!-- wp:comments -->` 等を混入しても UnsupportedBlockError)。テーマ側の paragraph の内側 HTML は従来どおり sanitize。負例: 投稿本文に script・イベント属性・テーマ専用ブロック・入れ子 post-content を含める。
-9. **既存 `renderContent` はポート化してから使う**(Blocker-2): 現実装は `DatabaseSync` と DB 関数を直接使う。D-3d の前に独立単位で、latest-posts を `latestPosts(spec)` ポート越しにし、再帰 dispatch を postRegistry で通す。これが済むまで post-content を作らない。
-10. **基準入力を処理する前提単位**(Major): `groupBlock` に必要な属性を追加する。`tagName`('div'|'main'|'nav'|'header'|'footer'|'section' の許可リスト)、`ariaLabel`、`align`(full/wide)、`style.border.{top,bottom}.{color,width}`(preset 色と `^\d+px$`)、`layout`(default/constrained/flex の nowrap・space-between・verticalAlignment)。また template の `wp:template-part`(header/footer)解決、パターン内の `esc_attr_e` 展開(属性内)の対応を確認する。
-11. **main の id**: `renderMain` が最上位 `tagName:"main"` の group にのみ `id="wp--skip-link--target"` を付ける(skip-link の href と同値を定数で共有)。条件: 出力に main が 1 つだけ、`id` の重複がないことを検査し、複数/既存 id は RangeError。
+1. **ポートは『束縛された関数』**。型は `packages/render/src/ports.ts`(純粋な型。`node:sqlite` を import しない。同期は SQLite スパイク限定、非同期化は別設計=ADR)。render は postId を渡さない。
+   - 現在投稿: composition root が `packages/db` の `openCurrentPost(slug|id)` で `{ post: PostCtx; content: ContentPort }` を作る。**匿名閲覧可能・非保護・存在する投稿のみ**返し、他は null。保護投稿のパスワード画面は範囲外。
+   - `ContentPort`(現在投稿に束縛): `contentOf()`、`terms('category'|'post_tag')`、`adjacent('previous'|'next')`、`commentsState()`(`'anon-open-empty'|'unsupported'` の列挙のみ。件数を返さない)、`hasThumbnail()`、`author()`(`{name,url}|null`)。
+   - 現在投稿に依存しない: `queryPosts(spec)`、`latestPosts(spec)`。
+2. **query のカード単位の文脈(Blocker)**: `queryPosts(spec)` は SQL 認可済みの項目 `QueryItem = { post: PostCtx; content: ContentPort }` の配列を返す(項目ごとにその投稿へ束縛されたポート)。`post-template` は項目ごとに `renderTree(innerBlocks, { ...ctx, post: item.post, content: item.content }, themeRegistry)` を呼ぶ(`renderState` は参照共有、`ctx.post/content` は局所の上書きで、ループ後は外側の文脈に自然に戻る)。render は項目のポートを作らず、他の投稿へ切り替える手段を持たない。負例: 各カードが自分の title/date/URL を使う(外側の現在投稿を使わない)、post-template の後続ブロックが外側の投稿を見る、項目ポートからは他の投稿の本文が取れない。
+3. **query の仕様と選択**: spec は閉じた型(postType:'post'、perPage 1〜100、pages:0、offset:0、order:'desc'、orderBy:'date'、author:''、search:''、exclude:[]、sticky:''、inherit:false、taxQuery:null、parents:[])。SQL 条件は `post_type='post' AND post_status='publish'`(**保護投稿を含む**。実測 M1)、並びは `post_date DESC, ID DESC`(同日時は ID 降順、実測)。DTO の `protected: boolean` を post-title が使い、`Protected: ` 接頭辞(エスケープ後)を付ける。本文・パスワードは DTO に含めない。future 状態・draft・private は SQL で除外。
+4. **adjacent**: 現在投稿の `post_date` を基準に、publish(保護を含む)の直前/直後 1 件。タイトルは接頭辞なし(実測 M2)。隣接なしの出力は**未実測**(基準は両側あり)→ 隣接なしの時は RangeError にせず、実測が済むまで D-3e で『隣接なし』テストを置かない代わりに `UnsupportedDataError`(partial として記録)。
+5. **latest-posts**: ADR-027 と既存 `latestPosts.ts` の挙動(保護投稿を `Protected:` 付きで含める)を維持する。ポートの DTO は既存関数の戻り値そのもの。D-3d0 の既存テストは変更しない。
+6. **post クラス**: db が算出して `className` で返す。生成規則は 9.0 の M3 の順序。対応は『type=post、status=publish、format ∈ {standard, aside}、カテゴリ名順、タグあり可、保護は `post-password-required`、sticky・サムネイル・他 taxonomy は不可』。不可を含む項目は `UnsupportedDataError`(そのクエリ全体を拒否〔黙って除外して並びをずらさない〕。公開サイトで通常運用する前の spike 範囲の partial として ADR に明記)。render は `className` を再検証(`^[A-Za-z0-9_ -]+$`)しエスケープして出す。カテゴリの『名前順』は 2 件の異名でのみ確認(同名・日本語名は未実測)。
+7. **日付**: db が options を読み、`timezone_string=''`・`gmt_offset=0`・`date_format='F j, Y'` のときだけ `dateIso`(`+00:00`)と `dateText` を返す。他は `UnsupportedDataError`。
+8. **コメント**: `commentsState()` が `'anon-open-empty'` になる条件は、投稿 comment_status='open' かつ comment_registration=0 かつ require_name_email=1 かつ show_comments_cookies_opt_in=1 かつ承認済みコメント 0 件。承認済み 1 件以上は `'unsupported'`(D-4)。件数・未承認の有無は返さない。コメント者 Cookie の有るリクエストは composition root が拒否(D-4)。フォーム定数(maxlength 65525/245/100/200、`Post Comment`、`Leave a Reply`)は基準値、`comment_post_ID` は PostCtx.id、action は `site.url + '/wp-comments-post.php'`。
+9. **post-author-name**: `author()` が `null` なら空出力、`{name,url}` なら M4 の形(`name` はテキスト、`url` は `site.url` 配下の http(s) を検証して属性エスケープ、`isLink:true` のみ対応)。`hasThumbnail()` が false なら featured-image は空出力、true なら RangeError。post-terms の `post_tag`: 0 件は空出力、1 件以上は RangeError(基準で未実測)。category は M4 の形(`<div class="taxonomy-category wp-block-post-terms"><a href="<site>/category/<slug>/" rel="tag">名</a></div>`、区切り・複数は実測 M3 の fixture が出るまで 1 件のみ)。
+10. **信頼境界(Major)**: レジストリは**出自を区別する不透明な型**にする。`ThemeRegistry` と `PostRegistry` はブランド付き型で、`createThemeRegistry()`(D-2 の 11 キー + D-3 追加)と `createPostRegistry()`(heading・paragraph・list・list-item・quote・separator・latest-posts のみ、全て sanitize 経由)から**のみ**作る(凍結)。`post-content` は `PostRegistry` 以外を受け取らない(型で拒否+実行時にも出自タグを検査)。**子の無視を禁止**: `renderTree` の dispatch は、子ブロックを持つ block について、レンダラが `renderChildren` を呼ばなかった場合に拒否する(子の未検証捨て禁止)。投稿本文の全階層で、script・イベント属性・テーマ専用ブロック(`wp:query`・`wp:post-content`・`wp:comments` 等)・list/quote 内の混入・入れ子 post-content を負例にする。
+11. **main の id**: `renderMain` が最上位 `tagName:"main"` の group にのみ `id="wp--skip-link--target"` を付ける(skip-link の href と同値を定数共有)。出力に main が 1 つだけ、`id` 重複なしを検査し、違えば RangeError。
 12. 台帳は §7.1-5 に従い notes に `partial=` を追記し status は todo のまま。
 
 ### 9.2 実装単位(順に STEP1〜7)
-- D-3z: group 属性拡張(tagName/ariaLabel/align/border/layout)+ template-part 解決 + パターン内 `esc_attr_e`。基準 post-navigation パターン・more-posts パターンの group 構造が通ること。
-- D-3a: ports.ts の型と `createThemeRegistry`/`createPostRegistry` の分離(D-2 の `createDefaultRegistry` を `createThemeRegistry` に改名し、既存の登録キー・header/footer テストを維持)、heading の登録表入口、post-title、post-date。
-- D-3b: packages/db の `queryPosts` + `className`/日付算出 + query/post-template + more-posts パターン(main-02 一致)。
-- D-3c: `terms`/`authorName`/`hasThumbnail` と post-terms、post-author-name、post-featured-image、hidden-written-by パターン。
-- D-3d0: `renderContent` のポート化(latest-posts を `latestPosts(spec)` に、DB 直接参照を除去、postRegistry 経由の再帰)。
-- D-3d: post-content(`contentOf`)と外殻クラス、list/quote/separator/latest-posts を postRegistry へ。
-- D-3e: `adjacent` と post-navigation-link ×2(矢印、`rel`、タイトルのエスケープ、隣接なしの出力)と post-navigation パターン。
-- D-3f: comments / comments-title / comment-template / comments-pagination / post-comments-form(`anon-open-empty` のみ)と comments パターン。
+- D-3z1: `groupBlock` の属性拡張(tagName〔div/main/nav/header/footer/section の許可リスト〕、ariaLabel、align、border top/bottom〔preset 色・`^\d+px$`〕、layout〔default/constrained/flex の nowrap・space-between・verticalAlignment〕)。受入: 既存 header/footer テスト Green、属性エスケープ、不正値拒否。
+- D-3z2: template の `wp:template-part`(header/footer)解決。受入: single.html の先頭/末尾、欠落は ThemeResolveError。
+- D-3z3: パターン内の属性レベル `esc_attr_e` 展開(post-navigation パターン)と特殊文字拒否。受入: 既存の `esc_html_e` 展開テスト Green。
+- D-3a: `ports.ts` の型、`ThemeRegistry`/`PostRegistry` ブランド型、`createDefaultRegistry` → `createThemeRegistry` 改名(登録キー・header/footer テスト維持)、`renderChildren` 呼び出し検査、heading・post-title(`Protected:` 接頭辞)・post-date。
+- D-3b: `packages/db` の `queryPosts`(SQL 条件・順序・`className`・日付・`QueryItem` 束縛)と query/post-template と more-posts パターン(main-02 一致、set-main2 の混在・タイブレーク・クラス)。
+- D-3c: `terms`/`author`/`hasThumbnail` と post-terms・post-author-name・post-featured-image、hidden-written-by パターン(post_author=0 と実在ユーザーの両方)。
+- D-3d0: `renderContent` のポート化(DB 直接参照の除去、latest-posts を `latestPosts(spec)` ポート越し、`PostRegistry` に heading・paragraph・list・list-item・quote・separator・latest-posts を登録、公開 API の移行を含む)。既存テストは Green のまま。
+- D-3d: post-content ブロック(`contentOf` → PostRegistry の再帰、外殻クラス、layout)。
+- D-3e: `adjacent` と post-navigation-link ×2(set-main2 の保護隣接、矢印、`rel`)と post-navigation パターン。
+- D-3f: comments / comments-title / comment-template / comments-pagination / post-comments-form(`'anon-open-empty'` のみ)と comments パターン。
 - D-3g: `renderMain`(single.html 解決→main 外殻)と main-01/main-02/`spike-blocks.html` の `<main>` 全体一致、header→main→footer の ctx 共有。
 
-### 9.3 リスク
-- 同期ポート(SQLite 限定)の将来の非同期化は別設計。型は render が `node:sqlite` に依存しない位置に置く。
-- 同じブロック名(heading 等)がテーマ/投稿で別レジストリに登録される二重定義。共通部は関数として共有し、レジストリのキー集合を各々テストで固定する。
-
-### 9.4 先に基準 WP で実測する項目(STEP3 の前、一時変更は取得後に復元・私が実施)
-- M1: 匿名 `/spike-blocks/` の query(more-posts)で、publish・保護(publish+password)・draft・private・future が混在するときの選択・タイトル・順序・同日時のタイブレーク。
-- M2: 同じ混在データでの前後投稿(prev/next)の選択(保護・private・draft・future の扱い)。
-- M3: post class の形式(複数カテゴリの並び、タグあり、format 違い)。
-- M4: 著者が実在ユーザーの場合の post-author-name の出力(isLink)。
-- M5: 承認済みコメント 1 件以上の投稿の comments 領域(D-4 の入力、D-3 では拒否)。
-実測できない分岐は、検出可能な条件を明記して拒否する。
+### 9.3 リスク・未決
+- 同期ポート(SQLite 限定)の将来の非同期化は別設計。
+- カテゴリ順(名前順の根拠は 2 件のみ)、隣接なしの出力、sticky・サムネイル・format の全種は未実測=拒否。
+- 保護投稿を通常運用でも一覧に出す方針(WP と同じ)は ADR-027 の延長。公開用途で変えるなら別 ADR。
