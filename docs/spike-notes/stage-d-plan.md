@@ -366,3 +366,31 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 8. **fixture の由来(Minor)**: set-main2 の README に再現入力(DB 追加分)を追記済み。期待 DOM は fixture から抽出し、テストの DB は README の入力から組み立てる。期待をテスト内で手書きしない。
 9. **単位間の依存(Minor)**: D-3a=型・共通 dispatch(ブランド型、`renderChildren` 契約、凍結)、D-3d=実入口〔post-content〕での出自拒否と入れ子混入、D-3d0=既存 HTML 不変と入力移行(別々に確認)。依存順は D-3z1→z2→z3→a→b→c→d0→d→e→f→g。
 11. **タイトルのエスケープと fixture の DOM(Major)**: 基準の出力は `入れ子 &#038; <特殊> &#8220;文字&#8221;` と `<特殊>` を**生の文字**で含む。HTML のトークナイザは、`<` の直後が ASCII 英字でも `!`・`/`・`?` でもない場合(`<特殊>` の `特` など)はタグ開始とせず**テキスト**として扱う(`<!--`・`</` 等は別規則)ため、DOM 上は text ノード `<特殊>` で、安全にエスケープした `&lt;特殊&gt;` と**同じ DOM** になる。よって (a) 出力は常にエスケープし(`<` → `&lt;` 等)、(b) fixture との比較は `htmlEquals`(正規化 DOM)で行い、(c) テストで『fixture の該当箇所をパースすると text ノードが `入れ子 & <特殊> “文字”` であり、生成物も同じ text ノードで、かつ要素ノード `特殊` が存在しない』を明示的に検査する(既存 `latest-posts` の同題でも同じ扱い)。ASCII 英字で始まる `<script>` 等は要素にならないよう必ずエスケープされることを別の負例で検査する。テキストの正規化(数値文字参照 `&#038;`・`&#8220;` はパース後に同じ文字になる)も同様に DOM で比較する。
+
+## 11. 他テンプレート(設計 v0.1、STEP1。基準 fixture: fixtures/ref/pages/*)
+
+取得済み(匿名・読み取りのみ、基準 WP を変更していない): page-sample(200)、archive-category(200)、archive-author(200)、search-hello(200)、search-none(200)、notfound(404)、single-hello(200)、既存の home.html。`*.status` に HTTP ステータス。TT25 のテンプレートが使うブロックと新規に要るもの:
+
+| 単位 | テンプレート | 新規に必要なもの |
+|---|---|---|
+| T2a | page | **既存ブロックのみ**(group・post-title・post-featured-image・post-content)。`openCurrentPost` を page に対応(`post_type='page'`、comment_status は closed)、`renderMain(theme, ctx, 'page')` の全体比較。コメントなし |
+| T2b | 404 | `hidden-404` パターン: heading・paragraph・columns/column・image・search(フォーム)。ステータス 404 を描画側が持てるか(戻り値に status を含める設計が要る) |
+| T2c | archive(category/author)・search | `query` の `inherit:true`(現在のアーカイブ/検索条件を引き継ぐ)=`queryPosts` に『文脈条件』を渡す設計(category・author・検索語。SQL 側で認可)。query-title、term-description、search、query-no-results、`post-excerpt`/`post-date` の変種 |
+| T2d | home・index | blog 見出し(hidden-blog-heading)、template-query-loop パターン(post-featured-image・post-excerpt・pagination)。`query-pagination` 系と page/N の URL(404 の境界) |
+
+**順序と規律**: T2a → T2b → T2c → T2d。各単位は STEP1〜7(設計・テスト計画のレビューは単位ごとではなく、§11 全体 → T2a の STEP3、のようにまとめて codex に出す。codex は同時 1 本)。実装・テスト作成は Haiku に委任、私は設計・検証・コミット。
+**認可の原則(§9 を継承)**: render は SQL・`post_status` を持たない。`inherit:true` の文脈条件は、composition root が検証済みの値(category の term_id、author の user ID、検索語の文字列)として `QueriesPort.queryPosts(spec, context)` に渡し、可視性判定は SQL 側。保護投稿は ADR-027/§9 と同じくタイトルとリンクだけ。
+**未実測(基準で取得が要る)**: 検索語のハイライトや 0 件時の出力、`page/2` の URL、archive の見出し文言、404 の HTTP ヘッダ(取得済みは本文のみ)。
+
+## 12. 段階 E: `<head>` のスタイル生成(設計 v0.1、STEP1)
+
+基準ページの `<head>` にあるインライン `<style>`(31 個)の分解: `global-styles-inline-css`(約 21.7KB、theme.json → CSS)、`core-block-supports-inline-css`(約 1.3KB、`.wp-container-core-*-is-layout-<hash>` ルール)、`wp-block-library-inline-css`(約 4.3KB)、描画されたブロックごとの `wp-block-<name>-inline-css`(ブロック CSS)、`twentytwentyfive-style-inline-css`、`wp-emoji-styles-inline-css` など。
+
+| 単位 | 内容 | 方針 |
+|---|---|---|
+| E1 | `core-block-supports-inline-css` | 描画中に使われたコンテナクラスと layout 入力から**同じハッシュ**でルールを生成(既に `layoutHashInput`・`containerClassName` がある)。順序は WP の出現順。基準 1.3KB と一致を検査 |
+| E2 | `wp-block-<name>-inline-css`(ブロック CSS) | WP 本体(GPL)のブロック CSS を**ファイル資産として vendoring**し(出典・版を明記)、描画に使われたブロックの分だけを WP と同じ順序で出力。コピーの範囲はユーザー確認の上で(ライセンス表記を NOTICE に追記) |
+| E3 | `global-styles-inline-css` | theme.json(+ WP 既定)から CSS を生成する `WP_Theme_JSON::get_stylesheet` の移植。最大の単位。preset(色・フォント・スペーシング)の変数、`:root`、要素/ブロック別スタイル、`.has-*` ユーティリティ。段階的に(E3a presets 変数 → E3b styles → E3c ブロック別) |
+| E4 | head の組み立て | 上を `<head>` の正しい位置・順序に並べ、メタ/リンク/importmap/speculationrules を定数+設定から生成。全体ページの正規化 DOM 比較(head と body) |
+
+**判断が要る点(ユーザー確認事項)**: E2 の vendoring 範囲(WP のブロック CSS を同梱してよいか。GPL-2.0-or-later 互換のため可と見ているが、同梱の可否はユーザー判断)、E3 を移植にするか theme.json の `settings`/`styles` をテーブル駆動で再実装するか。確認が取れるまで E1 から着手する。
