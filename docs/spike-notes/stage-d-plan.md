@@ -394,3 +394,7 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 | E4 | head の組み立て | 上を `<head>` の正しい位置・順序に並べ、メタ/リンク/importmap/speculationrules を定数+設定から生成。全体ページの正規化 DOM 比較(head と body) |
 
 **判断が要る点(ユーザー確認事項)**: E2 の vendoring 範囲(WP のブロック CSS を同梱してよいか。GPL-2.0-or-later 互換のため可と見ているが、同梱の可否はユーザー判断)、E3 を移植にするか theme.json の `settings`/`styles` をテーブル駆動で再実装するか。確認が取れるまで E1 から着手する。
+
+## 13. STEP8 レビュー(2026-11-01、段階 B〜D)と修正の記録
+GPT-6.1-terra の STEP8 は No-Go(Blocker 1 / Major 3 / Minor 2)。対応: ①保護投稿のポートと DTO を制限(日付は空、terms/author/adjacent/commentsState/hasThumbnail は UnsupportedDataError、メッセージに題名・slug・日時を含めない)=Blocker 解消、②latest-posts の題名: 当初『全エスケープ』にしたが基準 WP は許可タグを要素で出すため、WP の題名 kses 相当の `sanitizeTitleHtml`(許可リスト、`img` なし)に変更〔PX-011〕、③`renderTree` の子の検査を描画開始時のスナップショットに基づかせた〔`pop`/`splice`/代入での迂回を拒否〕、④navigation・site-title の未知属性を拒否〔PX-014〕、⑤同日時の例外メッセージから日時を除去、⑥空の query の拒否は意図的〔PX-004〕。
+付随して page テンプレート(T2a)の STEP4〜5 を実施: `openCurrentPost(db, ref, kind)`、page の className/ポート、`post-featured-image` の `style.spacing.margin`、投稿本文の `...`→`…`〔PX-012〕。page の `<main>` が基準 `pages/page-sample.html` と一致。

@@ -275,3 +275,30 @@ describe('core/site-title: アンパサンドの二重解釈防止', () => {
 		expect(out).toContain('href="https://example.test/?a=1&amp;b=2"');
 	});
 });
+
+describe('core/site-title: 未対応属性の fail-closed(S8)', () => {
+	// test_id S8-06: 未知のトップレベル属性 foo は RangeError
+	it('S8-06 未知の属性 foo は RangeError', () => {
+		expect(() => siteTitleRenderer.validateAttrs({ level: 0, foo: 1 })).toThrow(RangeError);
+		expect(() => siteTitleRenderer.validateAttrs({ level: 0, foo: 1 })).toThrow(/foo/);
+	});
+
+	// test_id S8-07: className と anchor も未対応として RangeError
+	it('S8-07 未知の属性 className / anchor は RangeError', () => {
+		expect(() => siteTitleRenderer.validateAttrs({ level: 0, className: 'x' })).toThrow(/className/);
+		expect(() => siteTitleRenderer.validateAttrs({ level: 0, anchor: 'a' })).toThrow(/anchor/);
+	});
+
+	// test_id S8-08: テーマが使う textAlign / fontSize / align / style は拒否しない(出力には反映しない)
+	it('S8-08 テーマ使用キー(textAlign/fontSize/align/style)は受理される', () => {
+		expect(() =>
+			siteTitleRenderer.validateAttrs({
+				level: 0,
+				textAlign: 'center',
+				fontSize: 'large',
+				align: 'wide',
+				style: { typography: { fontSize: '100px' } },
+			}),
+		).not.toThrow();
+	});
+});

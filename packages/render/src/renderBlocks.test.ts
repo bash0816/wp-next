@@ -168,3 +168,69 @@ describe('renderBlocks: 空入力', () => {
     expect(out?.trim()).toBe('');
   });
 });
+
+describe('renderBlocks: wptexturize の省略記号 (...)', () => {
+  // 入力は paragraph ブロックで包み、renderBlocks の全体パイプライン (texturize + sanitize) を通す。
+  const para = (inner: string): string =>
+    `<!-- wp:paragraph --><p>${inner}</p><!-- /wp:paragraph -->`;
+  const out = (inner: string): string => renderBlocks(para(inner));
+  const expected = (inner: string): string => `<p class="wp-block-paragraph">${inner}</p>`;
+
+  // WT-01: テキストノード内の `...` が `…` (U+2026) になる
+  it('WT-01: a...b のテキストノード内の ... を … に変換する', () => {
+    expect(out('a...b')).toBe(expected('a…b'));
+  });
+
+  // WT-02: 前後が単語・記号でも変換する (wait... / ...and)
+  it('WT-02: 前後に文字がある ... (wait... / ...and) も変換する', () => {
+    expect(out('wait...')).toBe(expected('wait…'));
+    expect(out('...and')).toBe(expected('…and'));
+  });
+
+  // WT-03: 4 つ以上の . は左から 3 つが … になり、残りの . が続く (WP の基準挙動)
+  it('WT-03: .... は …. になる (最初の 3 つのみ変換、残りの . は保持)', () => {
+    expect(out('since....')).toBe(expected('since….'));
+  });
+
+  // WT-04: 2 つの . は変換しない
+  it('WT-04: .. (2 つ) は変換しない', () => {
+    expect(out('a..b')).toBe(expected('a..b'));
+  });
+
+  // WT-05: code 内は変換しない
+  it('WT-05: <code> 内の ... は変換しない', () => {
+    expect(out('<code>a...b</code>')).toBe(expected('<code>a...b</code>'));
+  });
+
+  // WT-06: pre / kbd 内は変換しない
+  it('WT-06: <pre> / <kbd> 内の ... は変換しない', () => {
+    expect(out('<kbd>a...b</kbd>')).toBe(expected('<kbd>a...b</kbd>'));
+    // core/preformatted は未対応のため、<pre> は段落内に置く (parse5 が p を閉じ、pre は兄弟要素になる)
+    const preOut = out('<pre>x...y</pre>');
+    expect(preOut).toContain('<pre>x...y</pre>');
+    expect(preOut).not.toContain('…');
+  });
+
+  // WT-07: 属性値は変換しない
+  it('WT-07: 属性値 (title) 内の ... は変換しない', () => {
+    const result = out('<a href="https://example.test" title="a...b">link</a>');
+    expect(result).toContain('title="a...b"');
+    expect(result).not.toContain('…');
+  });
+
+  // WT-08: 複数のテキストノードにまたがる場合、各ノード内で個別に変換する (ノード境界をまたがない)
+  it('WT-08: 複数テキストノードはそれぞれ個別に変換する', () => {
+    expect(out('a...<b>b...</b>')).toBe(expected('a…<b>b…</b>'));
+  });
+
+  // WT-09: 日本語混在でも変換する
+  it('WT-09: 日本語に挟まれた ... も変換する (あ...い → あ…い)', () => {
+    expect(out('あ...い')).toBe(expected('あ…い'));
+  });
+
+  // WT-10: 回帰 — 既存の単引用符変換 (it's → it’s) が壊れていない
+  it('WT-10: 回帰: 既存の単引用符変換 it\'s → it’s が維持される', () => {
+    expect(out("it's")).toBe(expected('it’s'));
+    expect(out("it's a...b")).toBe(expected('it’s a…b'));
+  });
+});

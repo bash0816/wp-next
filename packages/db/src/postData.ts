@@ -108,6 +108,8 @@ export interface PostRowForCtx {
   post_content: string;
   post_password: string | null;
   post_author: number;
+  /** 省略時は 'post'。'page' のとき page 仕様(前後ナビなし・分類なし・専用 className)で組み立てる。 */
+  kind?: 'post' | 'page';
 }
 
 const SLUG_RE = /^[a-z0-9-]+$/;
@@ -138,7 +140,25 @@ function termsOf(db: Pick<DatabaseSync, 'prepare'>, postId: number): TermRow[] {
  * category / tag は term 名の昇順(実測は 2 件の異名のみ)。
  * 非対応の term / 不正な slug は UnsupportedDataError。
  */
-export function postClassName(db: Pick<DatabaseSync, 'prepare'>, postId: number, isProtected = false): string {
+export function postClassName(
+  db: Pick<DatabaseSync, 'prepare'>,
+  postId: number,
+  isProtected = false,
+  kind: 'post' | 'page' = 'post',
+): string {
+  if (kind === 'page') {
+    // page は分類を持たない前提。term が1件でも付いていれば未対応として止める(fail-closed)。
+    const rel = db
+      .prepare('SELECT COUNT(*) AS n FROM term_relationships WHERE object_id = ?')
+      .get(postId) as { n: number } | undefined;
+    if (!rel || Number(rel.n) !== 0) {
+      throw new UnsupportedDataError('page に分類(term)が付いている場合は非対応です');
+    }
+    const pageParts = [`post-${postId}`, 'page', 'type-page', 'status-publish'];
+    if (isProtected) pageParts.push('post-password-required');
+    pageParts.push('hentry');
+    return pageParts.join(' ');
+  }
   const terms = termsOf(db, postId);
   const categories: string[] = [];
   const tags: string[] = [];
@@ -171,14 +191,15 @@ export function postClassName(db: Pick<DatabaseSync, 'prepare'>, postId: number,
 /** post 行から PostCtx を組み立てる。protected は post_password が空でないこと。 */
 export function buildPostCtx(db: Pick<DatabaseSync, 'prepare'>, row: PostRowForCtx): PostCtx {
   const home = readHome(db);
-  const date = formatPostDate(db, row.post_date_gmt);
   const isProtected = row.post_password !== null && row.post_password !== '';
+  // 保護投稿は日付を境界の外へ出さない(ADR-027: 一覧に露出するのはタイトルとリンクだけ。STEP8 指摘)。
+  const date = isProtected ? { dateIso: '', dateText: '' } : formatPostDate(db, row.post_date_gmt);
   return {
     id: row.id,
     title: row.title,
     url: `${home}/${encodeURIComponent(row.slug)}/`,
     protected: isProtected,
-    className: postClassName(db, row.id, isProtected),
+    className: postClassName(db, row.id, isProtected, row.kind ?? 'post'),
     dateIso: date.dateIso,
     dateText: date.dateText,
   };
@@ -308,7 +329,7 @@ function adjacentOf(
     )
     .get(row.post_date_gmt, row.id);
   if (tie) {
-    throw new UnsupportedDataError(`post_date_gmt が同一の別の公開投稿があります(未対応): ${row.post_date_gmt}`);
+    throw new UnsupportedDataError('post_date_gmt が同一の別の公開投稿があります(未対応)');
   }
   const cmp = dir === 'previous' ? '<' : '>';
   const order = dir === 'previous' ? 'DESC' : 'ASC';
@@ -330,15 +351,35 @@ function adjacentOf(
  * commentsState は 'anon-open-empty' | 'unsupported' を返す(例外にしない)。
  */
 export function buildContentPort(db: Pick<DatabaseSync, 'prepare'>, row: PostRowForCtx): ContentPort {
+  if (row.post_password !== null && row.post_password !== '') {
+    // 保護投稿のポートは何も返さない(本文・分類・著者・隣接・コメント・サムネイルのいずれも)。
+    // メッセージに題名・slug・日時を入れない。
+    const denied = (): never => {
+      throw new UnsupportedDataError('保護された投稿の情報は取得できません');
+    };
+    return {
+      terms: denied,
+      adjacent: denied,
+      commentsState: denied,
+      hasThumbnail: denied,
+      author: denied,
+    };
+  }
+  const isPage = (row.kind ?? 'post') === 'page';
   return {
     contentOf: () => row.post_content,
     terms: (taxonomy) => {
       if (taxonomy !== 'category' && taxonomy !== 'post_tag') {
         throw new RangeError('taxonomy は "category" か "post_tag" で指定してください');
       }
+      // page は分類を持たない(buildPostCtx で term 0 件を確認済み)。
+      if (isPage) return [];
       return contentTermsOf(db, row.id, taxonomy);
     },
-    adjacent: (dir) => adjacentOf(db, row, dir),
+    adjacent: (dir) => {
+      if (isPage) throw new UnsupportedDataError('page は前後ナビを持たない');
+      return adjacentOf(db, row, dir);
+    },
     commentsState: () => commentsStateOf(db, row.id),
     hasThumbnail: () => {
       const thumb = db

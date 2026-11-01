@@ -603,3 +603,50 @@ describe('D-2d: 補強', () => {
 		expect(String((err as Error).message)).toContain('ariaLabel');
 	});
 });
+
+describe('core/navigation: 未対応属性の fail-closed(S8)', () => {
+	// test_id S8-01: 許可リスト外のトップレベル属性 foo は黙って無視せず RangeError
+	it('S8-01 未知のトップレベル属性 foo は RangeError', () => {
+		const err = captureError(() => navigationRenderer.validateAttrs({ ...FOOTER_ATTRS, foo: 1 }));
+		expect(err).toBeInstanceOf(RangeError);
+		expect(String((err as Error).message)).toContain('foo');
+	});
+
+	// test_id S8-02: className は未対応として RangeError
+	it('S8-02 未知のトップレベル属性 className は RangeError', () => {
+		const err = captureError(() => navigationRenderer.validateAttrs({ ...FOOTER_ATTRS, className: 'x' }));
+		expect(err).toBeInstanceOf(RangeError);
+		expect(String((err as Error).message)).toContain('className');
+	});
+
+	// test_id S8-03: anchor は未対応として RangeError
+	it('S8-03 未知のトップレベル属性 anchor は RangeError', () => {
+		const err = captureError(() => navigationRenderer.validateAttrs({ ...FOOTER_ATTRS, anchor: 'a' }));
+		expect(err).toBeInstanceOf(RangeError);
+		expect(String((err as Error).message)).toContain('anchor');
+	});
+
+	// test_id S8-04: layout.verticalAlignment は未対応として RangeError
+	it('S8-04 layout.verticalAlignment は RangeError', () => {
+		const err = captureError(() =>
+			navigationRenderer.validateAttrs({
+				...FOOTER_ATTRS,
+				layout: { type: 'flex', orientation: 'vertical', verticalAlignment: 'center' },
+			}),
+		);
+		expect(err).toBeInstanceOf(RangeError);
+		expect(String((err as Error).message)).toContain('verticalAlignment');
+	});
+
+	// test_id S8-05: 許可された全キー(layout の 4 キー含む)は拒否されない
+	it('S8-05 許可キーだけの属性は受理される', () => {
+		expect(() =>
+			navigationRenderer.validateAttrs({
+				overlayBackgroundColor: 'base',
+				overlayTextColor: 'contrast',
+				ariaLabel: 'メニュー',
+				layout: { type: 'flex', justifyContent: 'right', flexWrap: 'wrap', orientation: 'horizontal' },
+			}),
+		).not.toThrow();
+	});
+});

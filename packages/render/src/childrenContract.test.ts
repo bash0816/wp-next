@@ -349,3 +349,32 @@ describe('D3b2-C1 renderChildren override の query 許可', () => {
     expect(err).toBeInstanceOf(RangeError);
   });
 });
+
+// STEP8 指摘(Major): 子の検査は renderTree 開始時のスナップショットに基づく(レンダラが innerBlocks を破壊しても迂回できない)。
+describe('STEP8-3: innerBlocks を書き換えるレンダラは検出される', () => {
+  const inner = [blk('leaf', { label: 'a' }), blk('leaf', { label: 'b' })];
+  it('pop() してから残りを renderChildren に渡すと RangeError', () => {
+    const popper = mk((block, _ctx, rc) => {
+      block.innerBlocks.pop();
+      return rc(block.innerBlocks);
+    });
+    const err = captureError(() => renderTree([blk('p', { inner: [...inner] })], makeCtx(), reg({ p: popper, leaf })));
+    expect(err).toBeInstanceOf(RangeError);
+  });
+  it('splice で全て空にして空配列を渡すと RangeError', () => {
+    const clearer = mk((block, _ctx, rc) => {
+      block.innerBlocks.splice(0);
+      return rc(block.innerBlocks);
+    });
+    const err = captureError(() => renderTree([blk('p', { inner: [...inner] })], makeCtx(), reg({ p: clearer, leaf })));
+    expect(err).toBeInstanceOf(RangeError);
+  });
+  it('要素の入れ替え(代入)後に全体を渡しても RangeError', () => {
+    const swapper = mk((block, _ctx, rc) => {
+      block.innerBlocks[1] = blk('leaf', { label: 'evil' });
+      return rc(block.innerBlocks);
+    });
+    const err = captureError(() => renderTree([blk('p', { inner: [...inner] })], makeCtx(), reg({ p: swapper, leaf })));
+    expect(err).toBeInstanceOf(RangeError);
+  });
+});

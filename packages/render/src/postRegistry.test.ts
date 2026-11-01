@@ -305,3 +305,34 @@ describe('postRegistry 補強2', () => {
     expect(renderContent('<p>classic</p>', stubCtx())).toBe('<p>classic</p>');
   });
 });
+
+// STEP8 指摘(Fix2): latest-posts の題名は専用サニタイザ(許可タグのみ残す)を通す。
+describe('STEP8-2: latest-posts の題名は許可タグだけ残し、& はテキストとして保つ', () => {
+  const run = (title: string, slug = 'a') => {
+    const { ctx } = recordingCtx([{ slug, title, isProtected: false }]);
+    return renderContent('<!-- wp:latest-posts /-->', {
+      ...ctx,
+      queries: ctx.queries,
+    });
+  };
+  it('<img src=...> を含む題名は img 要素にならず、外部 URL も出力に残らない', () => {
+    const out = run('<img src=https://example.com/track>');
+    expect(out).not.toMatch(/<img/i);
+    expect(out).not.toContain('example.com/track');
+  });
+  it('<script> は中身ごと除去され、<a href=javascript:> は href が落ちる', () => {
+    const out = run('<script>alert(1)</script><a href="javascript:x">y</a>');
+    expect(out).not.toMatch(/<script/i);
+    expect(out).not.toContain('alert(1)');
+    expect(out).not.toMatch(/javascript/i);
+  });
+  it('<b> は要素として残り、& は &amp; のテキスト、曲がり引用符は適用される', () => {
+    const out = run('入れ子 & <b>特殊</b> "文字"');
+    expect(out).toContain('入れ子 &amp; <b>特殊</b> “文字”');
+  });
+  it('slug は encodeURIComponent され、href の属性を壊さない', () => {
+    const out = run('t', 'a" onmouseover="x');
+    expect(out).not.toMatch(/onmouseover="x"/);
+    expect(out).toContain('a%22%20onmouseover%3D%22x');
+  });
+});

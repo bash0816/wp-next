@@ -335,15 +335,15 @@ describe('D3c1-06 queryPosts: 各 item の terms / author が自分の投稿に�
 
   // Red: terms は stub が UnsupportedDataError を投げるため。
   // contentOf が undefined であることは現状でも満たす(Green-now、回帰ガード部分)。
-  it('保護投稿 22: terms / author は自身の値を返し、contentOf は undefined', () => {
+  it('保護投稿 22: contentOf は undefined、terms / author は情報を返さず UnsupportedDataError(STEP8)', () => {
     const db = openDumpDb();
     applyS1(db);
     const items = queryPosts(db, spec({ perPage: 2 }));
     const prot = items.find((i) => i.post.id === 22);
     expect(prot, '前提: 保護投稿 22 が含まれる').toBeDefined();
     expect(prot!.content.contentOf).toBeUndefined();
-    expect(prot!.content.terms('category').map((t) => t.slug)).toEqual(['uncategorized']);
-    expect(prot!.content.author()).toBeNull();
+    expect(() => prot!.content.terms('category')).toThrow(UnsupportedDataError);
+    expect(() => prot!.content.author()).toThrow(UnsupportedDataError);
   });
 });
 

@@ -196,7 +196,7 @@ describe('D3f-07 束縛: queryPosts の各項目は自分の投稿を基準に�
     expect(byId.get(7)!.content.commentsState()).toBe('anon-open-empty');
   });
 
-  it('S1 で保護投稿 22 は自分の投稿(承認済みなし)を基準に anon-open-empty、他投稿の承認済みに引きずられない', () => {
+  it('S1 で保護投稿 22 の commentsState は情報を返さない(UnsupportedDataError)。非保護の 5 は自分を基準に判定される', () => {
     const db = openDumpDb();
     applyS1(db);
     addComment(db, 5, '1');
@@ -204,8 +204,9 @@ describe('D3f-07 束縛: queryPosts の各項目は自分の投稿を基準に�
     const byId = new Map(items.map((it) => [it.post.id, it]));
     expect(byId.has(22), '前提: queryPosts に保護投稿 22 が含まれること').toBe(true);
     expect(byId.get(22)!.post.protected).toBe(true);
-    // 投稿 5 にだけ承認済みを足したので、22 は anon-open-empty、5 は unsupported になる。
-    expect(byId.get(22)!.content.commentsState()).toBe('anon-open-empty');
+    // STEP8: 保護投稿のポートは情報を返さない。投稿 5 にだけ承認済みを足したので、5 は unsupported。
+    expect(() => byId.get(22)!.content.commentsState()).toThrow();
     expect(byId.get(5)!.content.commentsState()).toBe('unsupported');
+    expect(byId.get(7)!.content.commentsState()).toBe('anon-open-empty');
   });
 });

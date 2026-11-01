@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
+import { parseFragment } from 'parse5';
 import { makeQueriesPort } from '@wpn/db';
 import { extractEntryContent, htmlEquals, normalizeHtml } from './normalizeDom.js';
 import { renderBlocks, UnsupportedBlockError } from './renderBlocks.js';
@@ -12,6 +13,19 @@ const SCHEMA = new URL('../../db/src/schema.sql', import.meta.url);
 const SITE_URL = 'http://127.0.0.1:8080';
 
 type Row = Record<string, string | number>;
+
+// parse5 の木を走査するための最小の型(要素・テキストノードの名前と値だけを使う)
+type ParsedNode = { nodeName: string; value?: string; childNodes?: ParsedNode[]; content?: { childNodes: ParsedNode[] } };
+
+function walkNodes(nodes: ParsedNode[], visit: (n: ParsedNode) => void): void {
+  for (const n of nodes) {
+    visit(n);
+    const children = n.content ? n.content.childNodes : n.childNodes;
+    if (children) {
+      walkNodes(children, visit);
+    }
+  }
+}
 
 function readFixture(relPath: string): string {
   return readFileSync(new URL(relPath, FIXTURES), 'utf8');
@@ -149,14 +163,38 @@ describe('renderContent: latest-posts の堅牢性', () => {
     db.close();
   });
 
-  it('タイトルに混入したスクリプト・イベント属性は出力に残らない', () => {
+  // test_id S8-B: 題名は許可リストで絞る。script・img・onerror は除去し、b / em / a は要素として残す
+  it('題名の危険なタグ・属性は除去され、許可タグは要素として残る', () => {
     const db = openDb();
-    db.prepare("UPDATE posts SET post_title = ? WHERE ID = 7").run(
-      '<script>alert(1)</script><img src=x onerror=alert(2)>悪意',
-    );
-    const out = renderContent('<!-- wp:latest-posts {"postsToShow":1} /-->', { queries: makeQueriesPort(db), siteUrl: SITE_URL });
-    expect(out).not.toMatch(/<script|onerror|alert\(/i);
-    expect(out).toContain('悪意');
+    const title =
+      '<script>alert(1)</script><img src=https://example.com/track onerror=alert(2)>' +
+      '<b>太字</b> <em>強調</em> <a href="https://example.com/">リンク</a>';
+    db.prepare('UPDATE posts SET post_title = ? WHERE ID = 7').run(title);
+    const out = renderContent('<!-- wp:latest-posts {"postsToShow":1} /-->', {
+      queries: makeQueriesPort(db),
+      siteUrl: SITE_URL,
+    });
+    // 危険な断片は生の出力に一切残らない
+    expect(out).not.toContain('<img');
+    expect(out).not.toContain('<script');
+    expect(out).not.toContain('onerror');
+    expect(out).not.toContain('javascript:');
+    // 許可タグは要素として残り、安全な href も保たれる
+    expect(out).toContain('<b>太字</b>');
+    expect(out).toContain('<em>強調</em>');
+    expect(out).toContain('<a href="https://example.com/">リンク</a>');
+    // parse5 で読み直した要素集合にも script・img は現れない
+    const root = parseFragment(out) as unknown as ParsedNode;
+    const tags = new Set<string>();
+    walkNodes([root], (n) => {
+      if (!n.nodeName.startsWith('#')) {
+        tags.add(n.nodeName);
+      }
+    });
+    expect(tags.has('script')).toBe(false);
+    expect(tags.has('img')).toBe(false);
+    expect(tags.has('b')).toBe(true);
+    expect(tags.has('em')).toBe(true);
     db.close();
   });
 });

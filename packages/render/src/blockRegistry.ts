@@ -182,7 +182,8 @@ export function renderTree(blocks: ParsedBlock[], ctx: RenderCtx, registry: Regi
     }
     const attrs = block.attrs ?? {};
     renderer.validateAttrs(attrs);
-    const expected: ParsedBlock[] = block.innerBlocks ?? [];
+    // レンダラが block.innerBlocks を書き換えても検査を迂回できないよう、描画開始時点のスナップショットを使う。
+    const expected: ParsedBlock[] = [...(block.innerBlocks ?? [])];
     let called = false;
     out += renderer.render(block, ctx, (children, override) => {
       called = true;

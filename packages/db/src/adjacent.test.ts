@@ -140,14 +140,17 @@ describe('D3e-05 page / wp_navigation / revision / attachment は候補になら
 describe('D3e-06 queryPosts の item に束縛され、保護投稿の secret を漏らさない', () => {
   // 検出対象: item 22(保護)の adjacent が item 自身を基準にすること(post 5 の結果と取り違えない)。
   // Red 理由: adjacent が未実装で UnsupportedDataError を投げる。
-  it('queryPosts の item 22 の previous は spike-blocks(5)、next は入れ子(7)', () => {
+  it('queryPosts の保護項目 22 の adjacent は情報を返さず UnsupportedDataError(STEP8: 保護投稿はタイトルとリンクだけを露出)', () => {
     const db = openDumpDb();
     applyS1(db);
     const items = queryPosts(db, spec({ perPage: 10 }));
     const item = items.find((i) => i.post.id === 22);
     expect(item, '前提: queryPosts に保護投稿 22 が含まれること').toBeDefined();
-    expect(item!.content.adjacent('previous')).toEqual({ title: 'スパイク用ページ', url: `${HOME}/spike-blocks/` });
-    expect(item!.content.adjacent('next')).toEqual({ title: '入れ子 & <特殊> "文字"', url: `${HOME}/fixture-two-nested/` });
+    expect(() => item!.content.adjacent('previous')).toThrow(UnsupportedDataError);
+    expect(() => item!.content.adjacent('next')).toThrow(UnsupportedDataError);
+    // 非保護項目は自分を基準に動く(束縛)。
+    const seven = items.find((i) => i.post.id === 7)!;
+    expect(seven.content.adjacent('previous')?.url).toBe(`${HOME}/m-prot/`);
   });
 
   // 検出対象: 保護投稿 22 が next として返るとき、戻り値は title/url のみで secret(パスワード・本文)を含まないこと。

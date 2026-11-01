@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import type { BlockRenderer, RenderCtx } from './blockRegistry.js';
 import { addClassesToFirstElement, type ParsedBlock } from './renderBlocks.js';
+import { sanitizeTitleHtml } from './sanitizeHtml.js';
 
 // 投稿本文用のブロックレンダラ。テーマ由来の renderer とは別に、投稿単位のレジストリへ登録する。
 // 依存は ctx.queries(QueriesPort)のみ。@wpn/db / node:sqlite には依存しない。
@@ -9,6 +10,10 @@ const LATEST_POSTS_BLOCK = 'core/latest-posts';
 const DEFAULT_POSTS_TO_SHOW = 5;
 const LIST_CLASSES =
   'wp-block-latest-posts__list wp-block-latest-posts is-layout-flow wp-block-latest-posts-is-layout-flow';
+
+const escapeText = (s: string): string =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escapeAttr = (s: string): string => escapeText(s).replace(/"/g, '&quot;');
 
 /** ASCII の二重引用符を曲がり引用符に変換する (WordPress の texturize 相当) */
 function curlyDoubleQuotes(text: string): string {
@@ -76,8 +81,14 @@ function renderLatestPosts(block: ParsedBlock, ctx: RenderCtx): string {
   const siteUrl = ctx.site.url;
   const items = posts.map((post) => {
     const prefix = post.isProtected ? 'Protected: ' : '';
-    const title = curlyDoubleQuotes(`${prefix}${post.title}`);
-    const href = `${siteUrl}/${encodeURIComponent(post.slug)}/`;
+    // 題名は専用サニタイザで許可タグだけ残す(WP の題名 kses 相当)。
+    // 引用符の変換はタグ属性を壊さないよう、サニタイズ後のテキスト部分にだけ適用する。
+    const sanitized = sanitizeTitleHtml(`${prefix}${post.title}`);
+    const title = sanitized
+      .split(/(<[^>]*>)/)
+      .map((part, i) => (i % 2 === 1 ? part : curlyDoubleQuotes(part)))
+      .join('');
+    const href = escapeAttr(`${siteUrl}/${encodeURIComponent(post.slug)}/`);
     return `<li><a class="wp-block-latest-posts__post-title" href="${href}">${title}</a></li>`;
   });
 

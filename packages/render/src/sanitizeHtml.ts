@@ -118,3 +118,97 @@ export function sanitizeHtml(html: string): string {
   fragment.childNodes = sanitizeChildren(fragment.childNodes ?? []);
   return serialize(fragment as never);
 }
+
+// ---- 題名専用サニタイザ (WordPress の投稿題名 kses 相当) ----
+
+/** 題名で残す要素 (WP の題名 kses 許可リスト) */
+const TITLE_ALLOWED_TAGS = new Set([
+  'a', 'abbr', 'acronym', 'b', 'blockquote', 'cite', 'code', 'del', 'em', 'i', 'q', 'strike', 'strong',
+]);
+
+/** 題名で中身ごと破棄するタグ */
+const TITLE_DROP_WITH_CONTENT = new Set(['script', 'style']);
+
+/** 要素ごとの許可属性 */
+const TITLE_TAG_ATTRS = new Map<string, ReadonlySet<string>>([
+  ['a', new Set(['href', 'title'])],
+  ['abbr', new Set(['title'])],
+  ['acronym', new Set(['title'])],
+  ['blockquote', new Set(['cite'])],
+  ['q', new Set(['cite'])],
+  ['del', new Set(['datetime'])],
+]);
+
+/** URL を取る属性 (href と cite) */
+const TITLE_URL_ATTRS = new Set(['href', 'cite']);
+const TITLE_URL_SCHEMES = new Set(['http', 'https', 'mailto']);
+
+/**
+ * 題名の URL 制約。http/https/mailto と、`/`・`#` 始まりの相対 URL だけを許可する。
+ * プロトコル相対 (`//`・`/\`) は外部ホストへの遷移になるため拒否する。
+ * 制御文字・空白を除いてから判定する(`java\tscript:` 対策)。
+ */
+function isSafeTitleUrl(raw: string): boolean {
+  const cleaned = raw.replace(/[\p{Cc}\s]/gu, '');
+  if (cleaned.startsWith('//') || cleaned.startsWith('/\\')) {
+    return false;
+  }
+  if (cleaned.startsWith('/') || cleaned.startsWith('#')) {
+    return true;
+  }
+  const match = /^([a-z][a-z0-9+.-]*):/i.exec(cleaned);
+  return match?.[1] !== undefined && TITLE_URL_SCHEMES.has(match[1].toLowerCase());
+}
+
+function sanitizeTitleAttrs(tag: string, attrs: Attr[]): Attr[] {
+  const allowed = TITLE_TAG_ATTRS.get(tag);
+  const out: Attr[] = [];
+  for (const attr of attrs) {
+    const name = attr.name.toLowerCase();
+    if (!allowed?.has(name)) {
+      continue;
+    }
+    if (TITLE_URL_ATTRS.has(name) && !isSafeTitleUrl(attr.value)) {
+      continue;
+    }
+    out.push({ name, value: attr.value });
+  }
+  return out;
+}
+
+function sanitizeTitleChildren(children: TreeNode[]): TreeNode[] {
+  const out: TreeNode[] = [];
+  for (const child of children) {
+    if (child.nodeName === '#text') {
+      out.push(child);
+      continue;
+    }
+    if (child.nodeName.startsWith('#')) {
+      // コメント・doctype などは破棄
+      continue;
+    }
+    if (TITLE_DROP_WITH_CONTENT.has(child.nodeName)) {
+      continue;
+    }
+    if (!TITLE_ALLOWED_TAGS.has(child.nodeName)) {
+      // 許可されないタグは外側だけ落として子テキストを残す
+      out.push(...sanitizeTitleChildren(child.childNodes ?? []));
+      continue;
+    }
+    child.attrs = sanitizeTitleAttrs(child.nodeName, child.attrs ?? []);
+    child.childNodes = sanitizeTitleChildren(child.childNodes ?? []);
+    out.push(child);
+  }
+  return out;
+}
+
+/**
+ * 投稿題名の HTML を WP の題名 kses 相当の許可リストでサニタイズする。
+ * 許可タグ以外は外側だけ除去し子テキストは残す(script/style は中身ごと除去)。
+ * 許可属性以外は全て除去し、href/cite は URL 制約を満たすものだけ残す。
+ */
+export function sanitizeTitleHtml(html: string): string {
+  const fragment = parseFragment(html) as unknown as TreeNode;
+  fragment.childNodes = sanitizeTitleChildren(fragment.childNodes ?? []);
+  return serialize(fragment as never);
+}

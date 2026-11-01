@@ -35,8 +35,25 @@ type SiteTitleAttrs = {
   linkTarget: (typeof LINK_TARGETS)[number];
 };
 
+const SITE_TITLE_ALLOWED_ATTRS: ReadonlySet<string> = new Set([
+  'level',
+  'isLink',
+  'linkTarget',
+  'textAlign',
+  'fontSize',
+  'style',
+  'align',
+]);
+
 // attrs を検証し描画用に正規化する。validateAttrs と render の両方から呼ぶ。
 const parseSiteTitleAttrs = (attrs: Obj): SiteTitleAttrs => {
+  // fail-closed: 処理する属性と、テーマ(header/footer パターン)が使う属性以外は拒否する(S8)。
+  // textAlign / fontSize / align / style は受理するが出力には反映しない(報告済みの既知の制限)。
+  for (const key of Object.keys(attrs)) {
+    if (!SITE_TITLE_ALLOWED_ATTRS.has(key)) {
+      throw rangeError(`未対応の属性です: ${key}`);
+    }
+  }
   const rawLevel = attrs.level;
   let level = 1;
   if (rawLevel !== undefined) {

@@ -18,12 +18,24 @@ type TreeNode = {
   value?: string;
 };
 
-/** wptexturize 相当: テキストノード内の単引用符のみを対象とする (属性値・コード系は除外) */
+/** wptexturize 相当: テキストノード内の単引用符と `...` を対象とする (属性値・コード系は除外) */
 const TEXTURIZE_SKIP = new Set(['code', 'pre', 'kbd']);
 
 function convertSingleQuotes(text: string): string {
   // 文頭・空白・開き括弧の直後の ' は開き引用符、それ以外は閉じ引用符/アポストロフィ
   return text.replace(/(^|[\s([{])'/g, '$1‘').replace(/'/g, '’');
+}
+
+/**
+ * `...` を `…` に変換する。左から非重複で置換するため `....` は `….` になる (WP と同じ)。
+ * 1 つのテキストノード内で完結する。
+ */
+function convertEllipsis(text: string): string {
+  return text.replace(/\.\.\./g, '…');
+}
+
+function texturizeTextNode(text: string): string {
+  return convertEllipsis(convertSingleQuotes(text));
 }
 
 export function texturizeText(html: string): string {
@@ -32,7 +44,7 @@ export function texturizeText(html: string): string {
     for (const child of node.childNodes ?? []) {
       if (child.nodeName === '#text') {
         if (!skip && child.value !== undefined) {
-          child.value = convertSingleQuotes(child.value);
+          child.value = texturizeTextNode(child.value);
         }
         continue;
       }

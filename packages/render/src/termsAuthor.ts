@@ -14,7 +14,7 @@ const IMAGE_BLOCK = 'core/post-featured-image';
 
 const TERMS_KEYS = ['term', 'separator', 'className', 'style'] as const;
 const AUTHOR_KEYS = ['isLink'] as const;
-const IMAGE_KEYS = ['aspectRatio'] as const;
+const IMAGE_KEYS = ['aspectRatio', 'style'] as const;
 
 const FONT_WEIGHTS: ReadonlySet<string> = new Set(['100', '200', '300', '400', '500', '600', '700', '800', '900']);
 const ASPECT_RATIO_RE = /^[1-9]\d*\/[1-9]\d*$/;
@@ -197,6 +197,35 @@ export const postAuthorNameRenderer: BlockRenderer = {
 
 // ---- core/post-featured-image ----
 
+// style は spacing.margin.{top,bottom} の preset 参照(var:preset|spacing|<slug>)のみ許可する。
+const SPACING_PRESET_RE = /^var:preset\|spacing\|[a-z0-9-]+$/;
+const IMAGE_MARGIN_KEYS = ['top', 'bottom'] as const;
+
+const parsePostImageStyle = (style: unknown): void => {
+  if (style === undefined) return;
+  if (!isObj(style)) {
+    throw rangeError(IMAGE_BLOCK, 'style はオブジェクトである必要があります');
+  }
+  assertKeys(IMAGE_BLOCK, style, ['spacing']);
+  if (style.spacing === undefined) return;
+  if (!isObj(style.spacing)) {
+    throw rangeError(IMAGE_BLOCK, 'style.spacing はオブジェクトである必要があります');
+  }
+  assertKeys(IMAGE_BLOCK, style.spacing, ['margin']);
+  if (style.spacing.margin === undefined) return;
+  if (!isObj(style.spacing.margin)) {
+    throw rangeError(IMAGE_BLOCK, 'style.spacing.margin はオブジェクトである必要があります');
+  }
+  assertKeys(IMAGE_BLOCK, style.spacing.margin, IMAGE_MARGIN_KEYS);
+  for (const side of IMAGE_MARGIN_KEYS) {
+    const v = style.spacing.margin[side];
+    if (v === undefined) continue;
+    if (typeof v !== 'string' || !SPACING_PRESET_RE.test(v)) {
+      throw rangeError(IMAGE_BLOCK, `style.spacing.margin.${side} は var:preset|spacing|<slug> 形式である必要があります`);
+    }
+  }
+};
+
 const parsePostImageAttrs = (attrs: Obj): void => {
   assertKeys(IMAGE_BLOCK, attrs, IMAGE_KEYS);
   if (attrs.aspectRatio !== undefined) {
@@ -204,6 +233,7 @@ const parsePostImageAttrs = (attrs: Obj): void => {
       throw rangeError(IMAGE_BLOCK, 'aspectRatio は「幅/高さ」の整数表記である必要があります');
     }
   }
+  parsePostImageStyle(attrs.style);
 };
 
 export const postFeaturedImageRenderer: BlockRenderer = {

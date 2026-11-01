@@ -14,3 +14,8 @@
 | PX-008 | post-author-name / featured-image | 著者が解決できない(post_author=0)場合は空、実在する場合は `isLink` のリンク。featured image はサムネイルなしのみ(ありは拒否) | 拒否 | M4 |
 | PX-009 | 描画の空白 | 投稿本文の静的ブロックで、子ブロック間の空白だけが基準と変わり得る。比較は正規化 DOM(`htmlEquals`) | 許容 | 文字列完全一致ではなく DOM 一致を合格基準にしている(docs/07) |
 | PX-010 | group の属性 | 未知の属性(anchor・className・metadata・色など)は黙って捨てずに RangeError。`tagName` は div/main/nav/header/footer/section、`ariaLabel` は nav のみ | 拒否 | 出力に反映できない属性の無言脱落を防ぐ |
+| PX-011 | 題名の HTML | 題名は WP の題名用 kses 許可リスト(a・abbr・acronym・b・blockquote・cite・code・del・em・i・q・strike・strong)で `sanitizeTitleHtml` を通す(latest-posts)。post-title・post-navigation-link の題名はテキストとしてエスケープ(WP は許可タグを要素で出す) | 許容(安全側) | 基準 fixture の latest-posts は `<b>` を要素で出す。post-title 側の許可タグ対応は未実装 |
+| PX-012 | wptexturize | 投稿本文は単引用符と `...`(→`…`)のみ変換。`--`・`(c)`・数字x数字・二重引用符(本文)などは未変換 | 許容(未実装) | 基準の差分が出た時点で追加(page-sample で `...` を確認) |
+| PX-013 | 保護投稿のポート | 保護投稿のポートは分類・著者・隣接・コメント・サムネイル・日付を返さない(UnsupportedDataError / 空の日付)。STEP8 指摘の反映 | 実装方針(ADR-027 の厳格化) | タイトル・URL・クラスだけを露出 |
+| PX-014 | 未知属性 | navigation・site-title・group・各ブロックは未知の属性を RangeError(footer-columns 等の別パターンが使う `style`/`fontSize` を navigation に付けると拒否) | 拒否 | 該当パターンを使うテンプレートの単位で順次対応 |
+

@@ -76,10 +76,27 @@ type NavAttrs = {
   bgColor: string | undefined;
 };
 
+// 許可するトップレベル属性(S8 fail-closed)。ref は専用エラーを先に返すため別扱い。
+const NAV_ALLOWED_ATTRS: ReadonlySet<string> = new Set([
+  'overlayMenu',
+  'layout',
+  'ariaLabel',
+  'overlayTextColor',
+  'overlayBackgroundColor',
+]);
+// 許可する layout のキー(S8 fail-closed)。verticalAlignment などは拒否する。
+const NAV_ALLOWED_LAYOUT_KEYS: ReadonlySet<string> = new Set(['type', 'justifyContent', 'flexWrap', 'orientation']);
+
 // attrs を検証し描画用に正規化する。validateAttrs と render の両方から呼ぶ。
 const parseNavAttrs = (attrs: Obj): NavAttrs => {
   if (attrs.ref !== undefined) {
     throw rangeError(NAV, 'ref は未対応です');
+  }
+  // fail-closed: 許可リスト外のトップレベル属性は黙って無視せず拒否する(S8)
+  for (const key of Object.keys(attrs)) {
+    if (!NAV_ALLOWED_ATTRS.has(key)) {
+      throw rangeError(NAV, `未対応の属性です: ${key}`);
+    }
   }
   const overlayMenu = attrs.overlayMenu;
   if (overlayMenu !== undefined && overlayMenu !== 'never') {
@@ -97,6 +114,11 @@ const parseNavAttrs = (attrs: Obj): NavAttrs => {
   if (layout !== undefined) {
     if (!isObj(layout) || layout.type !== 'flex') {
       throw rangeError(NAV, 'layout.type は flex のみ許可されます');
+    }
+    for (const key of Object.keys(layout)) {
+      if (!NAV_ALLOWED_LAYOUT_KEYS.has(key)) {
+        throw rangeError(NAV, `layout の未対応の属性です: ${key}`);
+      }
     }
     const rawOrientation = layout.orientation;
     if (rawOrientation !== undefined) {
