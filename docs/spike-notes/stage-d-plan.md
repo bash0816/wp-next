@@ -337,7 +337,18 @@ Top-3 (ブロック数基準): skip-link, header, main-02。
 2. **保護項目の秘密漏えい(Blocker)**: 実 DB に識別可能な秘密値(本文 `SECRET-BODY-<uuid>`、パスワード `SECRET-PW-<uuid>`)を入れ、保護項目の `QueryItem`・`PostCtx`・全ポートの戻り値・例外メッセージを `JSON.stringify`(循環・関数は除く)し、秘密値が含まれないことを検査。保護カード内に実際に `post-content` を置いて描画すると RangeError(`contentOf` 不在による)。DTO に `content`/`password` 系プロパティが存在しないことも列挙検査。
 3. **子検証の同一性とカードごと(Major)**: `renderChildren` の負例に『別配列(同内容の複製)を渡す』『2 枚目のカードだけ子を省略する』『最初のカードだけ描画する』を追加。検査は呼び出しごと(カードごと)に、元の全 innerBlocks の同一性(参照)を要求する。空 query(項目 0)は呼ばれなくても成功、項目 1 以上で 1 度も呼ばれなければ拒否。
 4. **レジストリ出自の回避(Major)**: 実際の `post-content` 入口(D-3d)で、(a) テーマ由来レジストリ、(b) 偽造タグ付きの通常 Map、(c) 取得後に `set` で変更を試みたレジストリ(凍結で例外)、(d) 出自タグを後から書き換える試み、(e) 投稿本文内の `wp:post-content` 入れ子と `wp:query` 混入、を拒否。型・共通 dispatch の検査は D-3a、実入口での拒否は D-3d に置く。
-5. **実行表の具体化(Major)**: 各単位で次のコマンドを実行し、結果を貼る。`pnpm --filter @wpn/render exec vitest run <file>`、db は `pnpm --filter @wpn/db exec vitest run <file>`。D-3z1=`src/groupBlock.test.ts`、D-3z2/z3=`src/templateResolve.test.ts`、D-3a=`src/{ports,registryOrigin,postTitleDate}.test.ts`、D-3b=db の `queryPosts.test.ts` と render の `queryBlock.test.ts`、D-3c=`src/termsAuthor.test.ts`、D-3d0=`src/{renderContent,postRegistry}.test.ts`、D-3d=`src/postContent.test.ts`、D-3e=render の `postNavigation.test.ts` と db の `adjacent.test.ts`、D-3f=`src/comments.test.ts` と db の `commentsState.test.ts`、D-3g=`src/mainCompose.test.ts`。型テストは `pnpm typecheck`(`@ts-expect-error` が未使用警告にならない=実際に型エラーが出ていることを確認)、`node tools/lint/check.mjs` も必ず実行。Red の報告は、(i)収集失敗〔モジュール未存在〕、(ii)スタブ導入後に assertion 単位で Red、(iii)元から Green の検査〔回帰・比較器負例・型テスト〕の 3 区分に分けて書き、(iii) を機能不足の Red として数えない。
+5. **実行表の具体化(Major)**(波括弧展開は使わず各ファイルを明示する。render は `pnpm --filter @wpn/render exec vitest run <file>`、db は `pnpm --filter @wpn/db exec vitest run <file>`):
+   - D-3z1: render `src/groupBlock.test.ts`
+   - D-3z2/z3: render `src/templateResolve.test.ts`
+   - D-3a: render `src/ports.test.ts`、`src/registryOrigin.test.ts`、`src/postTitleDate.test.ts`
+   - D-3b: db `src/openCurrentPost.test.ts`(認可。D-3b の前提として最初に実行)、db `src/queryPosts.test.ts`、render `src/queryBlock.test.ts`
+   - D-3c: render `src/termsAuthor.test.ts`
+   - D-3d0: render `src/renderContent.test.ts`、`src/postRegistry.test.ts`
+   - D-3d: render `src/postContent.test.ts`
+   - D-3e: db `src/adjacent.test.ts`、render `src/postNavigation.test.ts`
+   - D-3f: db `src/commentsState.test.ts`、render `src/comments.test.ts`
+   - D-3g: render `src/mainCompose.test.ts`
+   - 毎単位: `pnpm typecheck`(終了コード。型テストの `@ts-expect-error` が未使用警告にならない=実際に型エラーが出ていることを確認)と `node tools/lint/check.mjs`、および両パッケージ全体の vitest。Red の報告は、(i)収集失敗〔モジュール未存在〕、(ii)スタブ導入後に assertion 単位で Red、(iii)元から Green の検査〔回帰・比較器負例・型テスト〕の 3 区分に分けて書き、(iii) を機能不足の Red として数えない。
 6. **D-3b の page と全体拒否の区別(Major)**: (a) SQL が `post_type='post'` のみを選ぶので、混在 DB の page は結果に出ない(除外ケース)。(b) 選択済みの post 項目に未対応データ(sticky、サムネイル、他 taxonomy の term、format が standard/aside 以外)があると、`UnsupportedDataError` でクエリ全体を拒否(別ケース)。page は (b) の対象にしない。
 7. **mutation の実施・判定(Major)**: 各 mutation について、(1)変更が成立したことを `cmp` で確認、(2)対象テストを実行し、失敗した test_id と assertion を記録、(3)生存は『等価変更』か『テスト補強』を理由付きで判断。必須の対象: ポート束縛(別投稿のポートを渡す)、本文漏えい(DTO に content を足す)、レジストリ出自の検査削除、子検証の同一性判定、文脈復元(上書きを外側へ残す)、保護の日付抑止、保護の SQL 条件、`openCurrentPost` の status/password/type 条件。
 8. **fixture の由来(Minor)**: set-main2 の README に再現入力(DB 追加分)を追記済み。期待 DOM は fixture から抽出し、テストの DB は README の入力から組み立てる。期待をテスト内で手書きしない。

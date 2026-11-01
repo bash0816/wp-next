@@ -7,6 +7,6 @@
 
 ## 再現入力(テストが DB を組み立てる際の根拠。基準 DB〔dump.sql〕への追加分)
 - mixed-status-protected-adjacent: 投稿 ID 22 `M-prot`(publish、`post_password` 非空、2026-10-27 23:27:00、slug m-prot)、ID 23 `m-draft`(draft、23:26:15)、ID 24 `m-priv`(private、23:26:20)、ID 25 `m-fut`(post_status を future に変更、23:26:25)。すべて post、カテゴリ Uncategorized。現在投稿は ID 5。
-- classes-tiebreak-format-tag: 上の 22〜25 は含めない(別取得)。ID 26 `tieA1`・27 `tieA2`(publish、同じ 2026-10-27 23:40:00)、カテゴリ Zeta(term 2)・Alpha(term 3)、ID 28 `classC1`(2026-10-28 01:00:00、カテゴリ Zeta と Alpha)、ID 29 `classC2`(02:00:00、タグ `t-one`〔slug t-one〕、format aside)。現在投稿は ID 5。
+- classes-tiebreak-format-tag: 上の 22〜25 は含めない(別取得)。カテゴリ Zeta(term 2)・Alpha(term 3)を新規作成。ID 26 `tieA1`・27 `tieA2`(publish、同じ 2026-10-27 23:40:00、カテゴリは既定の Uncategorized)、ID 28 `classC1`(2026-10-28 01:00:00、カテゴリ Zeta と Alpha)、ID 29 `classC2`(02:00:00、タグ `t-one`〔slug t-one〕、format aside)。現在投稿は ID 5。
 - author-real: 投稿 ID 5 の `post_author` を 1(admin、nicename admin)に変更。
 - comment-approved-hello-world: dump のまま。現在投稿は ID 1(承認済みコメント 1 件)。
