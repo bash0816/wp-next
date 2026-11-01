@@ -6,7 +6,8 @@ import { type ParsedBlock, UnsupportedBlockError } from './renderBlocks.js';
 // site / page を必要とするレンダラは、無いときに fail-closed で RangeError を投げる。
 export type RenderCtx = {
   global: GlobalConfig;
-  renderState: { modalCounter: number };
+  // navNameCounts は core/navigation の aria-label 採番(名前ごとの出現回数)。遅延初期化する。
+  renderState: { modalCounter: number; navNameCounts?: Map<string, number> };
   // D-2a の core/site-tagline / core/site-logo 用。tagline / logoId が undefined のときは
   // 各レンダラが fail-closed で RangeError を投げる(§8.2)。'' と null は未設定として空出力。
   site?: { name: string; url: string; tagline?: string; logoId?: number | null };

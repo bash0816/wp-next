@@ -68,6 +68,9 @@ const colorSlug = (value: unknown, key: string): string | undefined => {
 };
 
 type NavAttrs = {
+  overlayMenu: 'never' | undefined;
+  orientation: 'horizontal' | 'vertical' | undefined;
+  ariaLabel: string | undefined;
   justify: Justify;
   textColor: string | undefined;
   bgColor: string | undefined;
@@ -78,14 +81,33 @@ const parseNavAttrs = (attrs: Obj): NavAttrs => {
   if (attrs.ref !== undefined) {
     throw rangeError(NAV, 'ref は未対応です');
   }
+  const overlayMenu = attrs.overlayMenu;
+  if (overlayMenu !== undefined && overlayMenu !== 'never') {
+    throw rangeError(NAV, 'overlayMenu は never のみ許可されます');
+  }
+  const ariaLabel = attrs.ariaLabel;
+  if (ariaLabel !== undefined && typeof ariaLabel !== 'string') {
+    throw rangeError(NAV, 'ariaLabel は文字列である必要があります');
+  }
   let justify: Justify = 'left';
+  let orientation: NavAttrs['orientation'] = undefined;
+  let hasJustify = false;
+  let hasWrap = false;
   const layout = attrs.layout;
   if (layout !== undefined) {
     if (!isObj(layout) || layout.type !== 'flex') {
       throw rangeError(NAV, 'layout.type は flex のみ許可されます');
     }
+    const rawOrientation = layout.orientation;
+    if (rawOrientation !== undefined) {
+      if (rawOrientation !== 'horizontal' && rawOrientation !== 'vertical') {
+        throw rangeError(NAV, 'layout.orientation は horizontal/vertical のみ許可されます');
+      }
+      orientation = rawOrientation;
+    }
     const rawJustify = layout.justifyContent;
     if (rawJustify !== undefined) {
+      hasJustify = true;
       if (typeof rawJustify !== 'string' || !(JUSTIFY_VALUES as readonly string[]).includes(rawJustify)) {
         throw rangeError(NAV, 'layout.justifyContent は left/right/center/space-between のみ許可されます');
       }
@@ -93,21 +115,34 @@ const parseNavAttrs = (attrs: Obj): NavAttrs => {
     }
     const rawWrap = layout.flexWrap;
     if (rawWrap !== undefined) {
+      hasWrap = true;
       if (typeof rawWrap !== 'string' || !(FLEX_WRAP_VALUES as readonly string[]).includes(rawWrap)) {
         throw rangeError(NAV, 'layout.flexWrap は wrap/nowrap のみ許可されます');
       }
     }
   }
-  return {
-    justify,
-    textColor: colorSlug(attrs.overlayTextColor, 'overlayTextColor'),
-    bgColor: colorSlug(attrs.overlayBackgroundColor, 'overlayBackgroundColor'),
-  };
+  const textColor = colorSlug(attrs.overlayTextColor, 'overlayTextColor');
+  const bgColor = colorSlug(attrs.overlayBackgroundColor, 'overlayBackgroundColor');
+  // overlayMenu: never の非レスポンシブ経路は、これらの属性を解釈しないため拒否する(fail-closed)。
+  if (
+    overlayMenu === 'never' &&
+    (hasJustify || hasWrap || attrs.overlayTextColor !== undefined || attrs.overlayBackgroundColor !== undefined)
+  ) {
+    throw rangeError(
+      NAV,
+      'overlayMenu: never では justifyContent / flexWrap / overlayTextColor / overlayBackgroundColor は未対応です',
+    );
+  }
+  return { overlayMenu, orientation, ariaLabel, justify, textColor, bgColor };
 };
 
 // navigation-link の url。http(s) の絶対 URL か '/' 始まりのパスのみ許可する。
 // '//host' と '/\host' は絶対 URL 扱いになるため拒否する。
 const assertLinkUrl = (url: string): string => {
+  // '#' 単独と '#アンカー'(英数字・'_'・'-' のみ)を許可する。
+  if (url === '#' || /^#[A-Za-z0-9_-]+$/.test(url)) {
+    return url;
+  }
   if (url.startsWith('/')) {
     if (url.startsWith('//') || url.startsWith('/\\')) {
       throw rangeError(NAV_LINK, 'url の先頭 "//" や "/\\" は許可されません');
@@ -139,7 +174,12 @@ const parseLinkAttrs = (attrs: Obj): LinkAttrs => {
   if (typeof attrs.url !== 'string') {
     throw rangeError(NAV_LINK, 'url は文字列である必要があります');
   }
-  return { label: rawLabel ?? '', url: assertLinkUrl(attrs.url) };
+  const label = rawLabel ?? '';
+  // label は文字・数字・空白・'.'・'_'・'-' のみ許可する(空文字は許可)。
+  if (!/^[\p{L}\p{N} ._-]*$/u.test(label)) {
+    throw rangeError(NAV_LINK, 'label は文字・数字・空白・"." "_" "-" のみ許可されます');
+  }
+  return { label, url: assertLinkUrl(attrs.url) };
 };
 
 const navigationLinkRenderer: BlockRenderer = {
@@ -196,6 +236,37 @@ const CONTEXT_JSON = JSON.stringify({
   ariaLabel: 'Menu',
 });
 
+// aria-label の採番。同名の nav が複数あると 2 回目以降に " N"(N は出現回数)を付ける。
+// 結果が空文字の場合は属性を出さない。戻り値は nav の class 属性の直後に挿入する文字列。
+const ariaAttr = (ariaLabel: string | undefined, ctx: RenderCtx): string => {
+  const name = ariaLabel ?? '';
+  ctx.renderState.navNameCounts ??= new Map<string, number>();
+  const counts = ctx.renderState.navNameCounts;
+  const count = (counts.get(name) ?? 0) + 1;
+  counts.set(name, count);
+  const label = count > 1 ? `${name} ${count}` : name;
+  return label === '' ? '' : ` aria-label="${escapeAttr(label)}"`;
+};
+
+// overlayMenu: never の非レスポンシブ経路。投稿本文は解析せず、innerBlocks を描画する。
+// modalCounter は消費しない。
+const renderNever = (
+  block: ParsedBlock,
+  ctx: RenderCtx,
+  renderChildren: (blocks: ParsedBlock[]) => string,
+  attrs: Obj,
+  parsed: NavAttrs,
+): string => {
+  const hash = containerClassName(NAV, layoutHashInput({ name: NAV, attrs }, ctx.global));
+  const v = parsed.orientation === 'vertical' ? 'is-vertical ' : '';
+  const aria = ariaAttr(parsed.ariaLabel, ctx);
+  const children = renderChildren(block.innerBlocks);
+  return (
+    `<nav class="${v}wp-block-navigation is-layout-flex ${hash} wp-block-navigation-is-layout-flex"${aria}>` +
+    `<ul class="wp-block-navigation__container ${v}wp-block-navigation">${children}</ul></nav>`
+  );
+};
+
 const navigationRenderer: BlockRenderer = {
   validateAttrs: (attrs) => {
     parseNavAttrs(attrs);
@@ -203,6 +274,14 @@ const navigationRenderer: BlockRenderer = {
   render: (block: ParsedBlock, ctx: RenderCtx, renderChildren) => {
     const attrs: Obj = block.attrs ?? {};
     const parsed = parseNavAttrs(attrs);
+
+    if (parsed.overlayMenu === 'never') {
+      return renderNever(block, ctx, renderChildren, attrs, parsed);
+    }
+    // レスポンシブ経路は子を投稿本文から解析する。innerBlocks の持ち込みは解釈せず拒否する。
+    if (block.innerBlocks.length > 0) {
+      throw rangeError(NAV, 'レスポンシブ経路では innerBlocks は未対応です');
+    }
 
     // fail-closed: 文脈に navigation 投稿が無い、または投稿が null の場合は描画しない。
     if (ctx.navigation === undefined) {
@@ -218,14 +297,15 @@ const navigationRenderer: BlockRenderer = {
     const textCls = parsed.textColor === undefined ? '' : ` has-text-color has-${parsed.textColor}-color`;
     const bgCls = parsed.bgColor === undefined ? '' : ` has-background has-${parsed.bgColor}-background-color`;
 
-    // 子要素(メニュー項目)は投稿本文を解析して描画する。
+    // 子要素(メニュー項目)は投稿本文を解析して描画する。aria-label の採番は子の描画より前に行う。
+    const aria = ariaAttr(parsed.ariaLabel, ctx);
     const children = renderChildren(parse(post.content) as unknown as ParsedBlock[]);
 
     ctx.renderState.modalCounter += 1;
     const n = ctx.renderState.modalCounter;
 
     return (
-      `<nav class="is-responsive items-justified-${j} wp-block-navigation is-content-justification-${j} is-layout-flex ${hash} wp-block-navigation-is-layout-flex" ` +
+      `<nav class="is-responsive items-justified-${j} wp-block-navigation is-content-justification-${j} is-layout-flex ${hash} wp-block-navigation-is-layout-flex"${aria} ` +
       `data-wp-interactive="core/navigation" data-wp-context="${escapeAttr(CONTEXT_JSON)}">` +
       `<button aria-haspopup="dialog" aria-label="Open menu" class="wp-block-navigation__responsive-container-open" data-wp-on--click="actions.openMenuOnClick" data-wp-on--keydown="actions.handleMenuKeydown">` +
       `<svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7.5h16v1.5H4z"></path><path d="M4 15h16v1.5H4z"></path></svg></button>` +
